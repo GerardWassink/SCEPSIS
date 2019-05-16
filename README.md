@@ -73,7 +73,7 @@ Now that all Control Signals have been defined we can think of ways to combine t
 
 ### An example
 
-As an example we will describe a simple instruction that will get the value that has been input by the user and put it in register A and in memory location 42. We call this instruction I2M (Input to Memory). This instruction would read:
+As an example we will describe a simple instruction that will get the value that has been input by the user and put it memory location 42. We call this instruction I2M (Input to Memory). This instruction would read:
 
 	I2M 42
 
