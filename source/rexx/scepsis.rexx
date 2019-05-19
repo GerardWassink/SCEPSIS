@@ -17,12 +17,12 @@ Main:
 		choice = mainMenu(errorMsg)
 		errorMsg = ""
 		Select
-			When choice == "1" Then	Call listHardware
-			When choice == "2" Then	Call listComponents
-			When choice == "3" Then	Call listControlSignals
+			When choice == "LH" Then	Call listHardware
+			When choice == "LC" Then	Call listComponents
+			When choice == "LS" Then	Call listControlSignals
+			When choice == "LM" Then	Call listMemory
 			
-			When choice == "A" Then	Call listMemory
-			When choice == "B" Then	Do
+			When choice == "IM" Then	Do
 				Call initMemory
 				errorMsg = "Memory initialized"
 			End
@@ -30,7 +30,7 @@ Main:
 			When choice == "X" Then	Leave
 
 			Otherwise
-				errorMsg = "ERROR: Invalid choice: " || choice
+				errorMsg = "Invalid choice: " || choice
 
 		End
 	End
@@ -120,7 +120,6 @@ Return
 initMemory:
 	Procedure Expose ramSize RAM.
 	/* ----- Memory ----- */
-	ramSize = 256
 	Do p = 0 to (ramSize - 1)
 		RAM.p = 0
 	End
@@ -150,14 +149,17 @@ mainMenu:
 	
 	Call screenHeader
 
-	Say "1. List hardware            A. List memory"
-	Say "2. List components          B. Init Memory"
-	Say "3. List Control Signals"
+	Say "LH - List hardware            IM - Init Memory"
+	Say "LC - List components"
+	Say "LS - List Control Signals"
+	Say "LM - List memory"
 	Say ""
 	Say "X. End program"
 	Say ""
-	Say "----- " || message
-	Say ""
+	If Strip(message) <> "" Then Do
+		Say "ERROR" message
+		Say ""
+	End
 	Say "Your choice please:"
 	choice = Upper(linein())
 Return choice
@@ -186,11 +188,12 @@ listMemory:
 	Do p = 0 to ramSize - 1
 		If p > 0 Then Do
 			Select
-				When ((p // 16) == 0) Then Do
+				When ((p // 32) == 0) Then Do
 					say line 
 					line = Right("0000"||d2x(p),4) || " : "
 				End
-				When ((p //  8) == 0) Then line = line || " - "
+				When ((p // 16) == 0) Then line = line || "  -  "
+				When ((p //  8) == 0) Then line = line || "  "
 				When ((p //  4) == 0) Then line = line || " "
 				Otherwise Nop
 			End
