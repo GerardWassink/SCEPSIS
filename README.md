@@ -43,6 +43,7 @@ Further down, inside the CPU we have components as well:
 - **PCT** - Program CounTer
 - **RGA** - ReGister A
 - **RGB** - ReGister B
+- **STC** - STep Counter for microcode steps
 
 
 ## Control signals that are needed for these components
