@@ -76,19 +76,12 @@ mainMenu:
 	Call Display  7  3 color.brightwhite "LS"
 	Call Display  7  6 color.brightcyan  "List Control Signals"
 
-	Call Display  8  3 color.brightwhite "LM"
-	Call Display  8  6 color.brightcyan  "List memory"
+	Call Display  9  3 color.brightwhite "CP"
+	Call Display  9  6 color.brightcyan  "Control Panel"
+
 
 	Call Display 18  3 color.brightwhite "X"
 	Call Display 18  6 color.brightcyan  "End program"
-
-
-	Call Display  5 60 color.brightwhite "CP"
-	Call Display  5 63 color.brightcyan  "Control Panel"
-
-
-	Call Display  5 32 color.brightwhite "IM"
-	Call Display  5 35 color.brightcyan  "Init Memory"
 
 	
 	If Strip(message) <> "" Then Do
@@ -162,6 +155,15 @@ controlPanel:
 				End
 			End
 			
+			When command == "LM" Then	Do
+				Call listMemory
+			End
+			
+			When choice == "IM" Then	Do
+				Call initMemory
+				errorMsg = "Memory initialized"
+			End
+			
 			When choice == "X" Then	Do
 				choice = ""
 				Leave
@@ -230,59 +232,66 @@ controlPanelDisplay:
 	Call Display 12  3 color.brightwhite "STC"
 	Call Display 12  8 color.brightcyan  Right("00"||D2X(comp_STC),2)
 
-	Call Display  7  3 color.brightwhite "PCT"
-	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
 
 
-	Call Display  5 43 color.brightwhite "Control Signals ---------"
+	Call Display  5 33 color.brightwhite "Control Signals"
 
-	Call Display  7 43 color.brightwhite "CE"
-	Call Display  7 48 color.brightcyan  cs_CE
+	Call Display  7 33 color.brightwhite "CE"
+	Call Display  7 38 color.brightcyan  cs_CE
 
-	Call Display  7 52 color.brightwhite "HLT"
-	Call Display  7 57 color.brightcyan  cs_HLT
+	Call Display  7 42 color.brightwhite "HLT"
+	Call Display  7 47 color.brightcyan  cs_HLT
 
-	Call Display  8 43 color.brightwhite "INPO"
-	Call Display  8 48 color.brightcyan  cs_INPO
+	Call Display  8 33 color.brightwhite "INPO"
+	Call Display  8 38 color.brightcyan  cs_INPO
 	
-	Call Display  8 52 color.brightwhite "OUTI"
-	Call Display  8 57 color.brightcyan  cs_OUTI
+	Call Display  8 42 color.brightwhite "OUTI"
+	Call Display  8 47 color.brightcyan  cs_OUTI
 
-	Call Display  9 43 color.brightwhite "INRI"
-	Call Display  9 48 color.brightcyan  cs_INRI
+	Call Display  9 33 color.brightwhite "INRI"
+	Call Display  9 38 color.brightcyan  cs_INRI
 
-	Call Display  9 52 color.brightwhite "INRO"
-	Call Display  9 57 color.brightcyan  cs_INRO
+	Call Display  9 42 color.brightwhite "INRO"
+	Call Display  9 47 color.brightcyan  cs_INRO
 
-	Call Display 10 43 color.brightwhite "MARI"
-	Call Display 10 48 color.brightcyan  cs_MARI
+	Call Display 10 33 color.brightwhite "MARI"
+	Call Display 10 38 color.brightcyan  cs_MARI
 
-	Call Display 10 52 color.brightwhite "MARO"
-	Call Display 10 57 color.brightcyan  cs_MARO
+	Call Display 10 42 color.brightwhite "MARO"
+	Call Display 10 47 color.brightcyan  cs_MARO
 
-	Call Display 11 43 color.brightwhite "PCTI"
-	Call Display 11 48 color.brightcyan  cs_PCTI
+	Call Display 11 33 color.brightwhite "PCTI"
+	Call Display 11 38 color.brightcyan  cs_PCTI
 
-	Call Display 11 52 color.brightwhite "PCTO"
-	Call Display 11 57 color.brightcyan  cs_PCTO
+	Call Display 11 42 color.brightwhite "PCTO"
+	Call Display 11 47 color.brightcyan  cs_PCTO
 
-	Call Display 12 43 color.brightwhite "RAMI"
-	Call Display 12 48 color.brightcyan  cs_RAMI
+	Call Display 12 33 color.brightwhite "RAMI"
+	Call Display 12 38 color.brightcyan  cs_RAMI
 
-	Call Display 12 52 color.brightwhite "RAMO"
-	Call Display 12 57 color.brightcyan  cs_RAMO
+	Call Display 12 42 color.brightwhite "RAMO"
+	Call Display 12 47 color.brightcyan  cs_RAMO
 
-	Call Display 13 43 color.brightwhite "RGAI"
-	Call Display 13 48 color.brightcyan  cs_RGAI
+	Call Display 13 33 color.brightwhite "RGAI"
+	Call Display 13 38 color.brightcyan  cs_RGAI
 
-	Call Display 13 52 color.brightwhite "RGAO"
-	Call Display 13 57 color.brightcyan  cs_RGAO
+	Call Display 13 42 color.brightwhite "RGAO"
+	Call Display 13 47 color.brightcyan  cs_RGAO
 
-	Call Display 14 43 color.brightwhite "RGBI"
-	Call Display 14 48 color.brightcyan  cs_RGBI
+	Call Display 14 33 color.brightwhite "RGBI"
+	Call Display 14 38 color.brightcyan  cs_RGBI
 
-	Call Display 14 52 color.brightwhite "RGBO"
-	Call Display 14 57 color.brightcyan  cs_RGBO
+	Call Display 14 42 color.brightwhite "RGBO"
+	Call Display 14 47 color.brightcyan  cs_RGBO
+
+
+	Call Display  5 53 color.brightwhite "Commands ------"
+
+	Call Display  7 53 color.brightwhite "IM"
+	Call Display  7 56 color.brightcyan  "Initialize Memory"
+
+	Call Display  8 53 color.brightwhite "LM"
+	Call Display  8 56 color.brightcyan  "List Memory"
 
 
 	Call Display 18  3 color.brightwhite "X"
