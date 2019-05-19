@@ -28,8 +28,10 @@ Main:
 			End
 
 			When choice == "X" Then	Leave
+
 			Otherwise
 				errorMsg = "ERROR: Invalid choice: " || choice
+
 		End
 	End
 	Call endProgram
@@ -39,19 +41,11 @@ Exit
 /* ----- Initialisation of global variables ------------------ Initialize --- */
 /* -------------------------------------------------------------------------- */
 Initialize:
-	Say "Initalizing:"
-	Say
-
-	/* ----- Memory ----- */
-	ramSize = 256
-	Do p = 0 to (ramSize - 1)
-		RAM.p = p
-	End
-
 	/* ----- Available Control Signals ----- */
 	ctlSig.0 = 0
 	
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
+	Call addCtlSig("HLT HALT the processor")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
 	Call addCtlSig("INRO Set the instruction register to output, put its on the DAB")
@@ -70,17 +64,53 @@ Initialize:
 	/* ----- Set default values for program parameters ----- */
 	microCodeSteps	= 8					/* Max number of micro code steps */
 	memorySize		= 256				/* Size of memory in bytes*/
-	configFile		= "scepsis.conf"	/* File containing the engine parameters */
-	langDefFile		= "scepsis.langdef"	/* File containing the instruction definitions */
+	configFile		= "../config/scepsis.conf"		/* File containing the engine parameters */
+	langDefFile		= "../config/scepsis.langdef"	/* File containing the instruction definitions */
 	
 	/* ----- Read configuration files ----- */
-	If Open('configFile', configFile, 'R') Then Do
+	If Open(configFile, 'R') Then Do
+		Call processConfigFile
 	End; Else Do
 		Say "Error opening file" configFile
 		Exit 8
 	End
-	
 
+	/* ----- Memory ----- */
+	ramSize = memorySize
+	Do p = 0 to (ramSize - 1)
+		RAM.p = p
+	End
+
+Return
+
+/* -------------------------------------------------------------------------- */
+/* ----- Read configuration file and process value ---- processConfigFile --- */
+/* -------------------------------------------------------------------------- */
+processConfigFile:
+	lnum = 0
+	Do While Lines(configFile)
+		line = Linein(configFile)
+		lnum = lnum + 1
+		Select
+			When ( Substr(line,1,1) == "#") Then Nop
+			When ( Strip(line) == "") Then Nop
+			Otherwise Do
+				Parse Var line keyword "=" rest
+				Parse Var rest value "#" comment
+				keyword = Strip(keyword)
+				value = Strip(value)
+				Select
+					When keyword = "microCodeSteps"		Then microCodeSteps = value
+					When keyword = "memorySize"			Then memorySize = value
+					When keyword = "langDefFile"		Then langDefFile = value
+					Otherwise Do
+						Say "Invalid keyword" keyword "in cofig file line" lnum 
+						Exit 8
+					End
+				End
+			End
+		End
+	End
 Return
 
 
