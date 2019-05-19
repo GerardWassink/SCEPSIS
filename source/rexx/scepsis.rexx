@@ -66,6 +66,20 @@ Initialize:
 	Call addCtlSig("RGAO Set RGA to output, put its value out to the DAB")
 	Call addCtlSig("RGBI Set RGB to input, accept a value from the DAB")
 	Call addCtlSig("RGBO Set RGB to output, put its value out to the DAB")
+	
+	/* ----- Set default values for program parameters ----- */
+	microCodeSteps	= 8					/* Max number of micro code steps */
+	memorySize		= 256				/* Size of memory in bytes*/
+	configFile		= "scepsis.conf"	/* File containing the engine parameters */
+	langDefFile		= "scepsis.langdef"	/* File containing the instruction definitions */
+	
+	/* ----- Read configuration files ----- */
+	If Open('configFile', configFile, 'R') Then Do
+	End; Else Do
+		Say "Error opening file" configFile
+		Exit 8
+	End
+	
 
 Return
 
