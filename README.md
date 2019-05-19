@@ -50,6 +50,7 @@ Further down, inside the CPU we have components as well:
 Every component in a CPU has functions, al of which can be controlled by control signals; all these control signals together form the 'control bus'. Bus is a fancy way in computer tech speak to indicate a number of signals combined in one 'bundle of wires'. [For an example of control signals look here](https://geronimo370.nl/wp-content/uploads/2019/05/Microcode_control_signals.pdf "Example of Control Signals").
 
 - **CE** - Counter Enable, the program counter advances to the next instruction
+- **HLT** - stop (or HALT) the processor
 - **INPO** - Set the input register to output, put its on the DAB
 - **INRI** - Set the instruction register to input, to take a value from the DAB
 - **INRO** - Set the instruction register to output, put its on the DAB
