@@ -56,9 +56,9 @@ Every component in a CPU has functions, al of which can be controlled by control
 - **INRO** - Set the instruction register to output, put its on the DAB
 - **MARI** - Set the MAR to input, accept an address from the DAB
 - **MARO** - Set the MAR to output, put it out to the DAB
+- **OUTI** - Set the output register to input, getting a value from the DAB
 - **PCTI** - Set the Program Counter to input, getting a value from the DAB
 - **PCTO** - Set the Program Counter to output, put it's value to the DAB
-- **OUTI** - Set the output register to input, getting a value from the DAB
 - **RAMI** - Set memory, pointed to by MAR to input, getting the value from the DAB
 - **RAMO** - Set memory, pointed to by MAR to output, put value on the DAB
 - **RGAI** - Set RGA to input, accept a value from the DAB
