@@ -24,6 +24,9 @@
 
 
 
+/* -------------------------------------------------------------------------- */
+/* ----- Processing the main screen -------------------------------- main --- */
+/* -------------------------------------------------------------------------- */
 Main:
 	Call Initialize
 
@@ -525,7 +528,12 @@ Initialize:
 		Say "Error opening file" configFile
 		Exit 8
 	End
-
+	
+	If (memorySize > 256) Then Do
+		Say "MemorySize specified in config file too large, maximum is 256 byes)"
+		Exit 8
+	End
+	
 	/* ----- Memory ----- */
 	ramSize = memorySize
 	Do p = 0 to (ramSize - 1)
