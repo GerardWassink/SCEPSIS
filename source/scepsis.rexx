@@ -25,7 +25,7 @@
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Processing the main screen -------------------------------- main --- */
+/* ----- Control the machine functions --------------------- controlPanel --- */
 /* -------------------------------------------------------------------------- */
 Main:
 	Call Initialize
@@ -33,77 +33,6 @@ Main:
 	choice = ""
 	errorMsg = ""
 	Do Until choice = "X"
-		choice = mainMenu(errorMsg)
-		errorMsg = ""
-		Select
-			When choice == "LH" Then	Call listHardware
-			When choice == "LC" Then	Call listComponents
-			When choice == "LS" Then	Call listControlSignals
-			When choice == "LM" Then	Call listMemory
-			
-			When choice == "IM" Then	Do
-				Call initMemory
-				errorMsg = "Memory initialized"
-			End
-			
-			When choice == "CP" Then	Call controlPanel
-			
-			When choice == "X" Then	Leave
-
-			Otherwise
-				errorMsg = "Invalid choice: " || choice
-			
-		End
-	End
-	Call endProgram
-Exit
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Show main Menu and return choice ---------------------- mainMenu --- */
-/* -------------------------------------------------------------------------- */
-mainMenu:
-	Parse Arg message
-	
-	Call screenHeader
-
-	Call Display  2 1 color.brightwhite "===> "
-	Call Display  2 6 color.brightred "___________________________________________________________________________"
-
-	Call Display  5  3 color.brightwhite "LH"
-	Call Display  5  6 color.brightcyan  "List hardware"
-
-	Call Display  6  3 color.brightwhite "LC"
-	Call Display  6  6 color.brightcyan  "List components"
-
-	Call Display  7  3 color.brightwhite "LS"
-	Call Display  7  6 color.brightcyan  "List Control Signals"
-
-	Call Display  9  3 color.brightwhite "CP"
-	Call Display  9  6 color.brightcyan  "Control Panel"
-
-
-	Call Display 18  3 color.brightwhite "X"
-	Call Display 18  6 color.brightcyan  "End program"
-
-	
-	If Strip(message) <> "" Then Do
-		Call Display 21 1 color.brightwhite message
-	End
-	
-	Call Display  2 6 color.brightwhite
-	
-	choice = Upper(linein())
-Return choice
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Control the machine functions --------------------- controlPanel --- */
-/* -------------------------------------------------------------------------- */
-controlPanel:
-	choice = ""
-	errorMsg = ""
-	Do Until choice = "M"
 		choice = Upper(strip(controlPanelDisplay(errorMsg)))
 		Parse Var choice command value
 		errorMsg = ""
@@ -112,10 +41,12 @@ controlPanel:
 				If isHex(value) Then comp_PCT = x2d(value)
 				Else errorMsg = "Value for PCT not HEXa-decimal"
 			End
+			
 			When command == "MAR" Then	Do
 				If isHex(value) Then comp_MAR = x2d(value)
 				Else errorMsg = "Value for MAR not HEXa-decimal"
 			End
+			
 			When command == "INR" Then	Do
 				If isHex(value) Then comp_INR = x2d(value)
 				Else errorMsg = "Value for INR not HEXa-decimal"
@@ -134,13 +65,27 @@ controlPanel:
 				If isHex(value) Then comp_REGA = x2d(value)
 				Else errorMsg = "Value for REGA not HEXa-decimal"
 			End
+			
 			When command == "REGB" Then	Do
 				If isHex(value) Then comp_REGB = x2d(value)
 				Else errorMsg = "Value for REGB not HEXa-decimal"
 			End
+			
 			When command == "STC" Then	Do
 				If isHex(value) Then comp_STC = x2d(value)
 				Else errorMsg = "Value for STC not HEXa-decimal"
+			End
+			
+			When Wordpos(command, ctlSignals) > 0 Then Do
+				If isBin(value) Then Do
+					If (value == 0 | value == 1) Then Do
+						Interpret "cs_" || command "=" value
+					End; Else Do
+						errorMsg = "Value for " || command || " not a binary digit"
+					End
+				End; Else Do 
+					errorMsg = "Value for " || command || " not binary"
+				End
 			End
 			
 			When command == "MEM" Then	Do
@@ -166,33 +111,29 @@ controlPanel:
 				Call initMemory
 				errorMsg = "Memory initialized"
 			End
+
+			When choice == "LH" Then	Call listHardware
+
+			When choice == "LC" Then	Call listComponents
+
+			When choice == "LS" Then	Call listControlSignals
 			
 			When choice == "X" Then	Do
 				choice = ""
 				Leave
 			End
 
-			Otherwise
-				errorMsg = "Invalid choice: " || choice
+			Otherwise Do
+				errorMsg = "Invalid choice: " || choice 
+			End
 			
 		End
 	End
-Return
 
+	Call endProgram
 
-/* -------------------------------------------------------------------------- */
-/* ----- Check whether a vlue is hex or not -------------------- checkHex --- */
-/* -------------------------------------------------------------------------- */
-isHex:
-	Parse Arg possibleHex
-	rval = 1
-	Do h = 1 to Length(possibleHex)
-		If Index("0123456789ABCDEF", Substr(possibleHex,h,1)) == 0 Then Do
-			rval = 0
-			Leave
-		End
-	End
-Return rval
+Exit
+
 
 
 /* -------------------------------------------------------------------------- */
@@ -296,9 +237,22 @@ controlPanelDisplay:
 	Call Display  8 53 color.brightwhite "LM"
 	Call Display  8 56 color.brightcyan  "List Memory"
 
+	Call Display 10 53 color.brightwhite "LH"
+	Call Display 10 56 color.brightcyan  "List hardware"
+
+	Call Display 11 53 color.brightwhite "LC"
+	Call Display 11 56 color.brightcyan  "List components"
+
+	Call Display 12 53 color.brightwhite "LS"
+	Call Display 12 56 color.brightcyan  "List Control Signals"
+
+	Call Display 14 53 color.brightwhite "MEM"
+	Call Display 14 56 color.brightcyan  "{address} {value}"
+
 
 	Call Display 18  3 color.brightwhite "X"
-	Call Display 18  6 color.brightcyan  "Back to Main"
+	Call Display 18  6 color.brightcyan  "Exit"
+
 
 	
 	If Strip(message) <> "" Then Do
@@ -310,6 +264,36 @@ controlPanelDisplay:
 	choice = Strip(Upper(linein()))
 	
 Return choice
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check whether a value is bin or not ------------------- checkBin --- */
+/* -------------------------------------------------------------------------- */
+isBin:
+	Parse Arg possibleBin
+	rval = 1
+	Do h = 1 to Length(possibleBin)
+		If Index("01", Substr(possibleBin,h,1)) == 0 Then Do
+			rval = 0
+			Leave
+		End
+	End
+Return rval
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check whether a value is hex or not ------------------- checkHex --- */
+/* -------------------------------------------------------------------------- */
+isHex:
+	Parse Arg possibleHex
+	rval = 1
+	Do h = 1 to Length(possibleHex)
+		If Index("0123456789ABCDEF", Substr(possibleHex,h,1)) == 0 Then Do
+			rval = 0
+			Leave
+		End
+	End
+Return rval
 
 
 /* -------------------------------------------------------------------------- */
@@ -467,6 +451,7 @@ Return
 Initialize:
 	/* ----- Available Control Signals ----- */
 	ctlSig.0 = 0
+	ctlSignals = ""
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
 	Call addCtlSig("HLT HALT the processor")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
@@ -515,13 +500,27 @@ Initialize:
 	cs_RGBO = 0
 	
 	
+	
+	/* ----- Set default values for instruction parameters ----- */
+	instrDef.	= 0								/* stem to hold instructions */
+	langDefFile	= "./config/scepsis.langdef"	/* File containing the instruction definitions */
+	
+	/* ----- Read language definition file ----- */
+	If Open(langDefFile, 'R') Then Do
+		Call processLangDefFile
+	End; Else Do
+		Say "Error opening file" langDefFile
+		Exit 8
+	End
+
+
 	/* ----- Set default values for program parameters ----- */
 	microCodeSteps	= 8						/* Max number of micro code steps */
 	memorySize		= 256					/* Size of memory in bytes*/
-	configFile		= "config/scepsis.conf"		/* File containing the engine parameters */
-	langDefFile		= "config/scepsis.langdef"	/* File containing the instruction definitions */
+	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
+	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
 	
-	/* ----- Read configuration files ----- */
+	/* ----- Read configuration file ----- */
 	If Open(configFile, 'R') Then Do
 		Call processConfigFile
 	End; Else Do
@@ -540,21 +539,34 @@ Initialize:
 		RAM.p = p
 	End
 
-Return
 
+Return
 
 /* -------------------------------------------------------------------------- */
 /* ----- Helper routine to add control signals to the table --- addCtlSig --- */
 /* -------------------------------------------------------------------------- */
 addCtlSig:
-	Procedure Expose ctlSig.
+	Procedure Expose ctlSig. ctlSignals
 	Parse Arg ctl desc
 
 	ctlSig.0 = ctlSig.0 + 1; p = ctlSig.0
 	ctlSig.p = ctl
 	ctlSig.p.1 = desc
+	
+	ctlSignals = ctlSignals || " " || ctl
 
 Return p
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Process the language definition file -------- processLangDefFile --- */
+/* -------------------------------------------------------------------------- */
+processLangDefFile:
+	lnum = 0
+	Do While Lines(langDefFile)
+		Say Linein(langDefFile)
+	End
+Return
 
 
 /* -------------------------------------------------------------------------- */
