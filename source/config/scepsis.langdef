@@ -14,6 +14,11 @@
 # Example language definition
 
 #
+# NOP - Do nothing
+00 NOP 1 PCTO MARI					# value of PCT to MAR
+00 NOP 2 RAMO INRI CE				# value of memory to INR,  bump PCT
+
+#
 # I2M address - read a value from the input register to a location in memory
 70 I2M 1 PCTO MARI					# value of PCT to MAR
 70 I2M 2 RAMO INRI CE				# value of memory to INR,  bump PCT

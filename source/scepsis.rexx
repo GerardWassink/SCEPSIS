@@ -37,6 +37,10 @@ Main:
 		Parse Var choice command value
 		errorMsg = ""
 		Select
+		
+			/* -------------------------------------------------------------- */
+			/* ----- Component commands ------------------------------------- */
+			/* -------------------------------------------------------------- */
 			When command == "PCT" Then	Do
 				If isHex(value) Then comp_PCT = x2d(value)
 				Else errorMsg = "Value for PCT not HEXa-decimal"
@@ -76,6 +80,9 @@ Main:
 				Else errorMsg = "Value for STC not HEXa-decimal"
 			End
 			
+			/* -------------------------------------------------------------- */
+			/* ----- Control Signal commands -------------------------------- */
+			/* -------------------------------------------------------------- */
 			When Wordpos(command, ctlSignals) > 0 Then Do
 				If isBin(value) Then Do
 					If (value == 0 | value == 1) Then Do
@@ -88,35 +95,15 @@ Main:
 				End
 			End
 			
-			When command == "MEM" Then	Do
-				Parse Var value adr val .
-				If isHex(adr) Then Do
-					If isHex(val) Then Do
-						adr = x2d(adr)
-						val = x2d(val)
-						RAM.adr = val
-					End; Else Do
-						errorMsg = "Value for MEM value not HEXa-decimal"
-					End
-				End; Else Do
-					errorMsg = "Value for MEM address not HEXa-decimal"
-				End
-			End
-			
-			When command == "LM" Then	Do
-				Call listMemory
-			End
-			
-			When choice == "IM" Then	Do
-				Call initMemory
-				errorMsg = "Memory initialized"
-			End
-
+			/* -------------------------------------------------------------- */
+			/* ----- Miscelaneous commands ---------------------------------- */
+			/* -------------------------------------------------------------- */
 			When choice == "LH" Then	Call listHardware
-
 			When choice == "LC" Then	Call listComponents
-
 			When choice == "LS" Then	Call listControlSignals
+			When choice == "MEM" Then	Call handleMemory
+			
+			When choice == "?"  Then	Call CPhelpInfo
 			
 			When choice == "X" Then	Do
 				choice = ""
@@ -144,34 +131,27 @@ controlPanelDisplay:
 	
 	Call screenHeader "SCEPSIS Control Panel"
 
-	Call Display  2 1 color.brightwhite "===> "
-	Call Display  2 6 color.brightred "___________________________________________________________________________"
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+
 
 	Call Display  5  3 color.brightwhite "Components --------------"
-
 	Call Display  7  3 color.brightwhite "PCT"
 	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
-
 	Call Display  7 12 color.brightwhite "MAR"
 	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_MAR),2)
-
 	Call Display  7 21 color.brightwhite "INR"
 	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_INR),2)
 
-
 	Call Display  8  3 color.brightwhite "INP"
 	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_INP),2)
-
 	Call Display  8 12 color.brightwhite "OUT"
 	Call Display  8 17 color.brightcyan  Right("00"||D2X(comp_OUT),2)
 
-
 	Call Display  9  3 color.brightwhite "REGA"
 	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
-
 	Call Display 10  3 color.brightwhite "REGB"
 	Call Display 10  8 color.brightcyan  Right("00"||D2X(comp_REGB),2)
-
 
 	Call Display 12  3 color.brightwhite "STC"
 	Call Display 12  8 color.brightcyan  Right("00"||D2X(comp_STC),2)
@@ -179,84 +159,60 @@ controlPanelDisplay:
 
 
 	Call Display  5 33 color.brightwhite "Control Signals"
-
 	Call Display  7 33 color.brightwhite "CE"
 	Call Display  7 38 color.brightcyan  cs_CE
-
 	Call Display  7 42 color.brightwhite "HLT"
 	Call Display  7 47 color.brightcyan  cs_HLT
-
 	Call Display  8 33 color.brightwhite "INPO"
 	Call Display  8 38 color.brightcyan  cs_INPO
-	
 	Call Display  8 42 color.brightwhite "OUTI"
 	Call Display  8 47 color.brightcyan  cs_OUTI
-
 	Call Display  9 33 color.brightwhite "INRI"
 	Call Display  9 38 color.brightcyan  cs_INRI
-
 	Call Display  9 42 color.brightwhite "INRO"
 	Call Display  9 47 color.brightcyan  cs_INRO
-
 	Call Display 10 33 color.brightwhite "MARI"
 	Call Display 10 38 color.brightcyan  cs_MARI
-
 	Call Display 10 42 color.brightwhite "MARO"
 	Call Display 10 47 color.brightcyan  cs_MARO
-
 	Call Display 11 33 color.brightwhite "PCTI"
 	Call Display 11 38 color.brightcyan  cs_PCTI
-
 	Call Display 11 42 color.brightwhite "PCTO"
 	Call Display 11 47 color.brightcyan  cs_PCTO
-
 	Call Display 12 33 color.brightwhite "RAMI"
 	Call Display 12 38 color.brightcyan  cs_RAMI
-
 	Call Display 12 42 color.brightwhite "RAMO"
 	Call Display 12 47 color.brightcyan  cs_RAMO
-
 	Call Display 13 33 color.brightwhite "RGAI"
 	Call Display 13 38 color.brightcyan  cs_RGAI
-
 	Call Display 13 42 color.brightwhite "RGAO"
 	Call Display 13 47 color.brightcyan  cs_RGAO
-
 	Call Display 14 33 color.brightwhite "RGBI"
 	Call Display 14 38 color.brightcyan  cs_RGBI
-
 	Call Display 14 42 color.brightwhite "RGBO"
 	Call Display 14 47 color.brightcyan  cs_RGBO
 
 
 	Call Display  5 53 color.brightwhite "Commands ------"
-
-	Call Display  7 53 color.brightwhite "IM"
-	Call Display  7 56 color.brightcyan  "Initialize Memory"
-
-	Call Display  8 53 color.brightwhite "LM"
-	Call Display  8 56 color.brightcyan  "List Memory"
-
-	Call Display 10 53 color.brightwhite "LH"
-	Call Display 10 56 color.brightcyan  "List hardware"
-
-	Call Display 11 53 color.brightwhite "LC"
-	Call Display 11 56 color.brightcyan  "List components"
-
-	Call Display 12 53 color.brightwhite "LS"
-	Call Display 12 56 color.brightcyan  "List Control Signals"
-
-	Call Display 14 53 color.brightwhite "MEM"
-	Call Display 14 56 color.brightcyan  "{address} {value}"
+	Call Display  7 53 color.brightwhite "LH"
+	Call Display  7 57 color.brightcyan  "List hardware"
+	Call Display  8 53 color.brightwhite "LC"
+	Call Display  8 57 color.brightcyan  "List components"
+	Call Display  9 53 color.brightwhite "LS"
+	Call Display  9 57 color.brightcyan  "List Control Signals"
+	Call Display 11 53 color.brightwhite "MEM"
+	Call Display 11 57 color.brightcyan  "Handle Memory"
 
 
+	Call Display 18 53 color.brightwhite "?"
+	Call Display 18 57 color.brightcyan  "Help info"
+	
 	Call Display 18  3 color.brightwhite "X"
 	Call Display 18  6 color.brightcyan  "Exit"
 
-
 	
 	If Strip(message) <> "" Then Do
-		Call Display 21 1 color.brightwhite "ERROR" message
+		Call Display 21 1 color.brightwhite "===>" message
 	End
 	
 	Call Display  2 6 color.brightwhite
@@ -264,6 +220,133 @@ controlPanelDisplay:
 	choice = Strip(Upper(linein()))
 	
 Return choice
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Handle Memory related stuff ----------------------- handleMemory --- */
+/* -------------------------------------------------------------------------- */
+handleMemory:
+	memChoice = ""
+	memMsg = ""
+	Do Until memChoice = "X"
+		memChoice = Upper(strip(listMemory(memMsg)))
+		Parse Var memChoice command value
+		memMsg = ""
+
+		Select
+			/* -------------------------------------------------------------- */
+			/* ----- Memory commands ---------------------------------------- */
+			/* -------------------------------------------------------------- */
+			When command == "M" Then	Do
+				Parse Var value adr val .
+				If isHex(adr) Then Do
+					adr = x2d(adr)
+					If isHex(val) Then Do
+						val = x2d(val)
+						If (adr <= ramSize) Then Do
+							If (val <= 255) Then Do
+								RAM.adr = val
+								memMsg = "set memory location x" || Right("00"||d2x(adr), 2)
+								memMsg = memMsg || " to value x" || Right("00"||d2x(val),2)
+							End; Else Do
+								memMsg = "Value for MEM value > 255"
+							End
+						End; Else Do
+							memMsg = "Value for MEM address > ramSize"
+						End
+					End; Else Do
+						memMsg = "Value for MEM value not HEXa-decimal"
+					End
+				End; Else Do
+					memMsg = "Value for MEM address not HEXa-decimal"
+				End
+			End
+			
+			When command == "INIT"  Then	Do
+				Call initMemory
+				memMsg = "Memory initialized"
+			End
+
+			Otherwise Do
+				memMsg = "Invalid choice: " || memChoice 
+			End
+			
+		End
+		
+	End
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- List Memory in hex dump format----------------------- listMemory --- */
+/* -------------------------------------------------------------------------- */
+listMemory:
+	Call screenHeader "SCEPSIS - memory display"
+	
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+	
+	lnum = 5
+	p = 0
+	line = Right("0000"||d2x(p),4) || " : "
+	Do p = 0 to ramSize - 1
+		If p > 0 Then Do
+			Select
+				When ((p // 32) == 0) Then Do
+					Call Display lnum 3 color.cyan line
+					lnum = lnum + 1
+					line = Right("0000"||d2x(p),4) || " : "
+				End
+				When ((p // 16) == 0) Then line = line || "  -  "
+				When ((p //  8) == 0) Then line = line || "  "
+				When ((p //  4) == 0) Then line = line || " "
+				Otherwise Nop
+			End
+		End
+		line = line || Right("00"||d2x(RAM.p),2)
+	End
+	Call Display lnum 3 color.cyan line
+	lnum = lnum + 1
+
+
+	Call Display 18  3 color.brightwhite "X"
+	Call Display 18  5 color.brightcyan "return"
+
+	Call Display 18 13 color.brightwhite "M"
+	Call Display 18 15 color.brightcyan "{adr] {val} insert val into memory at adr"
+
+	Call Display 18 58 color.brightwhite "INIT"
+	Call Display 18 63 color.brightcyan  "Initialize Memory"
+		
+	
+	If Strip(memMsg) <> "" Then Do
+		Call Display 21 1 color.brightwhite "===>" memMsg
+	End
+	
+	Call Display  2 6 color.brightwhite
+	
+	memChoice = Strip(Upper(linein()))
+	
+Return memChoice
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check whether a value is bin or not ------------------- checkBin --- */
+/* -------------------------------------------------------------------------- */
+CPhelpInfo:
+	Call screenHeader "SCEPSIS - Help information for the Control Panel"
+	
+	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
+	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
+	Call Display  7  3 color.cyan  "- for 'components' it's a hexdecimal value from 00 to FF"
+	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
+	Call Display  9  3 color.cyan  "- for 'commands' it's mostly no parameters with the exeption of:"
+	Call Display 10  5 color.cyan  "o MEM which accepets an address and a value (both 00 to FF)"
+
+	Call Display 21 1 color.brightwhite " "
+	Call enterForMore
+	
+Return
 
 
 /* -------------------------------------------------------------------------- */
@@ -294,36 +377,6 @@ isHex:
 		End
 	End
 Return rval
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List Memory in hex dump format----------------------- listMemory --- */
-/* -------------------------------------------------------------------------- */
-listMemory:
-	Call screenHeader
-
-	Say "----- List of Memory -----"
-	Say ""
-	p = 0
-	line = Right("0000"||d2x(p),4) || " : "
-	Do p = 0 to ramSize - 1
-		If p > 0 Then Do
-			Select
-				When ((p // 32) == 0) Then Do
-					say line 
-					line = Right("0000"||d2x(p),4) || " : "
-				End
-				When ((p // 16) == 0) Then line = line || "  -  "
-				When ((p //  8) == 0) Then line = line || "  "
-				When ((p //  4) == 0) Then line = line || " "
-				Otherwise Nop
-			End
-		End
-		line = line || Right("00"||d2x(RAM.p),2)
-	End
-	Say ""
-	Call enterForMore
-Return
 
 
 /* -------------------------------------------------------------------------- */
