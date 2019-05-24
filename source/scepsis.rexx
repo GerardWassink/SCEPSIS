@@ -41,45 +41,19 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Component commands ------------------------------------- */
 			/* -------------------------------------------------------------- */
-			When command == "PCT" Then	Do
-				If isHex(value) Then comp_PCT = x2d(value)
-				Else errorMsg = "Value for PCT not HEXa-decimal"
-			End
-			
-			When command == "MAR" Then	Do
-				If isHex(value) Then comp_MAR = x2d(value)
-				Else errorMsg = "Value for MAR not HEXa-decimal"
-			End
-			
-			When command == "INR" Then	Do
-				If isHex(value) Then comp_INR = x2d(value)
-				Else errorMsg = "Value for INR not HEXa-decimal"
+			When Wordpos(command, Components) > 0 Then Do
+				If isHex(value) Then Do
+					value = x2d(value)
+					If (value <= 255) Then Do
+						Interpret "comp_" || command "=" value
+					End; Else Do
+						errorMsg = "Value for " || command || " too large"
+					End
+				End; Else Do 
+					errorMsg = "Value for " || command || " not hexadecimal"
+				End
 			End
 
-			When command == "INP" Then	Do
-				If isHex(value) Then comp_INP = x2d(value)
-				Else errorMsg = "Value for INP not HEXa-decimal"
-			End
-			When command == "OUT" Then	Do
-				If isHex(value) Then comp_OUT = x2d(value)
-				Else errorMsg = "Value for OUT not HEXa-decimal"
-			End
-
-			When command == "REGA" Then	Do
-				If isHex(value) Then comp_REGA = x2d(value)
-				Else errorMsg = "Value for REGA not HEXa-decimal"
-			End
-			
-			When command == "REGB" Then	Do
-				If isHex(value) Then comp_REGB = x2d(value)
-				Else errorMsg = "Value for REGB not HEXa-decimal"
-			End
-			
-			When command == "STC" Then	Do
-				If isHex(value) Then comp_STC = x2d(value)
-				Else errorMsg = "Value for STC not HEXa-decimal"
-			End
-			
 			/* -------------------------------------------------------------- */
 			/* ----- Control Signal commands -------------------------------- */
 			/* -------------------------------------------------------------- */
@@ -101,19 +75,16 @@ Main:
 			When choice == "LH" Then	Call listHardware
 			When choice == "LC" Then	Call listComponents
 			When choice == "LS" Then	Call listControlSignals
+			When choice == "LI" Then	Call listInstructions
 			When choice == "MEM" Then	Call handleMemory
-			
 			When choice == "?"  Then	Call CPhelpInfo
-			
 			When choice == "X" Then	Do
 				choice = ""
 				Leave
 			End
-
 			Otherwise Do
 				errorMsg = "Invalid choice: " || choice 
 			End
-			
 		End
 	End
 
@@ -129,7 +100,7 @@ Exit
 controlPanelDisplay:
 	Parse Arg message
 	
-	Call screenHeader "SCEPSIS Control Panel"
+	Call screenHeader "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
 
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
@@ -200,6 +171,8 @@ controlPanelDisplay:
 	Call Display  8 57 color.brightcyan  "List components"
 	Call Display  9 53 color.brightwhite "LS"
 	Call Display  9 57 color.brightcyan  "List Control Signals"
+	Call Display 10 53 color.brightwhite "LI"
+	Call Display 10 57 color.brightcyan  "List Instructions"
 	Call Display 11 53 color.brightwhite "MEM"
 	Call Display 11 57 color.brightcyan  "Handle Memory"
 
@@ -288,24 +261,24 @@ listMemory:
 	
 	lnum = 5
 	p = 0
-	line = Right("0000"||d2x(p),4) || " : "
+	line = Right("0000"||d2x(p),4) || ": "
 	Do p = 0 to ramSize - 1
 		If p > 0 Then Do
 			Select
 				When ((p // 32) == 0) Then Do
-					Call Display lnum 3 color.cyan line
+					Call Display lnum 2 color.cyan line
 					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || " : "
+					line = Right("0000"||d2x(p),4) || ": "
 				End
-				When ((p // 16) == 0) Then line = line || "  -  "
-				When ((p //  8) == 0) Then line = line || "  "
+				When ((p // 16) == 0) Then line = line || " - "
+				When ((p //  8) == 0) Then line = line || " "
 				When ((p //  4) == 0) Then line = line || " "
 				Otherwise Nop
 			End
 		End
 		line = line || Right("00"||d2x(RAM.p),2)
 	End
-	Call Display lnum 3 color.cyan line
+	Call Display lnum 2 color.cyan line
 	lnum = lnum + 1
 
 
@@ -331,17 +304,16 @@ Return memChoice
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Check whether a value is bin or not ------------------- checkBin --- */
+/* ----- Help info for control panel ------------------------- CPhelpInfo --- */
 /* -------------------------------------------------------------------------- */
 CPhelpInfo:
 	Call screenHeader "SCEPSIS - Help information for the Control Panel"
 	
 	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
 	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
-	Call Display  7  3 color.cyan  "- for 'components' it's a hexdecimal value from 00 to FF"
+	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
 	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
-	Call Display  9  3 color.cyan  "- for 'commands' it's mostly no parameters with the exeption of:"
-	Call Display 10  5 color.cyan  "o MEM which accepets an address and a value (both 00 to FF)"
+	Call Display  9  3 color.cyan  "Commands do not have parameters here"
 
 	Call Display 21 1 color.brightwhite " "
 	Call enterForMore
@@ -423,6 +395,32 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
+/* ----- List instruction ------------------------------ listInstructions --- */
+/* -------------------------------------------------------------------------- */
+listInstructions:
+	Call screenHeader "SCEPSIS - Instruction list"
+	
+	liNum = 4
+	Do inst = 1 To instr.0
+		liLine = "opcode" instr.inst.1 "mnem" instr.inst.2
+		Do step = 1 to instr.inst.3.0
+			liLine2 = liLine "step" step "ctlSigs:"
+			Do cs = 1 To instr.inst.3.step.0
+				liLine2 = liLine2 instr.inst.3.step.cs
+			End
+			liNum = liNum + 1
+			Call Display liNum 3 color.cyan liLine2
+		End
+		liNum = liNum + 1
+	End
+
+	Call Display 21 1 color.brightwhite " "
+	Call enterForMore
+	
+Return
+
+
+/* -------------------------------------------------------------------------- */
 /* ----- List available Control Signals -------------- listControlSignals --- */
 /* -------------------------------------------------------------------------- */
 listControlSignals:
@@ -456,24 +454,15 @@ Return
 /* ----- Display one thing, encoding attributes and positions --- Display --- */
 /* -------------------------------------------------------------------------- */
 Display:
-	Parse Arg line
-	Parse Var line row col atr txt
+	Parse Arg row col atr txt
 	lineOut = ""
-	
-						/* Do we have a position? If yes, encode it		--- */
-	If row > 0 and col > 0 Then
+	If row > 0 and col > 0 Then			/* Position? If yes, encode it ----- */
 		lineOut = lineOut || ESC || row || ";" || col || "H"
-	
-						/* Do we have an attribute? If yes, encode it	--- */
-	If atr <> "" Then
+	If atr <> "" Then					/* attribute? If yes, encode it	---- */
 		lineOut = lineOut || ESC || atr || "m"
-	
-						/* Do we have text? If yes, encode it			--- */
-	If txt <> "" Then
+	If txt <> "" Then			/* Do we have text? If yes, encode it ------ */
 		lineOut = lineOut || txt
-	
-						/* Write encoded string to the screen			--- */
-	Do j = 1 To Length(lineOut)
+	Do j = 1 To Length(lineOut)		/* Write encoded string to the screen -- */
 		call charout ,substr(lineOut,j,1)
 	End
 Return
@@ -524,11 +513,12 @@ Initialize:
 	
 	
 	/* ----- Set default values for Components ----- */
-	comp_INP  = 0
-	comp_INR  = 0
-	comp_MAR  = 0
-	comp_OUT  = 0
+	Components = "PCT MAR INR INP OUT RGA RGB STC"
 	comp_PCT  = 0
+	comp_MAR  = 0
+	comp_INR  = 0
+	comp_INP  = 0
+	comp_OUT  = 0
 	comp_REGA = 0
 	comp_REGB = 0
 	comp_STC  = 0
@@ -553,12 +543,17 @@ Initialize:
 	cs_RGBO = 0
 	
 	
+		/* ----- Set default values for program parameters ----- */
+	microCodeSteps	= 8						/* Max number of micro code steps */
+	memorySize		= 256					/* Size of memory in bytes*/
+	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
+	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
 	
-	/* ----- Set default values for instruction parameters ----- */
-	instrDef.	= 0								/* stem to hold instructions */
-	langDefFile	= "./config/scepsis.langdef"	/* File containing the instruction definitions */
+	
 	
 	/* ----- Read language definition file ----- */
+	instr.	= 0								/* stem to hold instructions */
+	instr.0 = 0
 	If Open(langDefFile, 'R') Then Do
 		Call processLangDefFile
 	End; Else Do
@@ -567,12 +562,6 @@ Initialize:
 	End
 
 
-	/* ----- Set default values for program parameters ----- */
-	microCodeSteps	= 8						/* Max number of micro code steps */
-	memorySize		= 256					/* Size of memory in bytes*/
-	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
-	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
-	
 	/* ----- Read configuration file ----- */
 	If Open(configFile, 'R') Then Do
 		Call processConfigFile
@@ -617,9 +606,55 @@ Return p
 processLangDefFile:
 	lnum = 0
 	Do While Lines(langDefFile)
-		Say Linein(langDefFile)
+		line = Upper(Linein(langDefFile))
+		lnum = lnum + 1
+		Select
+			When ( Substr(line,1,1) == "#") Then Nop
+			When ( Strip(line) == "") Then Nop
+			Otherwise Do
+				Parse Var line opcd mnem mcSteps '#' comment
+				opcd = Strip(opcd)
+				mnem = Strip(mnem)
+				i = findOpcd(opcd)		/* yields position or 0 ------------- */
+				If (i == 0) Then Do
+					instr.0 = instr.0 + 1
+					i = instr.0
+				End
+				instr.i.1 = opcd
+				instr.i.2 = mnem
+				instr.i.3.0 = 0				/* ptr to microde steps --------- */
+				Do While Words(mcSteps) > 0
+					Parse Var mcSteps mcStep '-' mcSteps
+					instr.i.3.0 = instr.i.3.0 + 1
+					s = instr.i.3.0			/* ptr to microde steps --------- */
+					instr.i.3.s.0 = 0				/* ptr to ctl Signals --- */
+					Do While Words(mcStep) > 0
+						Parse Var mcStep ctlSig mcStep
+						instr.i.3.s.0 = instr.i.3.s.0 + 1
+						mcp = instr.i.3.s.0
+						instr.i.3.s.mcp = Strip(ctlSig)
+					End
+				End
+			End
+		End
 	End
 Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Read configuration file and process value ---- processConfigFile --- */
+/* -------------------------------------------------------------------------- */
+findOpcd:
+	Procedure Expose instr.
+	Parse Arg oc .
+	pos = 0
+	Do p = 1 to instr.0
+		If (oc == instr.p.1) Then Do
+			pos = p
+			Leave
+		End
+	End
+Return pos
 
 
 /* -------------------------------------------------------------------------- */

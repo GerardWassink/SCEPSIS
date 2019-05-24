@@ -5,27 +5,28 @@
 
 #
 # General form of instruction definition
-# opcode mnem microCodeStep CS1 CS2 ... CSn
-# opcode mnem microCodeStep CS1 CS2 ... CSn
-# ...
-# opcode mnem microCodeStep CS1 CS2 ... CSn
+# opcode mnem - CS [...] [- CS [...] ...]
 
 #
 # Example language definition
 
 #
-# NOP - Do nothing
-00 NOP 1 PCTO MARI					# value of PCT to MAR
-00 NOP 2 RAMO INRI CE				# value of memory to INR,  bump PCT
+# NOP - Do nothing - value of PCT to MAR / value of memory to INR,  bump PCT
+
+00 NOP PCTO MARI - RAMO INRI CE
 
 #
 # I2M address - read a value from the input register to a location in memory
-70 I2M 1 PCTO MARI					# value of PCT to MAR
-70 I2M 2 RAMO INRI CE				# value of memory to INR,  bump PCT
-70 I2M 3 PCTO MARI					# value of PCT to MAR
-70 I2M 4 INPO RAMI CE				# value of INP to RAM, bump PCT
+# value of PCT to MAR
+# value of memory to INR,  bump PCT
+# value of PCT to MAR
+# value of INP to RAM, bump PCT
+
+70 I2M PCTO MARI - RAMO INRI CE - PCTO MARI - INPO RAMI CE
 
 #
-# STOP - Stop the processor (bump PCT first to prepare for continuation)
-FF STOP 1 CE HLT					# Bump PCT, then HLT
+# STP - Stop the processor (bump PCT first to prepare for continuation)
+# Bump PCT, then HLT
+
+FF STP CE - HLT
 
