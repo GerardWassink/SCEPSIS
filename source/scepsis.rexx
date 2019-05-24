@@ -70,15 +70,21 @@ Main:
 			End
 			
 			/* -------------------------------------------------------------- */
+			/* ----- Emulator commands -------------------------------------- */
+			/* -------------------------------------------------------------- */
+			When choice == "S"  Then	Call emulateStep
+			
+			/* -------------------------------------------------------------- */
 			/* ----- Miscelaneous commands ---------------------------------- */
 			/* -------------------------------------------------------------- */
-			When choice == "LH" Then	Call listHardware
-			When choice == "LC" Then	Call listComponents
-			When choice == "LS" Then	Call listControlSignals
-			When choice == "LI" Then	Call listInstructions
+			When choice == "LH"  Then	Call listHardware
+			When choice == "LC"  Then	Call listComponents
+			When choice == "LS"  Then	Call listControlSignals
+			When choice == "LI"  Then	Call listInstructions
 			When choice == "MEM" Then	Call handleMemory
-			When choice == "?"  Then	Call CPhelpInfo
-			When choice == "X" Then	Do
+			When choice == "INS" Then	Call handleInstructions
+			When choice == "?"   Then	Call CPhelpInfo
+			When choice == "X"   Then	Do
 				choice = ""
 				Leave
 			End
@@ -175,14 +181,19 @@ controlPanelDisplay:
 	Call Display 10 57 color.brightcyan  "List Instructions"
 	Call Display 11 53 color.brightwhite "MEM"
 	Call Display 11 57 color.brightcyan  "Handle Memory"
+	Call Display 12 53 color.brightwhite "INS"
+	Call Display 12 57 color.brightcyan  "Handle Instructions"
 
+
+	Call Display 18  3 color.brightwhite "X"
+	Call Display 18  5 color.brightcyan  "Exit"
+
+	Call Display 18 11 color.brightwhite "S"
+	Call Display 18 13 color.brightcyan  "Step"
 
 	Call Display 18 53 color.brightwhite "?"
 	Call Display 18 57 color.brightcyan  "Help info"
 	
-	Call Display 18  3 color.brightwhite "X"
-	Call Display 18  6 color.brightcyan  "Exit"
-
 	
 	If Strip(message) <> "" Then Do
 		Call Display 21 1 color.brightwhite "===>" message
@@ -193,6 +204,84 @@ controlPanelDisplay:
 	choice = Strip(Upper(linein()))
 	
 Return choice
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Emulate one microcode Step ------------------------- emulateStep --- */
+/* -------------------------------------------------------------------------- */
+emulateStep:
+											/* Clear previous control signals */
+	Call clrCtlSignals
+		
+	/* get instruction from memory at PCT location */
+	If (comp_STC == 0) Then Do
+		comp_STC = 1
+		comp_INR = RAM.comp_PCT
+	End
+										/* search opcode in instruction table */
+	OpcodePtr = findOpcd(D2X(comp_INR))
+	If (OpcodePtr == 0) Then Do 
+		errorMsg = "operation exception at location" D2X(comp_PCT)
+	End; Else Do
+		Opcode   = instr.OpcodePtr.1
+		Mnemonic = instr.OpcodePtr.2
+						/* walk through and set every control Signal in order */
+		Do csCtr = 1 to instr.OpcodePtr.3.comp_STC.0
+			ctrlSignal = instr.OpcodePtr.3.comp_STC.csCtr
+			Interpret "cs_"||ctrlSignal "=" 1
+		End
+		
+		Call processCtlSignals
+		
+		If (comp_STC > instr.OpcodePtr.3.0) Then Do
+			comp_STC = 1
+		End; Else Do
+			errorMsg = "going to opcode" Opcode||", Instruction" Mnemonic||", step" comp_STC
+			Do i = 1 To instr.OpcodePtr.3.comp_STC.0
+				errorMsg = errorMsg instr.OpcodePtr.3.comp_STC.i
+			End
+		End
+	End
+	
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Process the Control Signals ------------------ ProcessCtlSignals --- */
+/* -------------------------------------------------------------------------- */
+ProcessCtlSignals:
+											/* output to DAB processed first  */
+	If (cs_INPO == 1)	Then DAB = comp_INP
+	If (cs_INRO == 1)	Then DAB = comp_INR
+	If (cs_MARO == 1)	Then DAB = comp_MAR
+	If (cs_PCTO == 1)	Then DAB = comp_PCT
+	If (cs_RAMO == 1)	Then DAB = RAM.comp_MAR
+	If (cs_RGAO == 1)	Then DAB = comp_REGA
+	If (cs_RGBO == 1)	Then DAB = comp_REGB
+											/* input from DAB processed 2nd   */
+	If (cs_OUTI == 1)	Then comp_OUT     = DAB
+	If (cs_INRI == 1)	Then comp_INR     = DAB
+	If (cs_MARI == 1)	Then comp_MAR     = DAB
+	If (cs_PCTI == 1)	Then comp_PCT     = DAB
+	If (cs_RAMI == 1)	Then RAM.comp_MAR = DAB
+	If (cs_RGAI == 1)	Then comp_REGA    = DAB
+	If (cs_RGBI == 1)	Then comp_REGB    = DAB
+											/* Count Enable, bump PCT         */
+	If (cs_CE   == 1)	Then comp_PCT = comp_PCT + 1
+											/* Next microcode step            */
+	comp_STC = comp_STC + 1
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Handle Memory related stuff ----------------------- handleMemory --- */
+/* -------------------------------------------------------------------------- */
+clrCtlSignals:
+	Do i = 1 to Words(ctlSignals)
+		c = Word(ctlSignals, i)
+		Interpret "cs_"||c "=" 0
+	End
+Return
 
 
 /* -------------------------------------------------------------------------- */
@@ -282,14 +371,14 @@ listMemory:
 	lnum = lnum + 1
 
 
-	Call Display 18  3 color.brightwhite "X"
-	Call Display 18  5 color.brightcyan "return"
+	Call Display 20  3 color.brightwhite "X"
+	Call Display 20  5 color.brightcyan "return"
 
-	Call Display 18 13 color.brightwhite "M"
-	Call Display 18 15 color.brightcyan "{adr] {val} insert val into memory at adr"
+	Call Display 20 13 color.brightwhite "M"
+	Call Display 20 15 color.brightcyan "{adr] {val} insert val into memory at adr"
 
-	Call Display 18 58 color.brightwhite "INIT"
-	Call Display 18 63 color.brightcyan  "Initialize Memory"
+	Call Display 20 58 color.brightwhite "INIT"
+	Call Display 20 63 color.brightcyan  "Initialize Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
@@ -301,24 +390,6 @@ listMemory:
 	memChoice = Strip(Upper(linein()))
 	
 Return memChoice
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Help info for control panel ------------------------- CPhelpInfo --- */
-/* -------------------------------------------------------------------------- */
-CPhelpInfo:
-	Call screenHeader "SCEPSIS - Help information for the Control Panel"
-	
-	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
-	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
-	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
-	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
-	Call Display  9  3 color.cyan  "Commands do not have parameters here"
-
-	Call Display 21 1 color.brightwhite " "
-	Call enterForMore
-	
-Return
 
 
 /* -------------------------------------------------------------------------- */
@@ -349,6 +420,136 @@ isHex:
 		End
 	End
 Return rval
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Handle Instruction related stuff ------------ handleInstructions --- */
+/* -------------------------------------------------------------------------- */
+handleInstructions:
+	lstIChoice = ""
+	lstIMsg = ""
+	liMsg = ""
+	optr = 0
+	If (instr.0 > 0) Then optr = 1
+	Do Until lstIChoice = "X"
+		lstIChoice = Upper(strip(listInstructions(lstIMsg)))
+		Parse Var lstIChoice command value
+		lstIMsg = ""
+
+		Select
+			/* -------------------------------------------------------------- */
+			/* ----- Instruction commands ----------------------------------- */
+			/* -------------------------------------------------------------- */
+			When command == "D" Then Do
+				Parse Var value opc .
+				opc = Strip(opc)
+				optr = findOpcd(Strip(opc))
+				If (optr == 0) Then Do
+					lstIMsg = "Opcode" opc "does not exist (yet)"
+				End; Else Do
+					Call listInstruction(optr)
+				End
+			End
+			
+			Otherwise Do
+				lstImMsg = "Invalid choice: " || lstIChoice 
+			End
+			
+		End
+		
+	End
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- List instructions ----------------------------- listInstructions --- */
+/* -------------------------------------------------------------------------- */
+listInstructions:
+	Call screenHeader "SCEPSIS - Instructions"
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+
+	Call Display  5  3 color.brightwhite "List of opcodes and instructions"
+	liLine = ""
+	scrLine = 6
+	Do i = 1 to instr.0
+		liLine = liLine || Left(instr.i.1||"  ",2) || " " || Left(instr.i.2||"    ", 4) || "   "
+		If ((i //  8) == 0) Then Do
+			Call Display scrLine 3 color.cyan liLine
+			scrLine = scrLine + 1
+			liLine = ""
+		End
+	End
+	If (liLine <> "") Then Call Display scrLine 3 color.cyan liLine
+	scrLine = scrLine + 1
+	
+	Call Display 20  3 color.brightwhite "X"
+	Call Display 20  5 color.brightcyan "return"
+	Call Display 20 13 color.brightwhite "D"
+	Call Display 20 15 color.brightcyan "{opcode}"
+
+	If Strip(lstIMsg) <> "" Then Do
+		Call Display 21 1 color.brightwhite "===>" lstIMsg
+	End
+	Call Display  2 6 color.brightwhite
+	lstIChoice = Strip(Upper(linein()))
+Return lstIChoice
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- List one instruction --------------------------- listInstruction --- */
+/* -------------------------------------------------------------------------- */
+listInstruction:
+	Parse Arg pointer .
+
+	Call screenHeader "SCEPSIS - Instruction"
+	
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+	
+	Call Display  5  3 color.brightwhite "OPC  Ins  Stp  Control Signals"
+	
+	liLine = instr.pointer.1 "-" instr.pointer.2
+	scrLine = 6
+	Call Display scrLine 3 color.brightwhite liLine
+	Do step = 1 to instr.pointer.3.0
+		liLine2 = step " "
+		Do cs = 1 To instr.pointer.3.step.0
+			liLine2 = liLine2 instr.pointer.3.step.cs
+		End
+		Call Display scrLine 14 color.cyan liLine2
+		scrLine = scrLine + 1
+	End
+	scrLine = scrLine + 1
+	
+	
+	If Strip(liMsg) <> "" Then Do
+		Call Display 21 1 color.brightwhite "===>" liMsg
+	End
+	
+	Call Display  2 6 color.brightwhite
+	
+	junk = Strip(Upper(linein()))
+	
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Help info for control panel ------------------------- CPhelpInfo --- */
+/* -------------------------------------------------------------------------- */
+CPhelpInfo:
+	Call screenHeader "SCEPSIS - Help information for the Control Panel"
+	
+	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
+	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
+	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
+	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
+	Call Display  9  3 color.cyan  "Commands do not have parameters here"
+
+	Call Display 21 1 color.brightwhite " "
+	Call enterForMore
+	
+Return
 
 
 /* -------------------------------------------------------------------------- */
@@ -391,32 +592,6 @@ listComponents:
     Say "STC - STep CounTer"
 	Say ""
 	Call enterForMore
-Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List instruction ------------------------------ listInstructions --- */
-/* -------------------------------------------------------------------------- */
-listInstructions:
-	Call screenHeader "SCEPSIS - Instruction list"
-	
-	liNum = 4
-	Do inst = 1 To instr.0
-		liLine = "opcode" instr.inst.1 "mnem" instr.inst.2
-		Do step = 1 to instr.inst.3.0
-			liLine2 = liLine "step" step "ctlSigs:"
-			Do cs = 1 To instr.inst.3.step.0
-				liLine2 = liLine2 instr.inst.3.step.cs
-			End
-			liNum = liNum + 1
-			Call Display liNum 3 color.cyan liLine2
-		End
-		liNum = liNum + 1
-	End
-
-	Call Display 21 1 color.brightwhite " "
-	Call enterForMore
-	
 Return
 
 
@@ -544,7 +719,7 @@ Initialize:
 	
 	
 		/* ----- Set default values for program parameters ----- */
-	microCodeSteps	= 8						/* Max number of micro code steps */
+	microCodeSteps	= 5						/* Max number of micro code steps */
 	memorySize		= 256					/* Size of memory in bytes*/
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
