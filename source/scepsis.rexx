@@ -156,10 +156,10 @@ controlPanelDisplay:
 	Call Display 11 38 color.brightcyan  cs_PCTI
 	Call Display 11 42 color.brightwhite "PCTO"
 	Call Display 11 47 color.brightcyan  cs_PCTO
-	Call Display 12 33 color.brightwhite "RAMI"
-	Call Display 12 38 color.brightcyan  cs_RAMI
-	Call Display 12 42 color.brightwhite "RAMO"
-	Call Display 12 47 color.brightcyan  cs_RAMO
+	Call Display 12 33 color.brightwhite "MEMI"
+	Call Display 12 38 color.brightcyan  cs_MEMI
+	Call Display 12 42 color.brightwhite "MEMO"
+	Call Display 12 47 color.brightcyan  cs_MEMO
 	Call Display 13 33 color.brightwhite "RGAI"
 	Call Display 13 38 color.brightcyan  cs_RGAI
 	Call Display 13 42 color.brightwhite "RGAO"
@@ -216,12 +216,13 @@ emulateStep:
 	/* get instruction from memory at PCT location */
 	If (comp_STC == 0) Then Do
 		comp_STC = 1
-		comp_INR = RAM.comp_PCT
+		comp_INR = MEM.comp_PCT
 	End
 										/* search opcode in instruction table */
-	OpcodePtr = findOpcd(D2X(comp_INR))
+	OpcodePtr = findOpcd(Right("00"||D2X(comp_INR),2))
 	If (OpcodePtr == 0) Then Do 
-		errorMsg = "operation exception at location" D2X(comp_PCT)
+		errorMsg = "operation exception, FOUND" Right("00"||D2X(comp_INR),2) 
+		errorMsg = errorMsg "at location" Right("00"||D2X(comp_PCT),2)
 	End; Else Do
 		Opcode   = instr.OpcodePtr.1
 		Mnemonic = instr.OpcodePtr.2
@@ -236,7 +237,7 @@ emulateStep:
 		If (comp_STC > instr.OpcodePtr.3.0) Then Do
 			comp_STC = 1
 		End; Else Do
-			errorMsg = "going to opcode" Opcode||", Instruction" Mnemonic||", step" comp_STC
+			errorMsg = "next: x"||Opcode||"," Mnemonic||", step" comp_STC
 			Do i = 1 To instr.OpcodePtr.3.comp_STC.0
 				errorMsg = errorMsg instr.OpcodePtr.3.comp_STC.i
 			End
@@ -255,7 +256,7 @@ ProcessCtlSignals:
 	If (cs_INRO == 1)	Then DAB = comp_INR
 	If (cs_MARO == 1)	Then DAB = comp_MAR
 	If (cs_PCTO == 1)	Then DAB = comp_PCT
-	If (cs_RAMO == 1)	Then DAB = RAM.comp_MAR
+	If (cs_MEMO == 1)	Then DAB = MEM.comp_MAR
 	If (cs_RGAO == 1)	Then DAB = comp_REGA
 	If (cs_RGBO == 1)	Then DAB = comp_REGB
 											/* input from DAB processed 2nd   */
@@ -263,7 +264,7 @@ ProcessCtlSignals:
 	If (cs_INRI == 1)	Then comp_INR     = DAB
 	If (cs_MARI == 1)	Then comp_MAR     = DAB
 	If (cs_PCTI == 1)	Then comp_PCT     = DAB
-	If (cs_RAMI == 1)	Then RAM.comp_MAR = DAB
+	If (cs_MEMI == 1)	Then MEM.comp_MAR = DAB
 	If (cs_RGAI == 1)	Then comp_REGA    = DAB
 	If (cs_RGBI == 1)	Then comp_REGB    = DAB
 											/* Count Enable, bump PCT         */
@@ -305,16 +306,16 @@ handleMemory:
 					adr = x2d(adr)
 					If isHex(val) Then Do
 						val = x2d(val)
-						If (adr <= ramSize) Then Do
+						If (adr <= memSize) Then Do
 							If (val <= 255) Then Do
-								RAM.adr = val
+								MEM.adr = val
 								memMsg = "set memory location x" || Right("00"||d2x(adr), 2)
 								memMsg = memMsg || " to value x" || Right("00"||d2x(val),2)
 							End; Else Do
 								memMsg = "Value for MEM value > 255"
 							End
 						End; Else Do
-							memMsg = "Value for MEM address > ramSize"
+							memMsg = "Value for MEM address > memSize"
 						End
 					End; Else Do
 						memMsg = "Value for MEM value not HEXa-decimal"
@@ -351,7 +352,7 @@ listMemory:
 	lnum = 5
 	p = 0
 	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to ramSize - 1
+	Do p = 0 to memSize - 1
 		If p > 0 Then Do
 			Select
 				When ((p // 32) == 0) Then Do
@@ -365,7 +366,7 @@ listMemory:
 				Otherwise Nop
 			End
 		End
-		line = line || Right("00"||d2x(RAM.p),2)
+		line = line || Right("00"||d2x(MEM.p),2)
 	End
 	Call Display lnum 2 color.cyan line
 	lnum = lnum + 1
@@ -375,10 +376,10 @@ listMemory:
 	Call Display 20  5 color.brightcyan "return"
 
 	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val} insert val into memory at adr"
+	Call Display 20 15 color.brightcyan "{adr] {val}"
 
-	Call Display 20 58 color.brightwhite "INIT"
-	Call Display 20 63 color.brightcyan  "Initialize Memory"
+	Call Display 20 28 color.brightwhite "INIT"
+	Call Display 20 33 color.brightcyan  "Initialize Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
@@ -565,7 +566,7 @@ listHardware:
     Say "DAB - DAta Bus, a way to transport data back and forth"
     Say "INP - means to input stuff"
     Say "OUT - some way of outputting things"
-    Say "RAM - Memory"
+    Say "MEM - Memory"
 	Say ""
 	Call enterForMore
 Return
@@ -679,8 +680,8 @@ Initialize:
 	Call addCtlSig("PCTI Set the Program Counter to input, getting a value from the DAB")
 	Call addCtlSig("PCTO Set the Program Counter to output, put it's value to the DAB")
 	Call addCtlSig("OUTI Set the output register to input, getting a value from the DAB")
-	Call addCtlSig("RAMI Set memory, pointed to by MAR to input, getting the value from the DAB")
-	Call addCtlSig("RAMO Set memory, pointed to by MAR to output, put value on the DAB")
+	Call addCtlSig("MEMI Set memory, pointed to by MAR to input, getting the value from the DAB")
+	Call addCtlSig("MEMO Set memory, pointed to by MAR to output, put value on the DAB")
 	Call addCtlSig("RGAI Set RGA to input, accept a value from the DAB")
 	Call addCtlSig("RGAO Set RGA to output, put its value out to the DAB")
 	Call addCtlSig("RGBI Set RGB to input, accept a value from the DAB")
@@ -710,8 +711,8 @@ Initialize:
 	cs_OUTI = 0
 	cs_PCTI = 0
 	cs_PCTO = 0
-	cs_RAMI = 0
-	cs_RAMO = 0
+	cs_MEMI = 0
+	cs_MEMO = 0
 	cs_RGAI = 0
 	cs_RGAO = 0
 	cs_RGBI = 0
@@ -751,9 +752,9 @@ Initialize:
 	End
 	
 	/* ----- Memory ----- */
-	ramSize = memorySize
-	Do p = 0 to (ramSize - 1)
-		RAM.p = p
+	memSize = memorySize
+	Do p = 0 to (memSize - 1)
+		MEM.p = p
 	End
 
 
@@ -867,10 +868,10 @@ Return
 /* ----- Initialize Memory ----------------------------------- initMemory --- */
 /* -------------------------------------------------------------------------- */
 initMemory:
-	Procedure Expose ramSize RAM.
+	Procedure Expose memSize MEM.
 	/* ----- Memory ----- */
-	Do p = 0 to (ramSize - 1)
-		RAM.p = 0
+	Do p = 0 to (memSize - 1)
+		MEM.p = 0
 	End
 Return
 

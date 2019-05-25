@@ -8,7 +8,7 @@
 # opcode mnem - CS [...] [- CS [...] ...]
 #
 # The first two microcode steps for every instruction are the same:
-#	PCTO MARI - RAMO INRI CE
+#	PCTO MARI - MEMO INRI CE
 # They put the Program Counter (PCT) in the Memory Address Register (MAR) and
 # 	then they get the contents of that memory location into the instruction register
 # 	finally they bump the Program counter 1 up
@@ -18,25 +18,25 @@
 #
 # NOP - Do nothing - value of PCT to MAR / value of memory to INR,  bump PCT
 
-00 NOP PCTO MARI - RAMO INRI CE
+00 NOP PCTO MARI - MEMO INRI CE
 
 #
 # RD[A|B] {address} - read a value into REG[A|B] from a location in memory
-50 RDA PCTO MARI - RAMO INRI CE - PCTO MARI - RAMO RGAI CE
-54 RDB PCTO MARI - RAMO INRI CE - PCTO MARI - RAMO RGBI CE
+50 RDA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE
+54 RDB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE
 
 #
 # WR[A|B] {address} - write a value from REG[A|B] to a location in memory
-51 WRA PCTO MARI - RAMO INRI CE - PCTO MARI - RAMI RGAO CE
-55 WRB PCTO MARI - RAMO INRI CE - PCTO MARI - RAMI RGBO CE
+51 WRA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMI RGAO CE
+55 WRB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMI RGBO CE
 
 #
 # I2M {address} - read a value from the input register to a location in memory
-70 I2M PCTO MARI - RAMO INRI CE - PCTO MARI - INPO RAMI CE
+70 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE
 
 #
 # M2O {address} - put a value from memory into the ouput register
-78 M2O PCTO MARI - RAMO INRI CE - PCTO MARI - OUTI RAMO CE
+78 M2O PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - OUTI MEMO CE
 
 #
 # STP - Stop the processor (bump PCT first to prepare for continuation)
