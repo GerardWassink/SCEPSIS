@@ -16,9 +16,7 @@ Educating people into the concepts of low-level computing, by emulating a simple
 
 For a bit more background read this [page about the "von Neumann machine"](https://geronimo370.nl/computers/theory/the-von-neumann-machine/). It describes the famous '**fetch - decode - get data - execute**' cycle
 
-## To be done:
-
-### Decide on the hardware components to be emulated
+## Emulated hardware components
 
 To build a computer we need components:
 
@@ -29,13 +27,16 @@ To build a computer we need components:
 - **OUT** - some way of outputting things
 - **RAM** - Memory
 
+###### *We will use a combined CNB/DAB bus and call it DAB*
+
+
 ### Inside the actual CPU
 
 Further down, inside the CPU we have components as well:
 
 - **ALU** - Arithmetic Logical Unit
-- **CLK** - A CLocK pulse generator
-- **CTU** - ConTrol Unit
+- **CLK** - A CLocK pulse generator, advancing a setp at a time
+- **CTU** - ConTrol Unit, translating the instruction to steps
 - **INP** - INPut Register
 - **INR** - INstruction Register
 - **MAR** - Memory Address Register
@@ -60,8 +61,8 @@ Every component in a CPU has functions, al of which can be controlled by control
 - **OUTI** - Set the output register to input, getting a value from the DAB
 - **PCTI** - Set the Program Counter to input, getting a value from the DAB
 - **PCTO** - Set the Program Counter to output, put it's value to the DAB
-- **RAMI** - Set memory, pointed to by MAR to input, getting the value from the DAB
-- **RAMO** - Set memory, pointed to by MAR to output, put value on the DAB
+- **MEMI** - Set memory, pointed to by MAR to input, getting the value from the DAB
+- **MEMO** - Set memory, pointed to by MAR to output, put value on the DAB
 - **RGAI** - Set RGA to input, accept a value from the DAB
 - **RGAO** - Set RGA to output, put its value out to the DAB
 - **RGBI** - Set RGA to input, accept a value from the DAB
