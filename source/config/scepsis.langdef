@@ -21,6 +21,11 @@
 00 NOP PCTO MARI - MEMO INRI CE
 
 #
+# JMP - goto location - 
+
+10 JMP PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO PCTI
+
+#
 # RD[A|B] {address} - read a value into REG[A|B] from a location in memory
 50 RDA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE
 54 RDB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE

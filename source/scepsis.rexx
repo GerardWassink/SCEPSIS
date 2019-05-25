@@ -41,11 +41,11 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Component commands ------------------------------------- */
 			/* -------------------------------------------------------------- */
-			When Wordpos(command, Components) > 0 Then Do
-				If isHex(value) Then Do
-					value = x2d(value)
-					If (value <= 255) Then Do
-						Interpret "comp_" || command "=" value
+			When Wordpos(command, Components) > 0 Then Do	/* exists? ------ */
+				If isHex(value) Then Do						/* hex value? --- */
+					value = x2d(value)						/* make decimal - */
+					If (value <= 255) Then Do				/* value OK ? --- */
+						Interpret "comp_" || command "=" value	/* SET it --- */
 					End; Else Do
 						errorMsg = "Value for " || command || " too large"
 					End
@@ -57,10 +57,10 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Control Signal commands -------------------------------- */
 			/* -------------------------------------------------------------- */
-			When Wordpos(command, ctlSignals) > 0 Then Do
-				If isBin(value) Then Do
-					If (value == 0 | value == 1) Then Do
-						Interpret "cs_" || command "=" value
+			When Wordpos(command, ctlSignals) > 0 Then Do	/* Exists? ------ */
+				If isBin(value) Then Do						/* Binary? ------ */
+					If (value == 0 | value == 1) Then Do	/* value OK ? --- */
+						Interpret "cs_" || command "=" value	/* SET it --- */
 					End; Else Do
 						errorMsg = "Value for " || command || " not a binary digit"
 					End
@@ -70,7 +70,7 @@ Main:
 			End
 			
 			/* -------------------------------------------------------------- */
-			/* ----- Emulator commands -------------------------------------- */
+			/* ----- Emulator command --------------------------------------- */
 			/* -------------------------------------------------------------- */
 			When choice == "S"  Then	Call emulateStep
 			
@@ -120,21 +120,19 @@ controlPanelDisplay:
 	Call Display  7 21 color.brightwhite "INR"
 	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_INR),2)
 
-	Call Display  8  3 color.brightwhite "INP"
-	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_INP),2)
-	Call Display  8 12 color.brightwhite "OUT"
-	Call Display  8 17 color.brightcyan  Right("00"||D2X(comp_OUT),2)
+	Call Display  8  3 color.brightwhite "STC"
+	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_STC),2)
+	Call Display  8 12 color.brightwhite "INP"
+	Call Display  8 17 color.brightcyan  Right("00"||D2X(comp_INP),2)
+	Call Display  8 21 color.brightwhite "OUT"
+	Call Display  8 26 color.brightcyan  Right("00"||D2X(comp_OUT),2)
 
 	Call Display  9  3 color.brightwhite "REGA"
 	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
-	Call Display 10  3 color.brightwhite "REGB"
-	Call Display 10  8 color.brightcyan  Right("00"||D2X(comp_REGB),2)
-
-	Call Display 12  3 color.brightwhite "STC"
-	Call Display 12  8 color.brightcyan  Right("00"||D2X(comp_STC),2)
-
-
-
+	Call Display  9 12 color.brightwhite "REGB"
+	Call Display  9 17 color.brightcyan  Right("00"||D2X(comp_REGB),2)
+	
+	
 	Call Display  5 33 color.brightwhite "Control Signals"
 	Call Display  7 33 color.brightwhite "CE"
 	Call Display  7 38 color.brightcyan  cs_CE
@@ -183,26 +181,36 @@ controlPanelDisplay:
 	Call Display 11 57 color.brightcyan  "Handle Memory"
 	Call Display 12 53 color.brightwhite "INS"
 	Call Display 12 57 color.brightcyan  "Handle Instructions"
-
-
+	
+/* -------------------------------------------------------------------------- */
+/* ----- Display info about the next microcode step to be excuted ----------- */
+/* -------------------------------------------------------------------------- */
+	oPtr = findOpcd(Right("00"||D2X(comp_INR),2))	/* get INR instruction -- */
+	If (oPtr > 0) Then Do 							/* does it exist? ------- */
+		Oc   = instr.oPtr.1							/* get opcode ----------- */
+		Mn   = instr.oPtr.2							/* get mnemonic --------- */
+		Signals = ""		/* walk through and display every control Signal  */
+		Do csC = 1 to instr.oPtr.3.comp_STC.0
+			cS = instr.oPtr.3.comp_STC.csC
+			Signals = Signals || " " || cS
+		End
+		Call Display 19 11 color.brightred "next: x"||Oc Mn "step" comp_STC || ":" Signals "                                                                    "
+	End; Else Do
+		message = "Unknown instruction" Right("00"||D2X(comp_INR),2) "at PCT address"
+	End
+	
 	Call Display 18  3 color.brightwhite "X"
 	Call Display 18  5 color.brightcyan  "Exit"
-
 	Call Display 18 11 color.brightwhite "S"
 	Call Display 18 13 color.brightcyan  "Step"
-
 	Call Display 18 53 color.brightwhite "?"
 	Call Display 18 57 color.brightcyan  "Help info"
-	
 	
 	If Strip(message) <> "" Then Do
 		Call Display 21 1 color.brightwhite "===>" message
 	End
-	
 	Call Display  2 6 color.brightwhite
-	
-	choice = Strip(Upper(linein()))
-	
+	choice = Strip(Upper(linein()))					/* get next command ----- */
 Return choice
 
 
@@ -210,40 +218,30 @@ Return choice
 /* ----- Emulate one microcode Step ------------------------- emulateStep --- */
 /* -------------------------------------------------------------------------- */
 emulateStep:
-											/* Clear previous control signals */
-	Call clrCtlSignals
-		
-	/* get instruction from memory at PCT location */
-	If (comp_STC == 0) Then Do
-		comp_STC = 1
-		comp_INR = MEM.comp_PCT
+	Call clrCtlSignals						/* Clear previous control signals */
+							/* get instruction from memory at PCT location -- */
+	If (comp_STC == 1) Then Do
+		comp_INR = MEM.comp_PCT						/* fill INR ------------- */
 	End
 										/* search opcode in instruction table */
 	OpcodePtr = findOpcd(Right("00"||D2X(comp_INR),2))
-	If (OpcodePtr == 0) Then Do 
+	If (OpcodePtr == 0) Then Do 					/* Does it exist? ------- */
 		errorMsg = "operation exception, FOUND" Right("00"||D2X(comp_INR),2) 
 		errorMsg = errorMsg "at location" Right("00"||D2X(comp_PCT),2)
 	End; Else Do
-		Opcode   = instr.OpcodePtr.1
-		Mnemonic = instr.OpcodePtr.2
-						/* walk through and set every control Signal in order */
+		Opcode   = instr.OpcodePtr.1				/* get opcode ----------- */
+		Mnemonic = instr.OpcodePtr.2				/* get mnemonic --------- */
+					/* walk through and set all control Signals for this step */
 		Do csCtr = 1 to instr.OpcodePtr.3.comp_STC.0
 			ctrlSignal = instr.OpcodePtr.3.comp_STC.csCtr
 			Interpret "cs_"||ctrlSignal "=" 1
 		End
-		
+											/* The heart of the machine ----- */
+											/*   process the ctrl signals --- */
 		Call processCtlSignals
-		
-		If (comp_STC > instr.OpcodePtr.3.0) Then Do
-			comp_STC = 1
-		End; Else Do
-			errorMsg = "next: x"||Opcode||"," Mnemonic||", step" comp_STC
-			Do i = 1 To instr.OpcodePtr.3.comp_STC.0
-				errorMsg = errorMsg instr.OpcodePtr.3.comp_STC.i
-			End
-		End
+											/* reset step counter ----------- */
+		If (comp_STC > instr.OpcodePtr.3.0) Then comp_STC = 1
 	End
-	
 Return
 
 
@@ -269,13 +267,13 @@ ProcessCtlSignals:
 	If (cs_RGBI == 1)	Then comp_REGB    = DAB
 											/* Count Enable, bump PCT         */
 	If (cs_CE   == 1)	Then comp_PCT = comp_PCT + 1
-											/* Next microcode step            */
-	comp_STC = comp_STC + 1
+	
+	comp_STC = comp_STC + 1					/* Next microcode step            */
 Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Handle Memory related stuff ----------------------- handleMemory --- */
+/* ----- Clear all control signals ------------------------ clrCtlSignals --- */
 /* -------------------------------------------------------------------------- */
 clrCtlSignals:
 	Do i = 1 to Words(ctlSignals)
@@ -300,31 +298,34 @@ handleMemory:
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
 			/* -------------------------------------------------------------- */
-			When command == "M" Then	Do
-				Parse Var value adr val .
+			When command == "M" Then	Do		/* fill memory with values -- */
+				Parse Var value adr vals
 				If isHex(adr) Then Do
 					adr = x2d(adr)
-					If isHex(val) Then Do
-						val = x2d(val)
-						If (adr <= memSize) Then Do
-							If (val <= 255) Then Do
-								MEM.adr = val
-								memMsg = "set memory location x" || Right("00"||d2x(adr), 2)
-								memMsg = memMsg || " to value x" || Right("00"||d2x(val),2)
+					Do i = 1 To Words(vals)
+						Parse Var vals val vals
+						val = Strip(val)
+						If isHex(val) Then Do
+							val = x2d(val)
+							If (adr <= memSize) Then Do
+								If (val <= 255) Then Do
+									MEM.adr = val
+									memMsg = "Value(s) entered into memory"
+									adr = adr + 1	/* in case there's more   */
+								End; Else Do
+									memMsg = "Value for MEM:" d2x(val) "value > 255"
+								End
 							End; Else Do
-								memMsg = "Value for MEM value > 255"
+								memMsg = "Value for MEM address > memSize"
 							End
 						End; Else Do
-							memMsg = "Value for MEM address > memSize"
+							memMsg = "Value for MEM value not HEXa-decimal"
 						End
-					End; Else Do
-						memMsg = "Value for MEM value not HEXa-decimal"
 					End
 				End; Else Do
 					memMsg = "Value for MEM address not HEXa-decimal"
 				End
 			End
-			
 			When command == "INIT"  Then	Do
 				Call initMemory
 				memMsg = "Memory initialized"
@@ -333,9 +334,7 @@ handleMemory:
 			Otherwise Do
 				memMsg = "Invalid choice: " || memChoice 
 			End
-			
 		End
-		
 	End
 Return
 
@@ -349,8 +348,9 @@ listMemory:
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
 	
-	lnum = 5
-	p = 0
+							/* --- Display contents of memory in neat ------- */
+							/* ---   little groups, 32 bytes per row -------- */
+	lnum = 5; p = 0
 	line = Right("0000"||d2x(p),4) || ": "
 	Do p = 0 to memSize - 1
 		If p > 0 Then Do
@@ -374,22 +374,17 @@ listMemory:
 
 	Call Display 20  3 color.brightwhite "X"
 	Call Display 20  5 color.brightcyan "return"
-
 	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val}"
-
-	Call Display 20 28 color.brightwhite "INIT"
-	Call Display 20 33 color.brightcyan  "Initialize Memory"
+	Call Display 20 15 color.brightcyan "{adr] {val ...}"
+	Call Display 20 32 color.brightwhite "INIT"
+	Call Display 20 37 color.brightcyan  "Initialize Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
 		Call Display 21 1 color.brightwhite "===>" memMsg
 	End
-	
 	Call Display  2 6 color.brightwhite
-	
 	memChoice = Strip(Upper(linein()))
-	
 Return memChoice
 
 
@@ -424,14 +419,14 @@ Return rval
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Handle Instruction related stuff ------------ handleInstructions --- */
+/* --------------------------------------------------- handleInstructions --- */
+/* -------------------------------------------------------------------------- */
+/* ----- Show Instructions and display individual ones ---------------------- */
 /* -------------------------------------------------------------------------- */
 handleInstructions:
 	lstIChoice = ""
 	lstIMsg = ""
 	liMsg = ""
-	optr = 0
-	If (instr.0 > 0) Then optr = 1
 	Do Until lstIChoice = "X"
 		lstIChoice = Upper(strip(listInstructions(lstIMsg)))
 		Parse Var lstIChoice command value
@@ -463,7 +458,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- List instructions ----------------------------- listInstructions --- */
+/* ----- List all instructions ------------------------- listInstructions --- */
 /* -------------------------------------------------------------------------- */
 listInstructions:
 	Call screenHeader "SCEPSIS - Instructions"
@@ -502,14 +497,11 @@ Return lstIChoice
 /* -------------------------------------------------------------------------- */
 listInstruction:
 	Parse Arg pointer .
-
 	Call screenHeader "SCEPSIS - Instruction"
-	
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
 	
 	Call Display  5  3 color.brightwhite "OPC  Ins  Stp  Control Signals"
-	
 	liLine = instr.pointer.1 "-" instr.pointer.2
 	scrLine = 6
 	Call Display scrLine 3 color.brightwhite liLine
@@ -523,15 +515,12 @@ listInstruction:
 	End
 	scrLine = scrLine + 1
 	
-	
 	If Strip(liMsg) <> "" Then Do
 		Call Display 21 1 color.brightwhite "===>" liMsg
 	End
 	
 	Call Display  2 6 color.brightwhite
-	
 	junk = Strip(Upper(linein()))
-	
 Return
 
 
@@ -689,42 +678,24 @@ Initialize:
 	
 	
 	/* ----- Set default values for Components ----- */
-	Components = "PCT MAR INR INP OUT RGA RGB STC"
-	comp_PCT  = 0
-	comp_MAR  = 0
-	comp_INR  = 0
-	comp_INP  = 0
-	comp_OUT  = 0
-	comp_REGA = 0
-	comp_REGB = 0
-	comp_STC  = 0
+	Components = "PCT MAR INR INP OUT REGA REGB STC"
+	Do i = 1 To Words(Components)
+		Interpret "comp_"||Word(Components,i) "=" 0
+	End
+	comp_STC  = 1
 	
 	
 	/* ----- Set default values for Control Signals ----- */
-	cs_CE   = 0
-	cs_HLT  = 0
-	cs_INPO = 0
-	cs_INRI = 0
-	cs_INRO = 0
-	cs_MARI = 0
-	cs_MARO = 0
-	cs_OUTI = 0
-	cs_PCTI = 0
-	cs_PCTO = 0
-	cs_MEMI = 0
-	cs_MEMO = 0
-	cs_RGAI = 0
-	cs_RGAO = 0
-	cs_RGBI = 0
-	cs_RGBO = 0
+	Do i = 1 To Words(ctlSignals)
+		Interpret "cs_"||Word(ctlSignals,i) "=" 0
+	End
 	
 	
-		/* ----- Set default values for program parameters ----- */
-	microCodeSteps	= 5						/* Max number of micro code steps */
+	/* ----- Set default values for program parameters ----- */
+	microCodeSteps	= 7						/* Max number of micro code steps */
 	memorySize		= 256					/* Size of memory in bytes*/
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
-	
 	
 	
 	/* ----- Read language definition file ----- */
@@ -751,13 +722,10 @@ Initialize:
 		Exit 8
 	End
 	
-	/* ----- Memory ----- */
+	/* ----- Initialize Memory ----- */
 	memSize = memorySize
-	Do p = 0 to (memSize - 1)
-		MEM.p = p
-	End
-
-
+	Call initMemory
+	
 Return
 
 /* -------------------------------------------------------------------------- */
@@ -766,13 +734,10 @@ Return
 addCtlSig:
 	Procedure Expose ctlSig. ctlSignals
 	Parse Arg ctl desc
-
 	ctlSig.0 = ctlSig.0 + 1; p = ctlSig.0
 	ctlSig.p = ctl
 	ctlSig.p.1 = desc
-	
 	ctlSignals = ctlSignals || " " || ctl
-
 Return p
 
 
@@ -818,7 +783,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Read configuration file and process value ---- processConfigFile --- */
+/* ----- Find opcode in the instruction tabel ------------------ findOpcd --- */
 /* -------------------------------------------------------------------------- */
 findOpcd:
 	Procedure Expose instr.
@@ -834,7 +799,7 @@ Return pos
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Read configuration file and process value ---- processConfigFile --- */
+/* ----- Read configuration file and process values --- processConfigFile --- */
 /* -------------------------------------------------------------------------- */
 processConfigFile:
 	lnum = 0
