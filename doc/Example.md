@@ -56,7 +56,7 @@ We would code this I2M instruction in the scepsis.langdef file as follows:
 <pre>
  #
  # I2M {address} - put the value from the INP register into memory location {address]
- xx I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI
+ xx I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE
 </pre>
 
 

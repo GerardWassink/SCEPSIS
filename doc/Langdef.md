@@ -37,14 +37,14 @@ Microcode steps are two or more combinations of control signals. Microcode steps
   * MEMO INRI CE 
   * PCTO MARI 
   * MEMO MARI 
-  * INPO MEMI
+  * INPO MEMI CE
 
 So the resulting definition would look something like:
 
 <pre>
 #
 # I2M {address} - put the value from the INP register into memory location {address]
-30 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI
+30 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE
 </pre>
 
 
