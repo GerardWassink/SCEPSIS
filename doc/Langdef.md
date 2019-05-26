@@ -5,7 +5,7 @@
 
 As we have seen, we can define instructions as a combination of subsequent steps in which various [components](./Components.md) of the CPU are ordered to do things and work together. We do that by activating [Control Signals](./ControlSignals.md). We have also seen an [example](./Example.md) of how this could be done.
 
-The instructions for SCEPSIS are defined in a language definition file. In the scepsis.conf file you can tell the program which language definition you would like to use, so you can make several for yourself.
+The instructions for SCEPSIS are defined in a language definition file. In the [scepsis.conf file](../config/scepsis.conf) you can tell the program which language definition you would like to use, so you can make several definition files for yourself.
 
 Now let's have a look at the syntax of this language definition.
 
