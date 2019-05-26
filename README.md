@@ -19,6 +19,6 @@ For a bit more background read this [page about the "von Neumann machine"](https
 
 ### Further reading
 
-- (Components of the SCEPSIS CPU)(./doc/Components.md)
-- (Control signals in the SCEPSIS CPU)(./doc/ControlSignals.md)
-- (Example instruction for the SCEPSIS CPU)(./doc/Example.md)
+- [Components of the SCEPSIS CPU](./doc/Components.md)
+- [Control signals in the SCEPSIS CPU](./doc/ControlSignals.md)
+- [Example instruction for the SCEPSIS CPU](./doc/Example.md)
