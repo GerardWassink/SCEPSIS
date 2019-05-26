@@ -115,13 +115,13 @@ controlPanelDisplay:
 	Call Display  5  3 color.brightwhite "Components --------------"
 	Call Display  7  3 color.brightwhite "PCT"
 	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
-	Call Display  7 12 color.brightwhite "MAR"
-	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_MAR),2)
-	Call Display  7 21 color.brightwhite "INR"
-	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_INR),2)
+	Call Display  7 12 color.brightwhite "INR"
+	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_INR),2)
+	Call Display  7 21 color.brightwhite "STC"
+	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_STC),2)
 
-	Call Display  8  3 color.brightwhite "STC"
-	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_STC),2)
+	Call Display  8  3 color.brightwhite "MAR"
+	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_MAR),2)
 	Call Display  8 12 color.brightwhite "INP"
 	Call Display  8 17 color.brightcyan  Right("00"||D2X(comp_INP),2)
 	Call Display  8 21 color.brightwhite "OUT"
