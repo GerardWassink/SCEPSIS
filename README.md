@@ -5,10 +5,11 @@
 
 ### Purpose
 
-Educating people into the concepts of low-level computing, by emulating a simple CPU. The properties of this CPU will be:
+The purpose of this project is to educate people in the concepts of low-level computing, by emulating a simple CPU. The properties of this CPU will be:
 
 - 8 bits
-- ability to define microcode
+- fixed number of given components & control signals
+- ability to define custom microcode
 - thus being able to create one's own instruction set
 - combined data- and address bus
 
@@ -21,19 +22,16 @@ For a bit more background read this [page about the "von Neumann machine"](https
 To build a computer we need components:
 
 - **CPU** - Central Processing Unit
-- **CNB** - CoNtrol Bus, means of control the different components
-- **DAB** - DAta Bus, a way to transport data back and forth
 - **INP** - means to input stuff
 - **OUT** - some way of outputting things
 - **RAM** - Memory
+- **DAB** - Data / Address Bus, a way to transport data back and forth
 
-###### *We will use a combined CNB/DAB bus and call it DAB*
-
+For these components to be able to exchange information we need a 'transport mechanism'. In computer terms such a mechanism is often called a 'bus'. In complex computers there's more than one bus. As you can see above, in our simple computer we will use a ***combined data / address bus and call it DAB***.
 
 ### Inside the actual CPU
 
 Further down, inside the CPU we have components as well:
-
 - **ALU** - Arithmetic Logical Unit
 - **CLK** - A CLocK pulse generator, advancing a setp at a time
 - **CTU** - ConTrol Unit, translating the instruction to steps
