@@ -1,0 +1,58 @@
+
+# SCEPSIS
+
+## Language definition
+
+As we have seen, we can define instructions as a combination of subsequent steps in which various [components](./Components.md) of the CPU are ordered to do things and work together. We do that by activating [Control Signals](./ControlSignals.md). We have also seen an [example](./Example.md) of how this could be done.
+
+The instructions for SCEPSIS are defined in a language definition file. In the scepsis.conf file you can tell the program which language definition you would like to use, so you can make several for yourself.
+
+Now let's have a look at the syntax of this language definition.
+
+### Comments
+
+All lines that are empty or start with a hash sign ('#') are considered to be commants and will be discarded.
+
+### Definition lines
+
+All other lines are treated as language definition lines. Every definition line consists of three parts, seperated by spaces:
+
+- OpCode
+- Mnemonic
+- Microcode steps
+
+#### OpCode
+The opcode is a hexadecimal number from x00 to xFF, uniquely identifying the instruction when it is encountered in memory. This is the value you will have to enter into memory when programming SCEPSIS.
+
+#### Mnemonic
+A more or less recognisable acronim for your instruction, for example I2M, which we saw as an example, meaning '*Input To Memory*'.
+
+#### Microcode steps
+Microcode steps are two or more combinations of control signals. Microcode steps may contain a number of control signals. Each microcode step is seperated from the next one by a dash or minus sign. As you can see in the example below (that [we used earlier](./Example.md)) We see:
+
+- OpCode is 30 (hexadecimal)
+- Mnemonic is 'I2M'
+- Microcode steps are
+  * PCTO MARI 
+  * MEMO INRI CE 
+  * PCTO MARI 
+  * INPO MEMI
+
+So the resulting definition would look something like:
+
+<pre>
+#
+# I2M {address} - put the value from the INP register into memory location {address]
+30 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - INPO MEMI
+</pre>
+
+
+
+### Further reading
+
+- [README file for SCEPSIS](../README.md)
+- [Components of the SCEPSIS CPU](./Components.md)
+- [Control signals in the SCEPSIS CPU](./ControlSignals.md)
+- [Example instruction for the SCEPSIS CPU](./Example.md)
+- [Language definition for the SCEPSIS CPU](./Langdef.md)
+

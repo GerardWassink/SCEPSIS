@@ -46,7 +46,19 @@ In this case, the ***execute*** phase will get the data from the input register,
 
 ##### microcode for the execute phase
 
-- Clock Cycle 4 - INPO + RAMI + CE - *put value from the input register on the DAB and have RAM read it in into the proper location; then bump the PCT again*
+- Clock Cycle 4 - INPO + MEMI + CE - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT again*
+
+### langdef file
+
+We would code this I2M instruction in the scepsis.langdef file as follows:
+
+<pre>
+ #
+ # I2M {address} - put the value from the INP register into memory location {address]
+ xx I2M PCTO MARI - MEMO INRI CE - PCTO MARI - INPO MEMI
+</pre>
+
+
 
 ### Further reading
 
@@ -54,4 +66,5 @@ In this case, the ***execute*** phase will get the data from the input register,
 - [Components of the SCEPSIS CPU](./Components.md)
 - [Control signals in the SCEPSIS CPU](./ControlSignals.md)
 - [Example instruction for the SCEPSIS CPU](./Example.md)
+- [Language definition for the SCEPSIS CPU](./Langdef.md)
 
