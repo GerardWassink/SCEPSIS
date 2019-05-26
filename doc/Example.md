@@ -37,8 +37,9 @@ In this case it will get the address from memory, it is stored right after the i
 ##### microcode for the get data phase
 
 - Clock Cycle 3 - PCTO + MARI - *put value from the PCT on the DAB and read the value into the MAR*
+- Clock Cycle 4 - MEMO + MARI + CE - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT again*
 
-The MAR is now pointing to location 42.
+The MAR, which is now pointing to location 42, is used in step 4 to retrieve the address where INP has to be stored.
 
 #### The execute phase
 
@@ -46,7 +47,7 @@ In this case, the ***execute*** phase will get the data from the input register,
 
 ##### microcode for the execute phase
 
-- Clock Cycle 4 - INPO + MEMI + CE - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT again*
+- Clock Cycle 5 - INPO + MEMI + CE - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT again*
 
 ### langdef file
 
@@ -55,7 +56,7 @@ We would code this I2M instruction in the scepsis.langdef file as follows:
 <pre>
  #
  # I2M {address} - put the value from the INP register into memory location {address]
- xx I2M PCTO MARI - MEMO INRI CE - PCTO MARI - INPO MEMI
+ xx I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI
 </pre>
 
 

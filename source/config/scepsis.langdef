@@ -27,7 +27,7 @@
 
 #
 # I2M {address} - put the value from the INP register into memory location {address]
-30 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - INPO MEMI
+30 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI
 
 #
 # RD[A|B] {address} - read a value into REG[A|B] from a location in memory
