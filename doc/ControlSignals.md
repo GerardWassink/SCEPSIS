@@ -28,3 +28,10 @@ For example, the A register can be instructed to put it's value onto the databus
 - **RGBO** - Set RGA to output, put its value out to the DAB
 - ...
 
+### Further reading
+
+- [README file for SCEPSIS](../README.md)
+- [Components of the SCEPSIS CPU](./Components.md)
+- [Control signals in the SCEPSIS CPU](./ControlSignals.md)
+- [Example instruction for the SCEPSIS CPU](./Example.md)
+

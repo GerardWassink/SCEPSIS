@@ -38,3 +38,10 @@ Furthermore, we need something to let the CPU 'tick' (a clock pulse) and somethi
 
 For these components to be able to exchange information we need a 'transport mechanism'. In computer terms such a mechanism is often called a 'bus'. Bus is a fancy way in computer tech speak to indicate a number of signals combined in one 'bundle of wires'. In complex computers there's more than one bus. As you can see above, in our simple computer we will use a ***combined data / address bus and call it DAB***.
 
+### Further reading
+
+- [README file for SCEPSIS](../README.md)
+- [Components of the SCEPSIS CPU](./Components.md)
+- [Control signals in the SCEPSIS CPU](./ControlSignals.md)
+- [Example instruction for the SCEPSIS CPU](./Example.md)
+

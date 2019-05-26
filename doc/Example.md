@@ -48,4 +48,10 @@ In this case, the ***execute*** phase will get the data from the input register,
 
 - Clock Cycle 4 - INPO + RAMI + CE - *put value from the input register on the DAB and have RAM read it in into the proper location; then bump the PCT again*
 
+### Further reading
+
+- [README file for SCEPSIS](../README.md)
+- [Components of the SCEPSIS CPU](./Components.md)
+- [Control signals in the SCEPSIS CPU](./ControlSignals.md)
+- [Example instruction for the SCEPSIS CPU](./Example.md)
 
