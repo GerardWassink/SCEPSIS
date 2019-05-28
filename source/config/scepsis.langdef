@@ -48,6 +48,14 @@
 78 M2O PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - OUTI MEMO CE
 
 #
+# PSHA - put the content of register A on the stack
+80 PSHA PCTO MARI - MEMO INRI CE - SPD - RGAO STKI
+
+#
+# POPA - pull the content of register A from the stack
+84 POPA PCTO MARI - MEMO INRI CE - STKO RGAI - SPI
+
+#
 # STP - Stop the processor (bump PCT first to prepare for continuation)
 # Bump PCT, then HLT
 

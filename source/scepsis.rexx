@@ -131,6 +131,8 @@ controlPanelDisplay:
 	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
 	Call Display  9 12 color.brightwhite "REGB"
 	Call Display  9 17 color.brightcyan  Right("00"||D2X(comp_REGB),2)
+	Call Display  9 21 color.brightwhite "SP"
+	Call Display  9 26 color.brightcyan  Right("00"||D2X(comp_SP),2)
 	
 	
 	Call Display  5 33 color.brightwhite "Control Signals"
@@ -166,6 +168,14 @@ controlPanelDisplay:
 	Call Display 14 38 color.brightcyan  cs_RGBI
 	Call Display 14 42 color.brightwhite "RGBO"
 	Call Display 14 47 color.brightcyan  cs_RGBO
+	Call Display 15 33 color.brightwhite "SPI"
+	Call Display 15 38 color.brightcyan  cs_SPI
+	Call Display 15 42 color.brightwhite "SPD"
+	Call Display 15 47 color.brightcyan  cs_SPD
+	Call Display 16 33 color.brightwhite "STKI"
+	Call Display 16 38 color.brightcyan  cs_STKI
+	Call Display 16 42 color.brightwhite "STKO"
+	Call Display 16 47 color.brightcyan  cs_STKO
 
 
 	Call Display  5 53 color.brightwhite "Commands ------"
@@ -257,6 +267,7 @@ ProcessCtlSignals:
 	If (cs_MEMO == 1)	Then DAB = MEM.comp_MAR
 	If (cs_RGAO == 1)	Then DAB = comp_REGA
 	If (cs_RGBO == 1)	Then DAB = comp_REGB
+	If (cs_STKO == 1)	Then DAB = MEM.comp_SP
 											/* input from DAB processed 2nd   */
 	If (cs_OUTI == 1)	Then comp_OUT     = DAB
 	If (cs_INRI == 1)	Then comp_INR     = DAB
@@ -265,6 +276,23 @@ ProcessCtlSignals:
 	If (cs_MEMI == 1)	Then MEM.comp_MAR = DAB
 	If (cs_RGAI == 1)	Then comp_REGA    = DAB
 	If (cs_RGBI == 1)	Then comp_REGB    = DAB
+	If (cs_STKI == 1)	Then MEM.comp_SP  = DAB
+											/* Stack pointer increment ----- */
+	If (cs_SPI == 1)	Then Do
+		If (comp_SP < (memSize - 1)) Then Do
+			comp_SP      = comp_SP + 1
+		End; Else Do
+			errorMsg = "S0C4 - SP increment invalid"
+		End
+	End
+											/* Stack pointer decrement ----- */
+	If (cs_SPD == 1)	Then Do
+		If (comp_SP > (memSize - 16)) Then Do
+			comp_SP      = comp_SP - 1
+		End; Else Do
+			errorMsg = "S0C4 - SP decrement invalid"
+		End
+	End
 											/* Count Enable, bump PCT         */
 	If (cs_CE   == 1)	Then comp_PCT = comp_PCT + 1
 	
@@ -675,20 +703,11 @@ Initialize:
 	Call addCtlSig("RGAO Set RGA to output, put its value out to the DAB")
 	Call addCtlSig("RGBI Set RGB to input, accept a value from the DAB")
 	Call addCtlSig("RGBO Set RGB to output, put its value out to the DAB")
+	Call addCtlSig("SPI  Increment the stack pointer - after retrieval from the stack")
+	Call addCtlSig("SPD  Decrement the stack pointer - before pushing unto the stack")
+	Call addCtlSig("STKI Set Stack for input, accept a value from the DAB")
+	Call addCtlSig("STKO Set stack for ouput, put its value out to the DAB")
 	
-	
-	/* ----- Set default values for Components ----- */
-	Components = "PCT MAR INR INP OUT REGA REGB STC"
-	Do i = 1 To Words(Components)
-		Interpret "comp_"||Word(Components,i) "=" 0
-	End
-	comp_STC  = 1
-	
-	
-	/* ----- Set default values for Control Signals ----- */
-	Do i = 1 To Words(ctlSignals)
-		Interpret "cs_"||Word(ctlSignals,i) "=" 0
-	End
 	
 	
 	/* ----- Set default values for program parameters ----- */
@@ -725,6 +744,19 @@ Initialize:
 	/* ----- Initialize Memory ----- */
 	memSize = memorySize
 	Call initMemory
+	
+	/* ----- Set default values for Components ----- */
+	Components = "PCT MAR INR INP OUT REGA REGB STC SP"
+	Do i = 1 To Words(Components)
+		Interpret "comp_"||Word(Components,i) "=" 0
+	End
+	comp_STC  = 1
+	comp_SP   = memSize - 1		/* points to top of memory, stack grows down  */
+	
+	/* ----- Set default values for Control Signals ----- */
+	Do i = 1 To Words(ctlSignals)
+		Interpret "cs_"||Word(ctlSignals,i) "=" 0
+	End
 	
 Return
 
