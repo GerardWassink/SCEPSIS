@@ -17,6 +17,10 @@ The purpose of this project is to educate people in the concepts of low-level co
 
 For a bit more background read this [page about the "von Neumann machine"](https://geronimo370.nl/computers/theory/the-von-neumann-machine/). It describes the famous '**fetch - decode - get data - execute**' cycle
 
+### Dependencies
+
+A dependency is the use of ANSI escape codes, especially on Windows systems where it was only implemented recently (in Windows 10 Version 1511). More [info about ANSI codes](https://en.wikipedia.org/wiki/ANSI_escape_code).
+
 ### Further reading
 
 - [Components of the SCEPSIS CPU](./doc/Components.md)
