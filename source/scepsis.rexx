@@ -720,7 +720,9 @@ Initialize:
 	/* ----- Read language definition file ----- */
 	instr.	= 0								/* stem to hold instructions */
 	instr.0 = 0
-	If Open(langDefFile, 'R') Then Do
+
+/*	If Open(langDefFile, 'R') Then Do   *** changed to Stream() to be compatible with ooRexx */
+	If Stream(langDefFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Call processLangDefFile
 	End; Else Do
 		Say "Error opening file" langDefFile
@@ -729,7 +731,8 @@ Initialize:
 
 
 	/* ----- Read configuration file ----- */
-	If Open(configFile, 'R') Then Do
+/*	If Open(configFile, 'R') Then Do   *** changed to Stream() to be compatible with ooRexx */
+	If Stream(configFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Call processConfigFile
 	End; Else Do
 		Say "Error opening file" configFile
