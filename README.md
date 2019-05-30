@@ -3,6 +3,8 @@
 
 ## Simple CPU Emulator Program (Student Instruction System)
 
+![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsis_main.JPG "SCEPSIS main screen")
+
 ### Purpose
 
 The purpose of this project is to educate people in the concepts of low-level computing, by emulating a simple CPU. The properties of this CPU will be:
@@ -12,11 +14,6 @@ The purpose of this project is to educate people in the concepts of low-level co
 - ability to define custom microcode
 - thus being able to create one's own instruction set
 - combined data- and address bus
-
-### The main screen:
-(read on below)
-
-![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsis_main.JPG "SCEPSIS main screen")
 
 ### Background
 
