@@ -13,6 +13,11 @@ The purpose of this project is to educate people in the concepts of low-level co
 - thus being able to create one's own instruction set
 - combined data- and address bus
 
+### The main screen:
+(read on below)
+
+![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/scepsis_main.JPG "SCEPSIS main screen")
+
 ### Background
 
 For a bit more background read this [page about the "von Neumann machine"](https://geronimo370.nl/computers/theory/the-von-neumann-machine/). It describes the famous '**fetch - decode - get data - execute**' cycle
