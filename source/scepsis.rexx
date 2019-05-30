@@ -9,8 +9,10 @@
 /* Purpose:         Teach peeople about simple CPU's and microcode  */
 /*                                                                  */
 /* History:                                                         */
-/*   v1.0  First release                                            */
-/*   v1.1  Added saving and reloading memory contents               */
+/*   v1.0     First release                                         */
+/*   v1.1     Added saving and reloading memory contents            */
+/*   v1.1.1   Correction in mem load, added hidden index feature    */
+/*            plus some cleaning and housekeeping                   */
 /*                                                                  */
 /* ---------------------------------------------------------------- */
 
@@ -18,6 +20,7 @@
 /* -------------------------------------------------------------------------- */
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
+Globals:
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
 	color.brightblack  = 90; color.brightred    = 91; color.brightgreen   = 92
@@ -26,7 +29,6 @@
 	color.reset = 0
 	ESC = d2c(27) || "["
 	LF = d2c(10)
-
 
 
 /* -------------------------------------------------------------------------- */
@@ -85,10 +87,10 @@ Main:
 			When choice == "LH"  Then	Call listHardware
 			When choice == "LC"  Then	Call listComponents
 			When choice == "LS"  Then	Call listControlSignals
-			When choice == "LI"  Then	Call listInstructions
 			When choice == "MEM" Then	Call handleMemory
 			When choice == "INS" Then	Call handleInstructions
 			When choice == "?"   Then	Call CPhelpInfo
+			When choice == "IX"  Then	Call indexMe	/* hidden feature --- */
 			When choice == "X"   Then	Do
 				choice = ""
 				Leave
@@ -190,8 +192,8 @@ controlPanelDisplay:
 	Call Display  8 57 color.brightcyan  "List components"
 	Call Display  9 53 color.brightwhite "LS"
 	Call Display  9 57 color.brightcyan  "List Control Signals"
-	Call Display 10 53 color.brightwhite "LI"
-	Call Display 10 57 color.brightcyan  "List Instructions"
+
+
 	Call Display 11 53 color.brightwhite "MEM"
 	Call Display 11 57 color.brightcyan  "Handle Memory"
 	Call Display 12 53 color.brightwhite "INS"
@@ -415,13 +417,14 @@ Return
 /* ----- Load Memory in hex format --------------------------- loadMemory --- */
 /* -------------------------------------------------------------------------- */
 loadMemory:
-	lnum = 1; p = 0						/* load from location 0, count lines  */
+	lnum = 0; p = 0						/* load from location 0, count lines  */
 	line = ""
 regel = ""
 	memFile = "./scepsis.memory"
 	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Do While Lines(memFile)
 			line = Strip(Upper(Linein(memFile)))
+			lnum = lnum + 1
 			llen = Length(line)
 			If (llen > 0) Then Do
 				Do lp = 1 To llen By 2
@@ -599,7 +602,8 @@ Return lstIChoice
 /* -------------------------------------------------------------------------- */
 listInstruction:
 	Parse Arg pointer .
-	Call screenHeader "SCEPSIS - Instruction"
+	Call screenHeader "SCEPSIS - breakup of the " || instr.pointer.2 || " Instruction"
+	
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
 	
@@ -621,8 +625,8 @@ listInstruction:
 		Call Display 21 1 color.brightwhite "===>" liMsg
 	End
 	
-	Call Display  2 6 color.brightwhite
-	junk = Strip(Upper(linein()))
+	Call Display 21 6 color.brightwhite
+	Call enterForMore
 Return
 
 
@@ -648,9 +652,7 @@ Return
 /* ----- List Hardware in our model computer---------------- listHardware --- */
 /* -------------------------------------------------------------------------- */
 listHardware:
-	Call screenHeader
-
-	Say "----- List of Hardware -----"
+	Call screenHeader "List of Hardware"
 	Say ""
     Say "CPU - Central Processing Unit"
     Say "CNB - CoNtrol Bus, means of control the different components"
@@ -667,9 +669,7 @@ Return
 /* ----- List Components in our model computer------------ listComponents --- */
 /* -------------------------------------------------------------------------- */
 listComponents:
-	Call screenHeader
-
-	Say "----- List of Components -----"
+	Call screenHeader "List of Components"
 	Say ""
     Say "ALU - Arithmetic Logical Unit"
     Say "CLK - A CLocK pulse generator"
@@ -691,9 +691,7 @@ Return
 /* ----- List available Control Signals -------------- listControlSignals --- */
 /* -------------------------------------------------------------------------- */
 listControlSignals:
-	Call screenHeader
-
-	Say "----- List of Control Signals -----"
+	Call screenHeader "List of Control Signals"
 	Say ""
 	Do c = 1 to ctlSig.0
 		Say ctlSig.c || " - " || ctlSig.c.1
@@ -709,8 +707,9 @@ Return
 screenHeader:
 	Parse Arg headerLine
 	"clear"
-	Call Display  1  1 color.brightwhite "--------------------------------------------------------------------------------"
-	If (Strip(headerLine) == "") Then headerLine = "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
+	Call Display  1  1 color.brightwhite Copies("-", 80)
+	If (Strip(headerLine) == "") 
+		Then headerLine = "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
 	position = (40 - Trunc(Length(headerLine)/2))
 	Call Display  1 position color.brightwhite " " || headerLine || " "
 Return
@@ -723,11 +722,11 @@ Return
 Display:
 	Parse Arg row col atr txt
 	lineOut = ""
-	If row > 0 and col > 0 Then			/* Position? If yes, encode it ----- */
+	If ((row > 0) & (col > 0)) Then			/* Position? If yes, encode it ----- */
 		lineOut = lineOut || ESC || row || ";" || col || "H"
-	If atr <> "" Then					/* attribute? If yes, encode it	---- */
+	If (atr <> "") Then					/* attribute? If yes, encode it	---- */
 		lineOut = lineOut || ESC || atr || "m"
-	If txt <> "" Then			/* Do we have text? If yes, encode it ------ */
+	If (txt <> "") Then			/* Do we have text? If yes, encode it ------ */
 		lineOut = lineOut || txt
 	Do j = 1 To Length(lineOut)		/* Write encoded string to the screen -- */
 		call charout ,substr(lineOut,j,1)
@@ -736,7 +735,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Reset screen attributes to default at the bottom of the screen	----- */
+/* ----- Reset screen attributes to default ----------------------- Reset --- */
 /* -------------------------------------------------------------------------- */
 Reset:
   Call Display "23 1" color.reset
@@ -794,8 +793,6 @@ Initialize:
 	/* ----- Read language definition file ----- */
 	instr.	= 0								/* stem to hold instructions */
 	instr.0 = 0
-
-/*	If Open(langDefFile, 'R') Then Do   *** changed to Stream() to be compatible with ooRexx */
 	If Stream(langDefFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Call processLangDefFile
 	End; Else Do
@@ -805,7 +802,6 @@ Initialize:
 
 
 	/* ----- Read configuration file ----- */
-/*	If Open(configFile, 'R') Then Do   *** changed to Stream() to be compatible with ooRexx */
 	If Stream(configFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Call processConfigFile
 	End; Else Do
@@ -827,6 +823,8 @@ Initialize:
 	Do i = 1 To Words(Components)
 		Interpret "comp_"||Word(Components,i) "=" 0
 	End
+	
+	/* ----- Not all must be zero, correct them here: ----- */
 	comp_STC  = 1
 	comp_SP   = memSize - 1		/* points to top of memory, stack grows down  */
 	
@@ -870,10 +868,10 @@ processLangDefFile:
 					instr.0 = instr.0 + 1
 					i = instr.0
 				End
-				instr.i.1 = opcd
-				instr.i.2 = mnem
+				instr.i.1 = opcd			/* store opcode ----------------- */
+				instr.i.2 = mnem			/* store mnemonic --------------- */
 				instr.i.3.0 = 0				/* ptr to microde steps --------- */
-				Do While Words(mcSteps) > 0
+				Do While Words(mcSteps) > 0	/* store ctl signals per step --- */
 					Parse Var mcSteps mcStep '-' mcSteps
 					instr.i.3.0 = instr.i.3.0 + 1
 					s = instr.i.3.0			/* ptr to microde steps --------- */
@@ -955,6 +953,33 @@ Return
 /* -------------------------------------------------------------------------- */
 endProgram:
 	Call reset
-	Say "goodbye"
+	Say "SCEPSIS signing of - Goodbye"
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Index of labels in this Rexx file ---------------------- indexMe --- */
+/* -------------------------------------------------------------------------- */
+indexMe:
+	"clear"
+	lnum = 0
+	srcFile = "./scepsis.rexx"			/* Read our own source -------------- */
+	If Stream(srcFile, 'C', 'OPEN READ') = "READY:" Then Do
+		Do While Lines(srcFile)
+			line = Strip(Linein(srcFile))
+			lnum = lnum + 1
+			If (line <> "") Then Do
+				w = Word(line,1)
+				If (Right(w, 1) == ":") Then Do	/* Do we have a label? ------ */
+					Say Right("00000"||lnum, 5) w	/* Print it with linenum  */
+				End
+			End
+		End
+		Say ""
+		Call enterForMore
+	End; Else Do
+		srcMsg = "Error opening file" srcFile
+		Exit 8
+	End
 Return
 
