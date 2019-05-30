@@ -19,7 +19,7 @@ For a bit more background read this [page about the "von Neumann machine"](https
 
 ### Dependencies
 
-A dependency is the use of ANSI escape codes, especially on Windows systems where it was only implemented recently (in Windows 10 Version 1511). More [info about ANSI codes](https://en.wikipedia.org/wiki/ANSI_escape_code).
+A dependency is the use of ANSI escape codes, especially on Windows systems where it was only implemented recently (in Windows 10 Version 1511). More [info about ANSI codes](https://en.wikipedia.org/wiki/ANSI_escape_code). This dependency has been solved for older Windows versions as described in [Issue 2](https://github.com/GerardWassink/SCEPSIS/issues/3).
 
 ### Further reading
 
