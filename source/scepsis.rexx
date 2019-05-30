@@ -5,8 +5,13 @@
 /* Program name:    scepsis.rexx                                    */
 /* Author:          Gerard Wassink                                  */
 /* Date:            May 2019                                        */
-/* Version:         0.1                                             */
+/* Version:         1.1                                             */
 /* Purpose:         Teach peeople about simple CPU's and microcode  */
+/*                                                                  */
+/* History:                                                         */
+/*   v1.0  First release                                            */
+/*   v1.1  Added saving and reloading memory contents               */
+/*                                                                  */
 /* ---------------------------------------------------------------- */
 
 
@@ -354,9 +359,18 @@ handleMemory:
 					memMsg = "Value for MEM address not HEXa-decimal"
 				End
 			End
+
 			When command == "INIT"  Then	Do
 				Call initMemory
 				memMsg = "Memory initialized"
+			End
+
+			When command == "SAVE"  Then	Do
+				Call saveMemory
+			End
+
+			When command == "LOAD"  Then	Do
+				Call loadMemory
 			End
 
 			Otherwise Do
@@ -364,6 +378,64 @@ handleMemory:
 			End
 		End
 	End
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Save Memory in hex format --------------------------- saveMemory --- */
+/* -------------------------------------------------------------------------- */
+saveMemory:
+	lnum = 1; p = 0						/* save from location 0, count lines  */
+	line = ""
+	memFile = "./scepsis.memory"
+	If Stream(memFile, 'C', 'OPEN WRITE') = "READY:" Then Do
+		Do p = 0 to memSize - 1
+			If p > 0 Then Do
+				If ((p // 32) == 0) Then Do
+						lc = Lineout(memFile, line, lnum)
+						lnum = lnum + 1
+						line = ""
+				End
+			End
+			line = line || Right("00"||d2x(MEM.p),2)
+		End
+		lc = Lineout(memFile, line, lnum)
+		lnum = lnum + 1
+		line = ""
+		memMsg = "Wrote" lnum "lines to" memFile
+	End; Else Do
+		memMsg = "Error opening file" memFile
+		Exit 8
+	End
+
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Load Memory in hex format --------------------------- loadMemory --- */
+/* -------------------------------------------------------------------------- */
+loadMemory:
+	lnum = 1; p = 0						/* load from location 0, count lines  */
+	line = ""
+regel = ""
+	memFile = "./scepsis.memory"
+	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
+		Do While Lines(memFile)
+			line = Strip(Upper(Linein(memFile)))
+			llen = Length(line)
+			If (llen > 0) Then Do
+				Do lp = 1 To llen By 2
+					MEM.p = X2D(Substr(line, lp,2))
+					p = p + 1
+				End
+			End
+		End
+		memMsg = "Loaded" lnum "lines from" memFile
+	End; Else Do
+		memMsg = "Error opening file" memFile
+		Exit 8
+	End
+
 Return
 
 
@@ -405,7 +477,9 @@ listMemory:
 	Call Display 20 13 color.brightwhite "M"
 	Call Display 20 15 color.brightcyan "{adr] {val ...}"
 	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightcyan  "Initialize Memory"
+	Call Display 20 37 color.brightwhite "SAVE"
+	Call Display 20 42 color.brightwhite "LOAD"
+	Call Display 20 47 color.brightcyan  "Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
