@@ -16,7 +16,7 @@ The purpose of this project is to educate people in the concepts of low-level co
 ### The main screen:
 (read on below)
 
-![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/scepsis_main.JPG "SCEPSIS main screen")
+![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsis_main.JPG "SCEPSIS main screen")
 
 ### Background
 
