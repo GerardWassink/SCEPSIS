@@ -28,10 +28,14 @@ Implement control signals to facilitatie conditional jumps (they would work the 
 - SPCL	Set Program Counter when Less
 - SPCG	Set Program Counter when Greater
 
-#### 1.1.6	Expand example instruction set with one exemple of conditional jump
+#### 1.1.6	Expand example instruction set with one example of conditional jump
 - JE	Jump when equal
 
-#### 1.1.7	Where needed, fix minor bugs, do housekeeping
+#### 1.1.7	Introduce the possibility to execute one instruction (with all its microsteps) at once
+
+#### 1.1.8	Introduce the possibility to execute the program from the point where the PCT in pointing
+
+#### 1.1.9	Where needed, fix minor bugs, do housekeeping
 
 ### Release 1.2
 Include all of the above.
