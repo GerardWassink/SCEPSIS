@@ -48,178 +48,39 @@ as follows:
 
 ## The possible ALU instructions
 
-| Opcode		| Name			| Example 	| Description 					|
-| :--- 			| :---  		| :--- 		| :---							|
-| 				| 				| 			| --- Add instructions --- 		|
-| xxx 00 000 	| Add Immediate | ADI 01 	| Add 1 to register A 			|
-
-	</tr>
-	<tr>
-		<td>xxx 01 000</td>
-		<td>Add from memory</td>
-		<td>ADM 01</td>
-		<td>Add memory to register A</td>
-	</tr>
-	<tr>
-		<td>xxx 10 000</td>
-		<td>Add register B</td>
-		<td>ADB</td>
-		<td>Add register B to register A</td>
-	</tr>
-	<tr>
-		<td>xxx 11 000</td>
-		<td>Add PCT</td>
-		<td>ADP</td>
-		<td>Add PCT to register A</td>
-	</tr>
+| Opcode	 | Name				| Example 	| Description 							|
+| :--- 		 | :---  			| :--- 		| :---									|
+| 			 | 					| 			| **Add instructions**					|
+| xxx 00 000 | Add Immediate 	| ADI 01 	| Add 1 to register A 					|
+| xxx 01 000 | Add from memory	| ADM 01	| Add memory to register A				|
+| xxx 10 000 | Add register B	| ADB		| Add register B to register A			|
+| xxx 11 000 | Add register C	| ADC		| Add register C to register A			|	
+| 			 | 					| 			| **Subtract instructions**				|
+| xxx 00 001 | Sub Immediate 	| SBI 01 	| Subtract 1 from register A			|
+| xxx 01 001 | Sub from memory	| SBM 01	| Subtract memory from register A		|
+| xxx 10 001 | Sub register B	| SBB		| Subtract register B from register A	|
+| xxx 11 001 | Sub register C	| SBC		| Subtract register C from register A	|	
+| 			 | 					| 			| **Compare instructions**				|
+| xxx 00 010 | Cmp Immediate 	| CPI 01 	| Compare register A with 01			|
+| xxx 01 010 | Cmp from memory	| CPM 01	| Compare register A with memory		|
+| xxx 10 010 | Cmp register B	| CPB		| Compare register A with register B	|
+| xxx 11 010 | Cmp register C	| CPC		| Compare register A with register C	|	
+| 			 | 					| 			| **Logical AND instructions**			|
+| xxx 00 011 | AND Immediate 	| ANI 01 	| AND register A with 01				|
+| xxx 01 011 | AND memory		| ANM 01	| AND register A with memory			|
+| xxx 10 011 | AND register B	| ANB		| AND register A with register B		|
+| xxx 11 011 | AND register C	| ANC		| AND register A with register C		|	
+| 			 | 					| 			| **Logical OR instructions**			|
+| xxx 00 100 | OR Immediate 	| ORI 01 	| OR register A with 01					|
+| xxx 01 100 | OR memory		| ORM 01	| OR register A with memory				|
+| xxx 10 100 | OR register B	| ORB		| OR register A with register B			|
+| xxx 11 100 | OR register C	| ORC		| OR register A with register C			|	
+| 			 | 					| 			| **Logical NOT instructions**			|
+| xxx 00 101 | NOT Immediate 	| NTI 01 	| NOT register A with 01				|
+| xxx 01 101 | NOT memory		| NTM 01	| NOT register A with memory			|
+| xxx 10 101 | NOT register B	| NTB		| NOT register A with register B		|
+| xxx 11 101 | NOT register C	| NTC		| NOT register A with register C		|	
 	
-	<tr>
-		<td align="right" colspan="4">--- Subtract instructions ---</td>
-	</tr>
-	
-	<tr>
-		<td>xxx 00 001</td>
-		<td>Subtract Immediate</td>
-		<td>SBI 01</td>
-		<td>Subtract 1 from register A</td>
-	</tr>
-	<tr>
-		<td>xxx 01 001</td>
-		<td>Subtract memory</td>
-		<td>SBM 01</td>
-		<td>Subtract memory from register A</td>
-	</tr>
-	<tr>
-		<td>xxx 10 001</td>
-		<td>Subtract register B</td>
-		<td>SBB</td>
-		<td>Subtract register B from register A</td>
-	</tr>
-	<tr>
-		<td>xxx 11 001</td>
-		<td>Subtract PCT</td>
-		<td>SBP</td>
-		<td>Subtract PCT from register A</td>
-	</tr>
-	
-	<tr>
-		<td align="right" colspan="4">--- Compare instructions ---</td>
-	</tr>
-	
-	<tr>
-		<td>xxx 00 010</td>
-		<td>Compare Immediate</td>
-		<td>CPI 01</td>
-		<td>Compare register A with 01</td>
-	</tr>
-	<tr>
-		<td>xxx 01 010</td>
-		<td>Compare memory</td>
-		<td>CPM 01</td>
-		<td>Compare register A with memory</td>
-	</tr>
-	<tr>
-		<td>xxx 10 010</td>
-		<td>Compare register B</td>
-		<td>CPB</td>
-		<td>Compare register a with register B</td>
-	</tr>
-	<tr>
-		<td>xxx 11 010</td>
-		<td>Compare PCT</td>
-		<td>CPP</td>
-		<td>Compare register A with  PCT</td>
-	</tr>
-	
-	<tr>
-		<td align="right" colspan="4">--- Logical AND instructions ---</td>
-	</tr>
-	
-	<tr>
-		<td>xxx 00 011</td>
-		<td>AND Immediate</td>
-		<td>ANI 01</td>
-		<td>AND register A with 01</td>
-	</tr>
-	<tr>
-		<td>xxx 01 011</td>
-		<td>AND memory</td>
-		<td>ANM 01</td>
-		<td>AND register A with memory</td>
-	</tr>
-	<tr>
-		<td>xxx 10 011</td>
-		<td>Compare register B</td>
-		<td>ANB</td>
-		<td>AND register A with register B</td>
-	</tr>
-	<tr>
-		<td>xxx 11 011</td>
-		<td>AND PCT</td>
-		<td>ANP</td>
-		<td>AND register A with PCT</td>
-	</tr>
-	
-	<tr>
-		<td align="right" colspan="4">--- Logical OR instructions ---</td>
-	</tr>
-	
-	<tr>
-		<td>xxx 00 100</td>
-		<td>OR Immediate</td>
-		<td>ORI 01</td>
-		<td>OR register A with 01</td>
-	</tr>
-	<tr>
-		<td>xxx 01 100</td>
-		<td>OR memory</td>
-		<td>ORM 01</td>
-		<td>OR register A with memory</td>
-	</tr>
-	<tr>
-		<td>xxx 10 100</td>
-		<td>OR register B</td>
-		<td>ORB</td>
-		<td>OR register A with register B</td>
-	</tr>
-	<tr>
-		<td>xxx 11 100</td>
-		<td>OR PCT</td>
-		<td>ORP</td>
-		<td>OR register A with PCT</td>
-	</tr>
-	
-	<tr>
-		<td align="right" colspan="4">--- Logical NOT instructions ---</td>
-	</tr>
-	
-	<tr>
-		<td>xxx 00 100</td>
-		<td>NOT register A</td>
-		<td>NTA</td>
-		<td>Invert register A</td>
-	</tr>
-	<tr>
-		<td>xxx 01 100</td>
-		<td>NOT memory</td>
-		<td>NTM 01</td>
-		<td>Invert memory value into register A</td>
-	</tr>
-	<tr>
-		<td>xxx 10 100</td>
-		<td>NOT register B</td>
-		<td>NTB</td>
-		<td>Invert register B into register A</td>
-	</tr>
-	<tr>
-		<td>xxx 11 100</td>
-		<td>NOT PCT</td>
-		<td>NTP</td>
-		<td>Invert PCT into register A</td>
-	</tr>
-	
-</table>
-
 
 ### Further reading
 
