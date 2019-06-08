@@ -12,7 +12,7 @@ Add code to decode ALU instructions and control it's operations:
 - Or
 - Not
 
-#### 1.1.4	Set appropriate flags
+#### 1.1.4	Set appropriate flags DONE
 Depending on the outcome of ALU operations, set flags:
 - C		Carry
 - Z		Zero
@@ -20,7 +20,7 @@ Depending on the outcome of ALU operations, set flags:
 - LT	Less then
 - GT	Greater then
 
-#### 1.1.5	Conditional jumps
+#### 1.1.5	Implement conditional jumps
 Implement control signals to facilitatie conditional jumps (they would work the same way as the existing PCTI, only dependent on conditions):
 - SPCC	Set Program Counter when Carry set
 - SPCZ	Set Program Counter when Zero
