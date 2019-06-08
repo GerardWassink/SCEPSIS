@@ -48,23 +48,11 @@ as follows:
 
 ## The possible ALU instructions
 
-<table border="1" width="100%">
-	<tr>
-		<th align="left">Opcode</th>
-		<th align="left">Name</th>
-		<th align="left">Example</th>
-		<th align="left">Description</th>
-	</tr>
-	
-	<tr>
-		<td align="right" colspan="4">--- Add instructions ---</td>
-	</tr>
-	
-	<tr>
-		<td>xxx 00 000</td>
-		<td>Add Immediate</td>
-		<td>ADI 01</td>
-		<td>Add 1 to register A</td>
+| Opcode | Name Example | Description |
+|:--- |:--- |:--- |:--- |
+| | | | --- Add instructions --- |
+| xxx 00 000 | Add Immediate | ADI 01 | Add 1 to register A |
+
 	</tr>
 	<tr>
 		<td>xxx 01 000</td>

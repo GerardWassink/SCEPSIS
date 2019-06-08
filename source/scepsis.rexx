@@ -206,12 +206,13 @@ controlPanelDisplay:
 	If (oPtr > 0) Then Do 							/* does it exist? ------- */
 		Oc   = instr.oPtr.1							/* get opcode ----------- */
 		Mn   = instr.oPtr.2							/* get mnemonic --------- */
+		Ao   = c2x(BitAnd(x2c(Oc), x2c("07")))		/* get ALU operation ---- */
 		Signals = ""		/* walk through and display every control Signal  */
 		Do csC = 1 to instr.oPtr.3.comp_STC.0
 			cS = instr.oPtr.3.comp_STC.csC
 			Signals = Signals || " " || cS
 		End
-		Call Display 19 11 color.brightred "next: x"||Oc Mn "step" comp_STC || ":" Signals "                                                                    "
+		Call Display 19 11 color.brightred "next: x"||Oc Mn "ALU opr:" Ao "step" comp_STC || ":" Signals "                                                                    "
 	End; Else Do
 		message = "Unknown instruction" Right("00"||D2X(comp_INR),2) "at PCT address"
 	End
@@ -248,6 +249,8 @@ emulateStep:
 	End; Else Do
 		Opcode   = instr.OpcodePtr.1				/* get opcode ----------- */
 		Mnemonic = instr.OpcodePtr.2				/* get mnemonic --------- */
+		ALUopr   = c2x(BitAnd(x2c(Opcode), x2c("07"))) /* get ALU operation - */
+		
 					/* walk through and set all control Signals for this step */
 		Do csCtr = 1 to instr.OpcodePtr.3.comp_STC.0
 			ctrlSignal = instr.OpcodePtr.3.comp_STC.csCtr
@@ -298,6 +301,27 @@ ProcessCtlSignals:
 			comp_SP      = comp_SP - 1
 		End; Else Do
 			errorMsg = "S0C4 - SP decrement invalid"
+		End
+	End
+											/* Execute ALU operation -------- */
+	If (cs_EXC   == 1)	Then Do	
+		
+		Select
+			When ALUopr == 0 Then Do		/* ADD */
+			End
+			When ALUopr == 1 Then Do		/* SUBTRACT */
+			End
+			When ALUopr == 2 Then Do		/* COMPARE */
+			End
+			When ALUopr == 3 Then Do		/* AND */
+			End
+			When ALUopr == 4 Then Do		/* OR */
+			End
+			When ALUopr == 5 Then Do		/* NOT */
+			End
+			Otherwise Do
+				errorMsg = "Invalid ALU operation" ALUopr
+			End
 		End
 	End
 											/* Count Enable, bump PCT         */
@@ -762,6 +786,7 @@ Initialize:
 	ctlSignals = ""
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
 	Call addCtlSig("HLT HALT the processor")
+	Call addCtlSig("EXC Execute the ALU operation at hand")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
 	Call addCtlSig("INRO Set the instruction register to output, put its on the DAB")
