@@ -10,10 +10,9 @@ Opcode bits that control the working of the ALU:
 
 <PRE>
 76543210
-+--+-+--
-|  | |_________		bits 210 control the operation
-|  |___________		bits 43 control the second operand
-|______________		bits 765 are the identifying part of the ALU ops
++----+--
+|    |_________		bits 210 control the operation
+|______________		bits 76543 are the identifying part of the ALU ops
 </PRE>
 
 ### ALU operations
@@ -30,15 +29,14 @@ xxxx x110
 xxxx x111	
 </PRE>
 
-### ALU addreessing mode
-The Mode indicator controls where the second operand of the instruction comes from
+### ALU addressing modes
+The addressing mode controls where the second operand of the instruction comes from. 
 
-<PRE>
-xxx0 0xxx	Immediate- (operand in instruction)
-xxx0 1xxx	Memory   - (operand in memory, address in instruction)
-xxx1 0xxx	REGB     - (operand in register B)
-xxx1 1xxx	PCT      - (operand in Program Counter)
-</PRE>
+- Immediate- (operand directly in instruction)
+- Memory   - (operand in memory, address in instruction)
+- REGB     - (operand in register B)
+
+These modes depend on the micro step definitions for a specific instruction. The table below gives a suggestion for coding them.
 
 ### Decoding the instructions
 
@@ -47,12 +45,6 @@ The ALU operation can be extracted from the Instruction Register
 as follows:
 
  ALUoperation = (comp_INR & x7)	/* mask is binary '00000111' */
-
-#### Extracting the ALU mode of operation
-The ALU mode of operation can be extracted from the Instruction Register 
-as follows:
-
- ALUopMode = (comp_INR & x18) / 8	/* mask is binary '00011000' */
 
 ## The possible ALU instructions
 
