@@ -47,22 +47,37 @@ as follows:
  ALUoperation = (comp_INR & x7)	/* mask is binary '00000111' */
 
 ## The possible ALU instructions
+In the table below you find the possible variations of the ALU instructions in the 
+way they are coded in SCEPSIS. The modes (bits 4 and 3 of the opcode) are suggestions 
+to make the instruction set more structured. Coded in this way the instruction:
+
+ CPM 3A
+
+meaning: compare register a with the contents of memory at address x'3A', would be coded as:
+
+ 'xxx 01 010   0011 1010' (binary)
+
+You could opt to code the opcodes for ALU operations starting with three 1's, Then it would be:
+
+ '111 01 010   0011 1010' (binary) or: 'EA 3A' (hexadecimal)
+
+### the ALU operation table:
 
 | Opcode	 | Name				| Example 	| Description 							|
 | :--- 		 | :---  			| :--- 		| :---									|
 | 			 | 					| 			| **Add instructions**					|
 | xxx 00 000 | Add Immediate 	| ADI 01 	| Add 1 to register A 					|
-| xxx 01 000 | Add from memory	| ADM 01	| Add memory to register A				|
+| xxx 01 000 | Add memory		| ADM 01	| Add memory to register A				|
 | xxx 10 000 | Add register B	| ADB		| Add register B to register A			|
 | xxx 11 000 | Add register C	| ADC		| Add register C to register A			|	
 | 			 | 					| 			| **Subtract instructions**				|
 | xxx 00 001 | Sub Immediate 	| SBI 01 	| Subtract 1 from register A			|
-| xxx 01 001 | Sub from memory	| SBM 01	| Subtract memory from register A		|
+| xxx 01 001 | Sub  memory		| SBM 01	| Subtract memory from register A		|
 | xxx 10 001 | Sub register B	| SBB		| Subtract register B from register A	|
 | xxx 11 001 | Sub register C	| SBC		| Subtract register C from register A	|	
 | 			 | 					| 			| **Compare instructions**				|
 | xxx 00 010 | Cmp Immediate 	| CPI 01 	| Compare register A with 01			|
-| xxx 01 010 | Cmp from memory	| CPM 01	| Compare register A with memory		|
+| xxx 01 010 | Cmp  memory		| CPM 01	| Compare register A with memory		|
 | xxx 10 010 | Cmp register B	| CPB		| Compare register A with register B	|
 | xxx 11 010 | Cmp register C	| CPC		| Compare register A with register C	|	
 | 			 | 					| 			| **Logical AND instructions**			|
