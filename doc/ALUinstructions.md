@@ -48,10 +48,10 @@ as follows:
 
 ## The possible ALU instructions
 
-| Opcode | Name Example | Description |
-| :--- | :--- | :--- | :--- |
-| | | | --- Add instructions --- |
-| xxx 00 000 | Add Immediate | ADI 01 | Add 1 to register A |
+| Opcode		| Name			| Example 	| Description 					|
+| :--- 			| :---  		| :--- 		| :---							|
+| 				| 				| 			| --- Add instructions --- 		|
+| xxx 00 000 	| Add Immediate | ADI 01 	| Add 1 to register A 			|
 
 	</tr>
 	<tr>
