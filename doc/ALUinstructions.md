@@ -63,6 +63,7 @@ in my example langdef file. Then it would be:
     '111 01 010   0011 1010' (binary) or: 'EA 3A' (hexadecimal)
 
 ### the ALU operation table:
+All references to register C are for future expansion.
 
 | Opcode	 	| Name				| Example 	| Description 							|
 | :--- 		 	| :---  			| :--- 		| :---									|
@@ -74,7 +75,7 @@ in my example langdef file. Then it would be:
 | 			 	| 					| 			| **Subtract instructions**				|
 | `xxx 00 001`	| Sub Immediate 	| `SBI 01` 	| Subtract 1 from register A			|
 | `xxx 01 001`	| Sub  memory		| `SBM 01`	| Subtract memory from register A		|
-| `xxx 10 001	| Sub register B	| `SBB`		| Subtract register B from register A	|
+| `xxx 10 001`	| Sub register B	| `SBB`		| Subtract register B from register A	|
 | `xxx 11 001`	| Sub register C	| `SBC`		| Subtract register C from register A	|	
 | 			 	|					| 			| **Compare instructions**				|
 | `xxx 00 010`	| Cmp Immediate 	| `CPI 01` 	| Compare register A with 01			|
