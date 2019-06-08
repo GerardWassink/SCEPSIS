@@ -1,26 +1,30 @@
 #!/usr/bin/rexx
 /* Rexx */
 
-/* ---------------------------------------------------------------- */
-/* Program name:    scepsis.rexx                                    */
-/* Author:          Gerard Wassink                                  */
-/* Date:            May 2019                                        */
-/* Version:         1.1                                             */
-/* Purpose:         Teach peeople about simple CPU's and microcode  */
-/*                                                                  */
-/* History:                                                         */
-/*   v1.0     First release                                         */
-/*   v1.1     Added saving and reloading memory contents            */
-/*   v1.1.1   Correction in mem load, added hidden index feature    */
-/*            plus some cleaning and housekeeping                   */
-/*                                                                  */
-/* ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* Program name:    scepsis.rexx                                              */
+/* Author:          Gerard Wassink                                            */
+/* Date:            May 2019                                                  */
+/* Version:         1.1                                                       */
+/* Purpose:         Teach peeople about simple CPU's and microcode            */
+/*                                                                            */
+/* History:                                                                   */
+/*   v1.0     First release                                                   */
+/*   v1.1     Added saving and reloading memory contents                      */
+/*   v1.1.1   Correction in mem load, added hidden index feature              */
+/*            plus some cleaning and housekeeping                             */
+/*   v1.1.2   Added code for ALU operations and some flags                    */
+/*   v1.1.4   Fun with flags, finished work on setting the flags              */
+/*                                                                            */
+/* -------------------------------------------------------------------------- */
 
 
 /* -------------------------------------------------------------------------- */
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
+	versionString = "1.1.4"
+	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
 	color.brightblack  = 90; color.brightred    = 91; color.brightgreen   = 92
@@ -338,35 +342,60 @@ ProcessCtlSignals:
 											/* Execute ALU operation -------- */
 	If (cs_EXC   == 1)	Then Do	
 		/* Premise at this time is that in previous microcode steps the ----- */
-		/* ALU operand (comp_ALUO) has been filled with the desired value ------ */
+		/* ALU operand (comp_ALUO) has been filled with the desired value --- */
 		Select
-			When OpALUopr == 0 Then Do		/* ADD */
+			
+			When OpALUopr == 0 Then Do								/* ADD -- */
 				comp_REGA = comp_REGA + comp_AOPR
+				C_flag = 0; Z_flag = 0						/* reset flags -- */
+				If comp_REGA > 255 Then Do
+					com_REGA = comp_REGA - 255
+					C_flag = 1					/* set Carry flag when needed */
+				End
+				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
 			End
-			When OpALUopr == 1 Then Do		/* SUBTRACT */
+			
+			When OpALUopr == 1 Then Do							/* SUBTRACT - */
 				comp_REGA = comp_REGA - comp_AOPR
+				C_flag = 0; Z_flag = 0						/* reset flags -- */
+				If comp_REGA < 0 Then Do
+					com_REGA = comp_REGA + 255
+					C_flag = 1					/* set Carry flag when needed */
+				End
+				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
 			End
-			When OpALUopr == 2 Then Do		/* COMPARE */
-				GT_flag = 0; LT_flag = 0; EQ_flag = 0
+			
+			When OpALUopr == 2 Then Do							/* COMPARE -- */
+				GT_flag = 0; LT_flag = 0; EQ_flag = 0		/* reset flags -- */
 				If (comp_REGA > comp_AOPR) Then Do
-					GT_flag = 1
+					GT_flag = 1							/* Greater than ----- */
 				End; Else Do
 					If (comp_REGA < comp_AOPR) Then Do
-						LT_flag = 1
+						LT_flag = 1						/* Less than -------- */
 					End; Else Do
-						EQ_flag = 1
+						EQ_flag = 1						/* Equal to --------- */
 					End
 				End
 			End
-			When OpALUopr == 3 Then Do		/* AND */
+			
+			When OpALUopr == 3 Then Do								/* AND -- */
+				Z_flag = 0									/* reset flags -- */
 				comp_REGA = c2d(BitAnd(d2c(comp_REGA), d2c(comp_AOPR)))
+				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
 			End
-			When OpALUopr == 4 Then Do		/* OR */
+			
+			When OpALUopr == 4 Then Do								/* OR --- */
+				Z_flag = 0									/* reset flags -- */
 				comp_REGA = c2d(BitOr(d2c(comp_REGA), d2c(comp_AOPR)))
+				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
 			End
-			When OpALUopr == 5 Then Do		/* XOR */
+			
+			When OpALUopr == 5 Then Do								/* XOR -- */
+				Z_flag = 0									/* reset flags -- */
 				comp_REGA = c2d(BitXor(d2c(comp_REGA), d2c(comp_AOPR)))
+				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
 			End
+			
 			Otherwise Do
 				errorMsg = "Invalid ALU operation" OpALUopr
 			End
@@ -708,11 +737,15 @@ Return
 CPhelpInfo:
 	Call screenHeader "SCEPSIS - Help information for the Control Panel"
 	
+	Call Display  3  3 color.brightwhite  "Help info for SCEPSIS" versionString
 	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
 	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
 	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
 	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
 	Call Display  9  3 color.cyan  "Commands do not have parameters here"
+
+	Call Display 19  3 color.cyan  "For more info see"
+	Call Display 19 21 color.brightred  "https://github.com/GerardWassink/SCEPSIS"
 
 	Call Display 21 1 color.brightwhite " "
 	Call enterForMore
@@ -779,10 +812,10 @@ Return
 screenHeader:
 	Parse Arg headerLine
 	"clear"
-	Call Display  1  1 color.brightwhite Copies("-", 80)
+	Call Display  1  1 color.brightwhite Copies("-", 74) versionString
 	If (Strip(headerLine) == "") 
 		Then headerLine = "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
-	position = (40 - Trunc(Length(headerLine)/2))
+	position = (37 - Trunc(Length(headerLine)/2))
 	Call Display  1 position color.brightwhite " " || headerLine || " "
 Return
 
@@ -1045,17 +1078,28 @@ Return
 indexMe:
 	"clear"
 	lnum = 0
+	longest = 0
 	srcFile = "./scepsis.rexx"			/* Read our own source -------------- */
 	If Stream(srcFile, 'C', 'OPEN READ') = "READY:" Then Do
+		i = 1
 		Do While Lines(srcFile)
 			line = Strip(Linein(srcFile))
 			lnum = lnum + 1
 			If (line <> "") Then Do
 				w = Word(line,1)
 				If (Right(w, 1) == ":") Then Do	/* Do we have a label? ------ */
-					Say Right("00000"||lnum, 5) w	/* Print it with linenum  */
+					If Length(w) > longest Then longest = Length(w)
+					index.i.1 = Right("      "||lnum, 6)
+					index.i.2 = w
+					index.0 = i
+					i = i + 1
 				End
 			End
+		End
+		status = Stream(srcFile, 'C', 'CLOSE')
+		Do i = 1 to index.0
+			If (Length(index.i.2)/2) <> Trunc(Length(index.i.2)/2) Then index.i.2 = index.i.2||" "
+			Say index.i.2 Copies(" .", Trunc((longest - Length(index.i.2)) / 2 )) index.i.1 
 		End
 		Say ""
 		Call enterForMore
