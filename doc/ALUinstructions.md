@@ -57,7 +57,8 @@ meaning: compare register a with the contents of memory at address x'3A', would 
 
     'xxx 01 010   0011 1010' (binary)
 
-You could opt to code the opcodes for ALU operations starting with three 1's, Then it would be:
+You could opt to code the opcodes for ALU operations starting with '111', as I will do 
+in my example langdef file. Then it would be:
 
     '111 01 010   0011 1010' (binary) or: 'EA 3A' (hexadecimal)
 
@@ -66,7 +67,7 @@ You could opt to code the opcodes for ALU operations starting with three 1's, Th
 | Opcode	 | Name				| Example 	| Description 							|
 | :--- 		 | :---  			| :--- 		| :---									|
 | 			 | 					| 			| **Add instructions**					|
-| xxx 00 000 | Add Immediate 	| ADI 01 	| Add 1 to register A 					|
+| `xxx 00 000` | Add Immediate 	| ADI 01 	| Add 1 to register A 					|
 | xxx 01 000 | Add memory		| ADM 01	| Add memory to register A				|
 | xxx 10 000 | Add register B	| ADB		| Add register B to register A			|
 | xxx 11 000 | Add register C	| ADC		| Add register C to register A			|	
