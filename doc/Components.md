@@ -44,4 +44,5 @@ For these components to be able to exchange information we need a 'transport mec
 - [Components of the SCEPSIS CPU](./Components.md)
 - [Control signals in the SCEPSIS CPU](./ControlSignals.md)
 - [Example instruction for the SCEPSIS CPU](./Example.md)
+- [ALU instructions for the SCEPSIS CPU](./ALUinstructions.md)
 
