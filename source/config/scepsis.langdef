@@ -22,22 +22,19 @@
 
 #
 # JMP - goto location - 
-
 10 JMP PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO PCTI
 
 #
-# I2M {address} - put the value from the INP register into memory location {address]
-30 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE
-
-#
-# RD[A|B] {address} - read a value into REG[A|B] from a location in memory
+# RD[A|B|C] {address} - read a value into REG[A|B|C] from a location in memory
 50 RDA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE
 54 RDB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE
+58 RDC PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE
 
 #
-# WR[A|B] {address} - write a value from REG[A|B] to a location in memory
-51 WRA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMI RGAO CE
-55 WRB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMI RGBO CE
+# WR[A|B|C] {address} - write a value from REG[A|B|C] to a location in memory
+51 WRA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGAO MEMI CE
+55 WRB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGBO MEMI CE
+59 WRC PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGCO MEMI CE
 
 #
 # I2M {address} - read a value from the input register to a location in memory
@@ -56,8 +53,73 @@
 84 POPA PCTO MARI - MEMO INRI CE - STKO RGAI - SPI
 
 #
+#                                                   Instruction for the ALU
+#
+#                               ### IMMEDIATE ALU instructions ###
+#
+# ADI - Add Immediate
+E0 ADI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+# SBI - Subtract Immediate
+E1 SBI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+# CPI - Compare Immediate
+E2 CPI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+# ANI - AND Immediate
+E3 ANI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+# ORI - OR Immediate
+E4 ORI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+# XRI - XOR Immediate
+E5 XRI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+
+#
+#                                  ### MEMORY ALU instructions ###
+#
+# ADM - Add Memory
+E8 ADM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+# SBM - Subtract Memory
+E9 SBM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+# CPM - Compare Memory
+EA CPM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+# ANM - AND Memory
+EB ANM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+# ORM - OR Memory
+EC ORM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+# XRM - XOR Memory
+ED XRM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+
+#
+#                                    ### REGB ALU instructions ###
+#
+# ADB - Add Memory
+F0 ADB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# SBB - Subtract Memory
+F1 SBB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# CPB - Compare Memory
+F2 CPB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# ANB - AND Memory
+F3 ANB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# ORB - OR Memory
+F4 ORB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# XRB - XOR Memory
+F5 XRB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+
+#
+#                                    ### REGC ALU instructions ###
+#
+# ADC - Add Memory
+F8 ADC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# SBC - Subtract Memory
+F9 SBC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# CPC - Compare Memory
+FA CPC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# ANC - AND Memory
+FB ANC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# ORC - OR Memory
+FC ORC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+# XRC - XOR Memory
+FD XRC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+
+#
 # STP - Stop the processor (bump PCT first to prepare for continuation)
 # Bump PCT, then HLT
-
 FF STP CE - HLT
 

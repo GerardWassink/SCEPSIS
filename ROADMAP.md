@@ -3,8 +3,8 @@
 ## Small versions, progressing to release 1.2
 Release 1.2 will contain conditional jumps. All of the intermediate small releases will work towards that goal.
 
-#### 1.1.2	Aritmetic
-Add code to govern the ALU operations:
+#### 1.1.2	Arithmetic
+Add code to decode ALU instructions and control it's operations:
 - Add
 - Subtract
 - Compare

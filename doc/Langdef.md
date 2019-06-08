@@ -56,4 +56,5 @@ So the resulting definition would look something like:
 - [Control signals in the SCEPSIS CPU](./ControlSignals.md)
 - [Example instruction for the SCEPSIS CPU](./Example.md)
 - [Language definition for the SCEPSIS CPU](./Langdef.md)
+- [ALU instructions for the SCEPSIS CPU](./ALUinstructions.md)
 

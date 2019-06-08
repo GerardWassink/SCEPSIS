@@ -44,7 +44,7 @@ Main:
 		Parse Var choice command value
 		errorMsg = ""
 		Select
-		
+
 			/* -------------------------------------------------------------- */
 			/* ----- Component commands ------------------------------------- */
 			/* -------------------------------------------------------------- */
@@ -117,87 +117,116 @@ controlPanelDisplay:
 
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
-
-
-	Call Display  5  3 color.brightwhite "Components --------------"
-	Call Display  7  3 color.brightwhite "PCT"
-	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
-	Call Display  7 12 color.brightwhite "INR"
-	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_INR),2)
-	Call Display  7 21 color.brightwhite "STC"
-	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_STC),2)
-
-	Call Display  8  3 color.brightwhite "MAR"
-	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_MAR),2)
-	Call Display  8 12 color.brightwhite "INP"
-	Call Display  8 17 color.brightcyan  Right("00"||D2X(comp_INP),2)
-	Call Display  8 21 color.brightwhite "OUT"
-	Call Display  8 26 color.brightcyan  Right("00"||D2X(comp_OUT),2)
-
-	Call Display  9  3 color.brightwhite "REGA"
-	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
-	Call Display  9 12 color.brightwhite "REGB"
-	Call Display  9 17 color.brightcyan  Right("00"||D2X(comp_REGB),2)
-	Call Display  9 21 color.brightwhite "SP"
-	Call Display  9 26 color.brightcyan  Right("00"||D2X(comp_SP),2)
 	
 	
-	Call Display  5 33 color.brightwhite "Control Signals"
-	Call Display  7 33 color.brightwhite "CE"
-	Call Display  7 38 color.brightcyan  cs_CE
-	Call Display  7 42 color.brightwhite "HLT"
-	Call Display  7 47 color.brightcyan  cs_HLT
-	Call Display  8 33 color.brightwhite "INPO"
-	Call Display  8 38 color.brightcyan  cs_INPO
-	Call Display  8 42 color.brightwhite "OUTI"
-	Call Display  8 47 color.brightcyan  cs_OUTI
-	Call Display  9 33 color.brightwhite "INRI"
-	Call Display  9 38 color.brightcyan  cs_INRI
-	Call Display  9 42 color.brightwhite "INRO"
-	Call Display  9 47 color.brightcyan  cs_INRO
-	Call Display 10 33 color.brightwhite "MARI"
-	Call Display 10 38 color.brightcyan  cs_MARI
-	Call Display 10 42 color.brightwhite "MARO"
-	Call Display 10 47 color.brightcyan  cs_MARO
-	Call Display 11 33 color.brightwhite "PCTI"
-	Call Display 11 38 color.brightcyan  cs_PCTI
-	Call Display 11 42 color.brightwhite "PCTO"
-	Call Display 11 47 color.brightcyan  cs_PCTO
-	Call Display 12 33 color.brightwhite "MEMI"
-	Call Display 12 38 color.brightcyan  cs_MEMI
-	Call Display 12 42 color.brightwhite "MEMO"
-	Call Display 12 47 color.brightcyan  cs_MEMO
-	Call Display 13 33 color.brightwhite "RGAI"
-	Call Display 13 38 color.brightcyan  cs_RGAI
-	Call Display 13 42 color.brightwhite "RGAO"
-	Call Display 13 47 color.brightcyan  cs_RGAO
-	Call Display 14 33 color.brightwhite "RGBI"
-	Call Display 14 38 color.brightcyan  cs_RGBI
-	Call Display 14 42 color.brightwhite "RGBO"
-	Call Display 14 47 color.brightcyan  cs_RGBO
-	Call Display 15 33 color.brightwhite "SPI"
-	Call Display 15 38 color.brightcyan  cs_SPI
-	Call Display 15 42 color.brightwhite "SPD"
-	Call Display 15 47 color.brightcyan  cs_SPD
-	Call Display 16 33 color.brightwhite "STKI"
-	Call Display 16 38 color.brightcyan  cs_STKI
-	Call Display 16 42 color.brightwhite "STKO"
-	Call Display 16 47 color.brightcyan  cs_STKO
+	Call Display  4  3 color.brightwhite "Components --------------"
+	Call Display  5  3 color.brightwhite "PCT"
+	Call Display  5  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
+	Call Display  5 12 color.brightwhite "INR"
+	Call Display  5 17 color.brightcyan  Right("00"||D2X(comp_INR),2)
+	Call Display  5 21 color.brightwhite "STC"
+	Call Display  5 26 color.brightcyan  Right("00"||D2X(comp_STC),2)
+	
+	Call Display  6  3 color.brightwhite "MAR"
+	Call Display  6  8 color.brightcyan  Right("00"||D2X(comp_MAR),2)
+	Call Display  6 12 color.brightwhite "INP"
+	Call Display  6 17 color.brightcyan  Right("00"||D2X(comp_INP),2)
+	Call Display  6 21 color.brightwhite "OUT"
+	Call Display  6 26 color.brightcyan  Right("00"||D2X(comp_OUT),2)
+	
+	Call Display  7  3 color.brightwhite "REGA"
+	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
+	Call Display  7 12 color.brightwhite "SP"
+	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_SP),2)
+	Call Display  7 21 color.brightwhite "AOPR"
+	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_AOPR),2)
+	
+	Call Display  8  3 color.brightwhite "REGB"
+	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_REGB),2)
+	
+	Call Display  9  3 color.brightwhite "REGC"
+	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGC),2)
+	
+	
+	Call Display 11  3 color.brightwhite "ALU Flags ---------------"
+	Call Display 12  3 color.brightwhite "CZELG"
+	Call Display 13  3 color.brightcyan  C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
+	
+	
+	Call Display  4 33 color.brightwhite "Control Signals"
+	Call Display  5 33 color.brightwhite "CE"
+	Call Display  5 38 color.brightcyan  cs_CE
+	Call Display  5 42 color.brightwhite "HLT"
+	Call Display  5 47 color.brightcyan  cs_HLT
+
+	Call Display  6 33 color.brightwhite "INPO"
+	Call Display  6 38 color.brightcyan  cs_INPO
+	Call Display  6 42 color.brightwhite "OUTI"
+	Call Display  6 47 color.brightcyan  cs_OUTI
+
+	Call Display  7 33 color.brightwhite "INRI"
+	Call Display  7 38 color.brightcyan  cs_INRI
+	Call Display  7 42 color.brightwhite "INRO"
+	Call Display  7 47 color.brightcyan  cs_INRO
+
+	Call Display  8 33 color.brightwhite "MARI"
+	Call Display  8 38 color.brightcyan  cs_MARI
+	Call Display  8 42 color.brightwhite "MARO"
+	Call Display  8 47 color.brightcyan  cs_MARO
+
+	Call Display  9 33 color.brightwhite "PCTI"
+	Call Display  9 38 color.brightcyan  cs_PCTI
+	Call Display  9 42 color.brightwhite "PCTO"
+	Call Display  9 47 color.brightcyan  cs_PCTO
+
+	Call Display 10 33 color.brightwhite "MEMI"
+	Call Display 10 38 color.brightcyan  cs_MEMI
+	Call Display 10 42 color.brightwhite "MEMO"
+	Call Display 10 47 color.brightcyan  cs_MEMO
+
+	Call Display 11 33 color.brightwhite "RGAI"
+	Call Display 11 38 color.brightcyan  cs_RGAI
+	Call Display 11 42 color.brightwhite "RGAO"
+	Call Display 11 47 color.brightcyan  cs_RGAO
+
+	Call Display 12 33 color.brightwhite "RGBI"
+	Call Display 12 38 color.brightcyan  cs_RGBI
+	Call Display 12 42 color.brightwhite "RGBO"
+	Call Display 12 47 color.brightcyan  cs_RGBO
+
+	Call Display 13 33 color.brightwhite "RGCI"
+	Call Display 13 38 color.brightcyan  cs_RGCI
+	Call Display 13 42 color.brightwhite "RGCO"
+	Call Display 13 47 color.brightcyan  cs_RGCO
+
+	Call Display 14 33 color.brightwhite "SPI"
+	Call Display 14 38 color.brightcyan  cs_SPI
+	Call Display 14 42 color.brightwhite "SPD"
+	Call Display 14 47 color.brightcyan  cs_SPD
+
+	Call Display 15 33 color.brightwhite "STKI"
+	Call Display 15 38 color.brightcyan  cs_STKI
+	Call Display 15 42 color.brightwhite "STKO"
+	Call Display 15 47 color.brightcyan  cs_STKO
+
+	Call Display 16 33 color.brightwhite "ALUI"
+	Call Display 16 38 color.brightcyan  cs_ALUI
+	Call Display 16 42 color.brightwhite "EXC"
+	Call Display 16 47 color.brightcyan  cs_EXC
 
 
-	Call Display  5 53 color.brightwhite "Commands ------"
-	Call Display  7 53 color.brightwhite "LH"
-	Call Display  7 57 color.brightcyan  "List hardware"
-	Call Display  8 53 color.brightwhite "LC"
-	Call Display  8 57 color.brightcyan  "List components"
-	Call Display  9 53 color.brightwhite "LS"
-	Call Display  9 57 color.brightcyan  "List Control Signals"
+	Call Display  4 53 color.brightwhite "Commands ------"
+	Call Display  5 53 color.brightwhite "LH"
+	Call Display  5 57 color.brightcyan  "List hardware"
+	Call Display  6 53 color.brightwhite "LC"
+	Call Display  6 57 color.brightcyan  "List components"
+	Call Display  7 53 color.brightwhite "LS"
+	Call Display  7 57 color.brightcyan  "List Control Signals"
 
-
-	Call Display 11 53 color.brightwhite "MEM"
-	Call Display 11 57 color.brightcyan  "Handle Memory"
-	Call Display 12 53 color.brightwhite "INS"
-	Call Display 12 57 color.brightcyan  "Handle Instructions"
+	Call Display  9 53 color.brightwhite "MEM"
+	Call Display  9 57 color.brightcyan  "Handle Memory"
+	Call Display 10 53 color.brightwhite "INS"
+	Call Display 10 57 color.brightcyan  "Handle Instructions"
 	
 /* -------------------------------------------------------------------------- */
 /* ----- Display info about the next microcode step to be excuted ----------- */
@@ -206,12 +235,13 @@ controlPanelDisplay:
 	If (oPtr > 0) Then Do 							/* does it exist? ------- */
 		Oc   = instr.oPtr.1							/* get opcode ----------- */
 		Mn   = instr.oPtr.2							/* get mnemonic --------- */
+		Ao   = c2x(BitAnd(x2c(Oc), x2c("07")))		/* get ALU operation ---- */
 		Signals = ""		/* walk through and display every control Signal  */
 		Do csC = 1 to instr.oPtr.3.comp_STC.0
 			cS = instr.oPtr.3.comp_STC.csC
 			Signals = Signals || " " || cS
 		End
-		Call Display 19 11 color.brightred "next: x"||Oc Mn "step" comp_STC || ":" Signals "                                                                    "
+		Call Display 19 11 color.brightred "next: x"||Oc Mn "ALU opr("||Ao||") step" comp_STC || ":" Signals "                                                                    "
 	End; Else Do
 		message = "Unknown instruction" Right("00"||D2X(comp_INR),2) "at PCT address"
 	End
@@ -248,6 +278,8 @@ emulateStep:
 	End; Else Do
 		Opcode   = instr.OpcodePtr.1				/* get opcode ----------- */
 		Mnemonic = instr.OpcodePtr.2				/* get mnemonic --------- */
+		OpALUopr = C2D(BitAnd(x2c(Opcode), x2c("07"))) /* get ALU operation - */
+		
 					/* walk through and set all control Signals for this step */
 		Do csCtr = 1 to instr.OpcodePtr.3.comp_STC.0
 			ctrlSignal = instr.OpcodePtr.3.comp_STC.csCtr
@@ -274,6 +306,7 @@ ProcessCtlSignals:
 	If (cs_MEMO == 1)	Then DAB = MEM.comp_MAR
 	If (cs_RGAO == 1)	Then DAB = comp_REGA
 	If (cs_RGBO == 1)	Then DAB = comp_REGB
+	If (cs_RGCO == 1)	Then DAB = comp_REGC
 	If (cs_STKO == 1)	Then DAB = MEM.comp_SP
 											/* input from DAB processed 2nd   */
 	If (cs_OUTI == 1)	Then comp_OUT     = DAB
@@ -283,7 +316,9 @@ ProcessCtlSignals:
 	If (cs_MEMI == 1)	Then MEM.comp_MAR = DAB
 	If (cs_RGAI == 1)	Then comp_REGA    = DAB
 	If (cs_RGBI == 1)	Then comp_REGB    = DAB
+	If (cs_RGCI == 1)	Then comp_REGC    = DAB
 	If (cs_STKI == 1)	Then MEM.comp_SP  = DAB
+	If (cs_ALUI == 1)	Then comp_AOPR    = DAB
 											/* Stack pointer increment ----- */
 	If (cs_SPI == 1)	Then Do
 		If (comp_SP < (memSize - 1)) Then Do
@@ -298,6 +333,43 @@ ProcessCtlSignals:
 			comp_SP      = comp_SP - 1
 		End; Else Do
 			errorMsg = "S0C4 - SP decrement invalid"
+		End
+	End
+											/* Execute ALU operation -------- */
+	If (cs_EXC   == 1)	Then Do	
+		/* Premise at this time is that in previous microcode steps the ----- */
+		/* ALU operand (comp_ALUO) has been filled with the desired value ------ */
+		Select
+			When OpALUopr == 0 Then Do		/* ADD */
+				comp_REGA = comp_REGA + comp_AOPR
+			End
+			When OpALUopr == 1 Then Do		/* SUBTRACT */
+				comp_REGA = comp_REGA - comp_AOPR
+			End
+			When OpALUopr == 2 Then Do		/* COMPARE */
+				GT_flag = 0; LT_flag = 0; EQ_flag = 0
+				If (comp_REGA > comp_AOPR) Then Do
+					GT_flag = 1
+				End; Else Do
+					If (comp_REGA < comp_AOPR) Then Do
+						LT_flag = 1
+					End; Else Do
+						EQ_flag = 1
+					End
+				End
+			End
+			When OpALUopr == 3 Then Do		/* AND */
+				comp_REGA = c2d(BitAnd(d2c(comp_REGA), d2c(comp_AOPR)))
+			End
+			When OpALUopr == 4 Then Do		/* OR */
+				comp_REGA = c2d(BitOr(d2c(comp_REGA), d2c(comp_AOPR)))
+			End
+			When OpALUopr == 5 Then Do		/* XOR */
+				comp_REGA = c2d(BitXor(d2c(comp_REGA), d2c(comp_AOPR)))
+			End
+			Otherwise Do
+				errorMsg = "Invalid ALU operation" OpALUopr
+			End
 		End
 	End
 											/* Count Enable, bump PCT         */
@@ -762,6 +834,7 @@ Initialize:
 	ctlSignals = ""
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
 	Call addCtlSig("HLT HALT the processor")
+	Call addCtlSig("EXC Execute the ALU operation at hand")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
 	Call addCtlSig("INRO Set the instruction register to output, put its on the DAB")
@@ -776,10 +849,13 @@ Initialize:
 	Call addCtlSig("RGAO Set RGA to output, put its value out to the DAB")
 	Call addCtlSig("RGBI Set RGB to input, accept a value from the DAB")
 	Call addCtlSig("RGBO Set RGB to output, put its value out to the DAB")
+	Call addCtlSig("RGCI Set RGC to input, accept a value from the DAB")
+	Call addCtlSig("RGCO Set RGC to output, put its value out to the DAB")
 	Call addCtlSig("SPI  Increment the stack pointer - after retrieval from the stack")
 	Call addCtlSig("SPD  Decrement the stack pointer - before pushing unto the stack")
 	Call addCtlSig("STKI Set Stack for input, accept a value from the DAB")
 	Call addCtlSig("STKO Set stack for ouput, put its value out to the DAB")
+	Call addCtlSig("ALUI Set ALU operand for input, accept a value from the DAB")
 	
 	
 	
@@ -818,8 +894,14 @@ Initialize:
 	memSize = memorySize
 	Call initMemory
 	
+	/* ----- Set default values for Flags ----- */
+	Flags = "C Z EQ LT GT"
+	Do i = 1 To Words(Flags)
+		Interpret Word(Flags,i)||"_flag" "=" 0
+	End
+	
 	/* ----- Set default values for Components ----- */
-	Components = "PCT MAR INR INP OUT REGA REGB STC SP"
+	Components = "PCT MAR INR INP OUT REGA REGB REGC STC SP AOPR"
 	Do i = 1 To Words(Components)
 		Interpret "comp_"||Word(Components,i) "=" 0
 	End
