@@ -55,11 +55,11 @@ to make the instruction set more structured. Coded in this way the instruction:
 
 meaning: compare register a with the contents of memory at address x'3A', would be coded as:
 
- 'xxx 01 010   0011 1010' (binary)
+    'xxx 01 010   0011 1010' (binary)
 
 You could opt to code the opcodes for ALU operations starting with three 1's, Then it would be:
 
- '111 01 010   0011 1010' (binary) or: 'EA 3A' (hexadecimal)
+    '111 01 010   0011 1010' (binary) or: 'EA 3A' (hexadecimal)
 
 ### the ALU operation table:
 
