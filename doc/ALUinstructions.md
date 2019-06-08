@@ -24,7 +24,7 @@ xxxx x001 - Subtract
 xxxx x010 - Compare
 xxxx x011 - And
 xxxx x100 - Or
-xxxx x101 - Not
+xxxx x101 - Xor
 xxxx x110	
 xxxx x111	
 </PRE>
@@ -63,7 +63,6 @@ in my example langdef file. Then it would be:
     '111 01 010   0011 1010' (binary) or: 'EA 3A' (hexadecimal)
 
 ### the ALU operation table:
-All references to register C are for future expansion.
 
 | Opcode	 	| Name				| Example 	| Description 							|
 | :--- 		 	| :---  			| :--- 		| :---									|
@@ -92,11 +91,11 @@ All references to register C are for future expansion.
 | `xxx 01 100`	| OR memory			| `ORM 01`	| OR register A with memory				|
 | `xxx 10 100`	| OR register B		| `ORB`		| OR register A with register B			|
 | `xxx 11 100`	| OR register C		| `ORC`		| OR register A with register C			|	
-| 				| 					| 			| **Logical NOT instructions**			|
-| `xxx 00 101`	| NOT Immediate		| `NTI 01` 	| NOT register A with 01				|
-| `xxx 01 101`	| NOT memory|		| `NTM 01`	| NOT register A with memory			|
-| `xxx 10 101`	| NOT register B	| `NTB`		| NOT register A with register B		|
-| `xxx 11 101`	| NOT register C	| `NTC`		| NOT register A with register C		|	
+| 				| 					| 			| **Logical XOR instructions**			|
+| `xxx 00 101`	| XOR Immediate		| `XRI 01` 	| XOR register A with 01				|
+| `xxx 01 101`	| XOR memory|		| `XRM 01`	| XOR register A with memory			|
+| `xxx 10 101`	| XOR register B	| `XRB`		| XOR register A with register B		|
+| `xxx 11 101`	| XOR register C	| `XRC`		| XOR register A with register C		|	
 	
 
 ### Further reading
