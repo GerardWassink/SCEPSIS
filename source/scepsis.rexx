@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            May 2019                                                  */
-/* Version:         1.1                                                       */
+/* Version:         1.1.6                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -15,6 +15,8 @@
 /*            plus some cleaning and housekeeping                             */
 /*   v1.1.2   Added code for ALU operations and some flags                    */
 /*   v1.1.4   Fun with flags, finished work on setting the flags              */
+/*   v1.1.5   Implemented Control signals for conditioanal jumps              */
+/*   v1.1.6   Implemented examples of conditioanal jumps in langdef file      */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -23,7 +25,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.1.4"
+	versionString = "1.1.6"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -152,85 +154,91 @@ controlPanelDisplay:
 	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGC),2)
 	
 	
-	Call Display 11  3 color.brightwhite "ALU Flags ---------------"
-	Call Display 12  3 color.brightwhite "CZELG"
-	Call Display 13  3 color.brightcyan  C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
+	Call Display 10  3 color.brightwhite "Flag-CZELG"
+	Call Display 11  8 color.brightcyan  C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
 	
 	
-	Call Display  4 33 color.brightwhite "Control Signals"
+	Call Display  4 33 color.brightwhite "Control Signals -----------------"
 	Call Display  5 33 color.brightwhite "CE"
 	Call Display  5 38 color.brightcyan  cs_CE
 	Call Display  5 42 color.brightwhite "HLT"
 	Call Display  5 47 color.brightcyan  cs_HLT
+	Call Display  5 51 color.brightwhite "INPO"
+	Call Display  5 56 color.brightcyan  cs_INPO
+	Call Display  5 60 color.brightwhite "OUTI"
+	Call Display  5 65 color.brightcyan  cs_OUTI
 
-	Call Display  6 33 color.brightwhite "INPO"
-	Call Display  6 38 color.brightcyan  cs_INPO
-	Call Display  6 42 color.brightwhite "OUTI"
-	Call Display  6 47 color.brightcyan  cs_OUTI
+	Call Display  6 33 color.brightwhite "INRI"
+	Call Display  6 38 color.brightcyan  cs_INRI
+	Call Display  6 42 color.brightwhite "INRO"
+	Call Display  6 47 color.brightcyan  cs_INRO
+	Call Display  6 51 color.brightwhite "MARI"
+	Call Display  6 56 color.brightcyan  cs_MARI
+	Call Display  6 60 color.brightwhite "MARO"
+	Call Display  6 65 color.brightcyan  cs_MARO
 
-	Call Display  7 33 color.brightwhite "INRI"
-	Call Display  7 38 color.brightcyan  cs_INRI
-	Call Display  7 42 color.brightwhite "INRO"
-	Call Display  7 47 color.brightcyan  cs_INRO
+	Call Display  7 33 color.brightwhite "PCTI"
+	Call Display  7 38 color.brightcyan  cs_PCTI
+	Call Display  7 42 color.brightwhite "PCTO"
+	Call Display  7 47 color.brightcyan  cs_PCTO
+	Call Display  7 51 color.brightwhite "MEMI"
+	Call Display  7 56 color.brightcyan  cs_MEMI
+	Call Display  7 60 color.brightwhite "MEMO"
+	Call Display  7 65 color.brightcyan  cs_MEMO
 
-	Call Display  8 33 color.brightwhite "MARI"
-	Call Display  8 38 color.brightcyan  cs_MARI
-	Call Display  8 42 color.brightwhite "MARO"
-	Call Display  8 47 color.brightcyan  cs_MARO
+	Call Display  8 33 color.brightwhite "RGAI"
+	Call Display  8 38 color.brightcyan  cs_RGAI
+	Call Display  8 42 color.brightwhite "RGAO"
+	Call Display  8 47 color.brightcyan  cs_RGAO
+	Call Display  8 51 color.brightwhite "RGBI"
+	Call Display  8 56 color.brightcyan  cs_RGBI
+	Call Display  8 60 color.brightwhite "RGBO"
+	Call Display  8 65 color.brightcyan  cs_RGBO
 
-	Call Display  9 33 color.brightwhite "PCTI"
-	Call Display  9 38 color.brightcyan  cs_PCTI
-	Call Display  9 42 color.brightwhite "PCTO"
-	Call Display  9 47 color.brightcyan  cs_PCTO
+	Call Display  9 33 color.brightwhite "RGCI"
+	Call Display  9 38 color.brightcyan  cs_RGCI
+	Call Display  9 42 color.brightwhite "RGCO"
+	Call Display  9 47 color.brightcyan  cs_RGCO
+	Call Display  9 51 color.brightwhite "SPI"
+	Call Display  9 56 color.brightcyan  cs_SPI
+	Call Display  9 60 color.brightwhite "SPD"
+	Call Display  9 65 color.brightcyan  cs_SPD
 
-	Call Display 10 33 color.brightwhite "MEMI"
-	Call Display 10 38 color.brightcyan  cs_MEMI
-	Call Display 10 42 color.brightwhite "MEMO"
-	Call Display 10 47 color.brightcyan  cs_MEMO
+	Call Display 10 33 color.brightwhite "STKI"
+	Call Display 10 38 color.brightcyan  cs_STKI
+	Call Display 10 42 color.brightwhite "STKO"
+	Call Display 10 47 color.brightcyan  cs_STKO
+	Call Display 10 51 color.brightwhite "ALUI"
+	Call Display 10 56 color.brightcyan  cs_ALUI
+	Call Display 10 60 color.brightwhite "EXC"
+	Call Display 10 65 color.brightcyan  cs_EXC
 
-	Call Display 11 33 color.brightwhite "RGAI"
-	Call Display 11 38 color.brightcyan  cs_RGAI
-	Call Display 11 42 color.brightwhite "RGAO"
-	Call Display 11 47 color.brightcyan  cs_RGAO
-
-	Call Display 12 33 color.brightwhite "RGBI"
-	Call Display 12 38 color.brightcyan  cs_RGBI
-	Call Display 12 42 color.brightwhite "RGBO"
-	Call Display 12 47 color.brightcyan  cs_RGBO
-
-	Call Display 13 33 color.brightwhite "RGCI"
-	Call Display 13 38 color.brightcyan  cs_RGCI
-	Call Display 13 42 color.brightwhite "RGCO"
-	Call Display 13 47 color.brightcyan  cs_RGCO
-
-	Call Display 14 33 color.brightwhite "SPI"
-	Call Display 14 38 color.brightcyan  cs_SPI
-	Call Display 14 42 color.brightwhite "SPD"
-	Call Display 14 47 color.brightcyan  cs_SPD
-
-	Call Display 15 33 color.brightwhite "STKI"
-	Call Display 15 38 color.brightcyan  cs_STKI
-	Call Display 15 42 color.brightwhite "STKO"
-	Call Display 15 47 color.brightcyan  cs_STKO
-
-	Call Display 16 33 color.brightwhite "ALUI"
-	Call Display 16 38 color.brightcyan  cs_ALUI
-	Call Display 16 42 color.brightwhite "EXC"
-	Call Display 16 47 color.brightcyan  cs_EXC
+	Call Display 11 33 color.brightwhite "SPCC"
+	Call Display 11 38 color.brightcyan  cs_SPCC
+	Call Display 11 42 color.brightwhite "SPCZ"
+	Call Display 11 47 color.brightcyan  cs_SPCZ
+	Call Display 11 51 color.brightwhite "SPCE"
+	Call Display 11 56 color.brightcyan  cs_SPCE
+	
+	Call Display 12 33 color.brightwhite "SPCL"
+	Call Display 12 38 color.brightcyan  cs_SPCL
+	Call Display 12 42 color.brightwhite "SPCG"
+	Call Display 12 47 color.brightcyan  cs_SPCG
 
 
-	Call Display  4 53 color.brightwhite "Commands ------"
-	Call Display  5 53 color.brightwhite "LH"
-	Call Display  5 57 color.brightcyan  "List hardware"
-	Call Display  6 53 color.brightwhite "LC"
-	Call Display  6 57 color.brightcyan  "List components"
-	Call Display  7 53 color.brightwhite "LS"
-	Call Display  7 57 color.brightcyan  "List Control Signals"
+	Call Display 13  3 color.brightwhite "Commands ---------------"
+	Call Display 14  3 color.brightwhite "LH"
+	Call Display 14  7 color.brightcyan  "List hardware"
+	Call Display 15  3 color.brightwhite "LC"
+	Call Display 15  7 color.brightcyan  "List components"
+	Call Display 16  3 color.brightwhite "LS"
+	Call Display 16  7 color.brightcyan  "List Control Signals"
 
-	Call Display  9 53 color.brightwhite "MEM"
-	Call Display  9 57 color.brightcyan  "Handle Memory"
-	Call Display 10 53 color.brightwhite "INS"
-	Call Display 10 57 color.brightcyan  "Handle Instructions"
+	Call Display 13 33 color.brightwhite "------------------------"
+	Call Display 14 33 color.brightwhite "MEM"
+	Call Display 14 37 color.brightcyan  "Handle Memory"
+	Call Display 15 33 color.brightwhite "INS"
+	Call Display 15 37 color.brightcyan  "Handle Instructions"
 	
 /* -------------------------------------------------------------------------- */
 /* ----- Display info about the next microcode step to be excuted ----------- */
@@ -323,7 +331,15 @@ ProcessCtlSignals:
 	If (cs_RGCI == 1)	Then comp_REGC    = DAB
 	If (cs_STKI == 1)	Then MEM.comp_SP  = DAB
 	If (cs_ALUI == 1)	Then comp_AOPR    = DAB
-											/* Stack pointer increment ----- */
+
+													/* Conditional Jumps ---- */
+	If (cs_SPCC == 1) & (C_flag == 1) Then comp_PCT = DAB 		/* On Carry - */
+	If (cs_SPCZ == 1) & (Z_flag == 1) Then comp_PCT = DAB 		/* On Zero -- */
+	If (cs_SPCE == 1) & (EQ_flag == 1) Then comp_PCT = DAB 		/* On Equal - */
+	If (cs_SPCL == 1) & (LT_flag == 1) Then comp_PCT = DAB 		/* On Less -- */
+	If (cs_SPCG == 1) & (GT_flag == 1) Then comp_PCT = DAB 		/* On Greater */
+
+											/* Stack pointer increment ------ */
 	If (cs_SPI == 1)	Then Do
 		If (comp_SP < (memSize - 1)) Then Do
 			comp_SP      = comp_SP + 1
@@ -331,7 +347,7 @@ ProcessCtlSignals:
 			errorMsg = "S0C4 - SP increment invalid"
 		End
 	End
-											/* Stack pointer decrement ----- */
+											/* Stack pointer decrement ------ */
 	If (cs_SPD == 1)	Then Do
 		If (comp_SP > (memSize - 16)) Then Do
 			comp_SP      = comp_SP - 1
@@ -889,6 +905,11 @@ Initialize:
 	Call addCtlSig("STKI Set Stack for input, accept a value from the DAB")
 	Call addCtlSig("STKO Set stack for ouput, put its value out to the DAB")
 	Call addCtlSig("ALUI Set ALU operand for input, accept a value from the DAB")
+	Call addCtlSig("SPCC Set PCT for input when Carry set and accept a value from the DAB")
+	Call addCtlSig("SPCZ Set PCT for input when Zero-flag set and accept a value from the DAB")
+	Call addCtlSig("SPCE Set PCT for input when Equal-flag set and accept a value from the DAB")
+	Call addCtlSig("SPCL Set PCT for input when LessThan-flag set and accept a value from the DAB")
+	Call addCtlSig("SPCG Set PCT for input when GreaterThan-flag set and accept a value from the DAB")
 	
 	
 	

@@ -1,6 +1,6 @@
 # SCEPSIS - Simple CPU Emulation Program (Student Instruction System)
 #
-# Language definition file
+# Language definition file version 1.1.6
 #
 
 #
@@ -23,6 +23,13 @@
 #
 # JMP - goto location - 
 10 JMP PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO PCTI
+#
+# Conditional jumps - goto location depending on flags
+11 JC  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO SPCC
+12 JZ  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO SPCZ
+13 JE  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO SPCE
+14 JL  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO SPCL
+15 JG  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO SPCG
 
 #
 # RD[A|B|C] {address} - read a value into REG[A|B|C] from a location in memory
