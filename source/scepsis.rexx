@@ -17,6 +17,8 @@
 /*   v1.1.4   Fun with flags, finished work on setting the flags              */
 /*   v1.1.5   Implemented Control signals for conditioanal jumps              */
 /*   v1.1.6   Implemented examples of conditioanal jumps in langdef file      */
+/*   v1.1.7   Code for the 'I' command to exceute one instruction             */
+/*   v1.1.8   Code for running the program until HLT condition reached        */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -25,7 +27,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.1.6"
+	versionString = "1.1.8"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -46,7 +48,8 @@ Main:
 	choice = ""
 	errorMsg = ""
 	Do Until choice = "X"
-		choice = Upper(strip(controlPanelDisplay(errorMsg)))
+		Call controlPanelDisplay(errorMsg)
+		choice = Strip(Upper(linein()))					/* get next command ----- */
 		Parse Var choice command value
 		errorMsg = ""
 		Select
@@ -83,9 +86,29 @@ Main:
 			End
 			
 			/* -------------------------------------------------------------- */
-			/* ----- Emulator command --------------------------------------- */
+			/* ----- Emulator commands -------------------------------------- */
 			/* -------------------------------------------------------------- */
 			When choice == "S"  Then	Call emulateStep
+			When choice == "I"  Then	Call emulateInstruction
+			When choice == "R"  Then	Call emulateRun
+			
+			/* -------------------------------------------------------------- */
+			/* ----- Memory commands ---------------------------------------- */
+			/* -------------------------------------------------------------- */
+			When choice == "INIT"  Then	Do
+				Call initMemory
+				errorMsg = "Memory initialized"
+			End
+			When choice == "SAVE"  Then	Do
+				Call saveMemory
+				errorMsg = "Memory saved"
+			End
+			When choice == "LOAD"  Then	Do
+				Call loadMemory
+				errorMsg = "Memory loaded"
+			End
+
+			
 			
 			/* -------------------------------------------------------------- */
 			/* ----- Miscelaneous commands ---------------------------------- */
@@ -239,7 +262,9 @@ controlPanelDisplay:
 	Call Display 14 37 color.brightcyan  "Handle Memory"
 	Call Display 15 33 color.brightwhite "INS"
 	Call Display 15 37 color.brightcyan  "Handle Instructions"
-	
+	Call Display 16 33 color.brightwhite "INIT SAVE LOAD"
+	Call Display 16 48 color.brightcyan  "Memory"
+
 /* -------------------------------------------------------------------------- */
 /* ----- Display info about the next microcode step to be excuted ----------- */
 /* -------------------------------------------------------------------------- */
@@ -262,6 +287,10 @@ controlPanelDisplay:
 	Call Display 18  5 color.brightcyan  "Exit"
 	Call Display 18 11 color.brightwhite "S"
 	Call Display 18 13 color.brightcyan  "Step"
+	Call Display 18 19 color.brightwhite "I"
+	Call Display 18 21 color.brightcyan  "Instr"
+	Call Display 18 28 color.brightwhite "R"
+	Call Display 18 30 color.brightcyan  "Run"
 	Call Display 18 53 color.brightwhite "?"
 	Call Display 18 57 color.brightcyan  "Help info"
 	
@@ -269,14 +298,72 @@ controlPanelDisplay:
 		Call Display 21 1 color.brightwhite "===>" message
 	End
 	Call Display  2 6 color.brightwhite
-	choice = Strip(Upper(linein()))					/* get next command ----- */
-Return choice
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Run the program until HLT --------------------------- emulateRun --- */
+/* -------------------------------------------------------------------------- */
+emulateRun:
+	Do Until (cs_HLT == 1)
+		Call emulateInstruction
+	End
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Emulate one instruction --------------------- emulateInstruction --- */
+/* -------------------------------------------------------------------------- */
+emulateInstruction:
+	If (cs_HLT == 1) Then Do
+		errorMsg = "System in HLT condition; stopped"
+		Return
+	End
+	
+							/* get instruction from memory at PCT location -- */
+	If (comp_STC == 1) Then Do
+		comp_INR = MEM.comp_PCT						/* fill INR ------------- */
+	End
+										/* search opcode in instruction table */
+	OpcodePtr = findOpcd(Right("00"||D2X(comp_INR),2))
+	If (OpcodePtr == 0) Then Do 					/* Does it exist? ------- */
+		errorMsg = "operation exception, FOUND" Right("00"||D2X(comp_INR),2) 
+		errorMsg = errorMsg "at location" Right("00"||D2X(comp_PCT),2)
+	End; Else Do
+		Opcode   = instr.OpcodePtr.1				/* get opcode ----------- */
+		Mnemonic = instr.OpcodePtr.2				/* get mnemonic --------- */
+		OpALUopr = C2D(BitAnd(x2c(Opcode), x2c("07"))) /* get ALU operation - */
+		
+					/* walk through all microcode steps for this instruction  */
+		Do mcsCtr = 1 to instr.OpcodePtr.3.0
+			Call clrCtlSignals				/* Clear previous control signals */
+					/* walk through and set all control Signals for this step */
+			Do csCtr = 1 to instr.OpcodePtr.3.mcsCtr.0
+				ctrlSignal = instr.OpcodePtr.3.mcsCtr.csCtr
+				Interpret "cs_"||ctrlSignal "=" 1
+			End
+											/* The heart of the machine ----- */
+											/*   process the ctrl signals --- */
+			Call processCtlSignals
+											/*   Display control panel ------ */
+			Call controlPanelDisplay(errorMsg)
+											/* reset step counter ----------- */
+			If (comp_STC > instr.OpcodePtr.3.0) Then comp_STC = 1
+		End
+	End
+
+Return
 
 
 /* -------------------------------------------------------------------------- */
 /* ----- Emulate one microcode Step ------------------------- emulateStep --- */
 /* -------------------------------------------------------------------------- */
 emulateStep:
+	If (cs_HLT == 1) Then Do
+		errorMsg = "System in HLT condition; stopped"
+		Return
+	End
+
 	Call clrCtlSignals						/* Clear previous control signals */
 							/* get instruction from memory at PCT location -- */
 	If (comp_STC == 1) Then Do

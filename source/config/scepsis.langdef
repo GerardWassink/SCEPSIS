@@ -1,11 +1,11 @@
 # SCEPSIS - Simple CPU Emulation Program (Student Instruction System)
 #
-# Language definition file version 1.1.6
+# Language definition file
 #
 
 #
 # General form of instruction definition
-# opcode mnem - CS [...] [- CS [...] ...]
+# opcode mnem - CS [...] [- CS [...] ...] # comment text
 #
 # The first two microcode steps for every instruction are the same:
 #	PCTO MARI - MEMO INRI CE
@@ -13,132 +13,120 @@
 # 	then they get the contents of that memory location into the instruction register
 # 	finally they bump the Program counter 1 up
 #
-# Example language definition
+# ###
+#
+# Below you find my language definition as an example. feel free to create your own!
+#
+# ###
 
 #
-# NOP - Do nothing - value of PCT to MAR / value of memory to INR,  bump PCT
-
+# ### NOP - No OPeration; do nothing
 00 NOP PCTO MARI - MEMO INRI CE
 
 #
-# JMP - goto location - 
-10 JMP PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO PCTI
+# ### JMP - JuMP to location
 #
-# Conditional jumps - goto location depending on flags
-11 JC  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCC
-12 JZ  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCZ
-13 JE  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCE
-14 JL  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCL
-15 JG  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCG
+10 JMP PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO PCTI			# unconditional Jump
 
 #
-# LD[A|B|C] {value} - read a value into REG[A|B|C] from within the instruction
-20 LDA PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGAI
-21 LDB PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGBI
-22 LDC PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGCI
+# ### Conditional jumps - goto location depending on flags
+#
+11 JC  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCC		# Jump on Carry set
+12 JZ  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCZ		# Jump when Zero
+13 JE  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCE		# Jump when Equal
+14 JL  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCL		# Jump when Less
+15 JG  PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCG		# Jump when Greater
 
 #
-# OPA|B|C] - ouput the value from REG[A|B|C] to the output register
-28 OPA PCTO MARI - MEMO INRI CE - RGAO OUTI
-29 OPB PCTO MARI - MEMO INRI CE - RGBO OUTI
-2A OPC PCTO MARI - MEMO INRI CE - RGCO OUTI
+# ### LD[A|B|C] {value} - Load immediate value into REG[A|B|C]
+#
+20 LDA PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGAI		# Load immediate A
+21 LDB PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGBI		# Load immediate B
+22 LDC PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGCI		# Load immediate C
 
 #
-# RD[A|B|C] {address} - read a value into REG[A|B|C] from a location in memory
-50 RDA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE
-51 RDB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE
-52 RDC PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE
+# ### OPA|B|C] - ouput the value from REG[A|B|C] to the output register
+#
+28 OPA PCTO MARI - MEMO INRI CE - RGAO OUTI						# Output A
+29 OPB PCTO MARI - MEMO INRI CE - RGBO OUTI						# Output B
+2A OPC PCTO MARI - MEMO INRI CE - RGCO OUTI						# Output C
 
 #
-# WR[A|B|C] {address} - write a value from REG[A|B|C] to a location in memory
-54 WRA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGAO MEMI CE
-55 WRB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGBO MEMI CE
-56 WRC PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGCO MEMI CE
+# ### RD[A|B|C] {address} - read a value into REG[A|B|C] from a location in memory
+#
+50 RDA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE	# Read A from memory
+51 RDB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE	# Read B from memory
+52 RDC PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE	# Read C from memory
 
 #
-# I2M {address} - read a value from the input register to a location in memory
-70 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE
+# ### WR[A|B|C] {address} - write a value from REG[A|B|C] to a location in memory
+#
+54 WRA PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGAO MEMI CE	# Write A to memory
+55 WRB PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGBO MEMI CE	# Write B to memory
+56 WRC PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGCO MEMI CE	# Write C to memory
 
 #
-# M2O {address} - put a value from memory into the ouput register
-78 M2O PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - OUTI MEMO CE
+# ### I2M {address} - read a value from the input register to a location in memory
+# ### M2O {address} - put a value from memory into the ouput register
+#
+70 I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE	# Input into memory
+71 M2O PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - OUTI MEMO CE	# Output from memory
 
 #
-# PSHA - put the content of register A on the stack
-80 PSHA PCTO MARI - MEMO INRI CE - SPD - RGAO STKI
+# ### PSH[A|B|C] - put the content of register [A|B|C] on the stack
+#
+80 PSHA PCTO MARI - MEMO INRI CE - SPD - RGAO STKI				# Push register A
+81 PSHB PCTO MARI - MEMO INRI CE - SPD - RGBO STKI				# Push register B
+82 PSHC PCTO MARI - MEMO INRI CE - SPD - RGCO STKI				# Push register C
 
 #
-# POPA - pull the content of register A from the stack
-84 POPA PCTO MARI - MEMO INRI CE - STKO RGAI - SPI
+# ### POP[A|B|C] - pull the content of register [A|B|C] from the stack
+84 POPA PCTO MARI - MEMO INRI CE - STKO RGAI - SPI				# Pop register A
+85 POPB PCTO MARI - MEMO INRI CE - STKO RGBI - SPI				# Pop register B
+86 POPC PCTO MARI - MEMO INRI CE - STKO RGCI - SPI				# Pop register C
 
-#
-#                                                   Instruction for the ALU
 #
 #                               ### IMMEDIATE ALU instructions ###
 #
-# ADI - Add Immediate
-E0 ADI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
-# SBI - Subtract Immediate
-E1 SBI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
-# CPI - Compare Immediate
-E2 CPI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
-# ANI - AND Immediate
-E3 ANI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
-# ORI - OR Immediate
-E4 ORI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
-# XRI - XOR Immediate
-E5 XRI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE
+E0 ADI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE	# Add Immediate
+E1 SBI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE	# Subtract Immediate
+E2 CPI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE	# Compare Immediate
+E3 ANI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE	# AND Immediate
+E4 ORI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE	# OR Immediate
+E5 XRI PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI - EXC - CE	# XOR Immediate
 
 #
 #                                  ### MEMORY ALU instructions ###
 #
-# ADM - Add Memory
-E8 ADM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
-# SBM - Subtract Memory
-E9 SBM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
-# CPM - Compare Memory
-EA CPM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
-# ANM - AND Memory
-EB ANM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
-# ORM - OR Memory
-EC ORM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
-# XRM - XOR Memory
-ED XRM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE
+E8 ADM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE	# Add from memory
+E9 SBM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE	# Subtract memory
+EA CPM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE	# Compare with mamory
+EB ANM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE	# AND memory
+EC ORM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE	# OR memory
+ED XRM PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE	# XOR memory
 
 #
 #                                    ### REGB ALU instructions ###
 #
-# ADB - Add Memory
-F0 ADB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# SBB - Subtract Memory
-F1 SBB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# CPB - Compare Memory
-F2 CPB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# ANB - AND Memory
-F3 ANB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# ORB - OR Memory
-F4 ORB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# XRB - XOR Memory
-F5 XRB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+F0 ADB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# Add Register B
+F1 SBB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# Subtract Register B
+F2 CPB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# Compare Register B
+F3 ANB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# AND Register B
+F4 ORB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# OR Register B
+F5 XRB PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# XOR Register B
 
 #
 #                                    ### REGC ALU instructions ###
 #
-# ADC - Add Memory
-F8 ADC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# SBC - Subtract Memory
-F9 SBC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# CPC - Compare Memory
-FA CPC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# ANC - AND Memory
-FB ANC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# ORC - OR Memory
-FC ORC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
-# XRC - XOR Memory
-FD XRC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC
+F8 ADC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# Add Register C
+F9 SBC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# Subtract Register C
+FA CPC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# Compare Register C
+FB ANC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# AND Register C
+FC ORC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# OR Register C
+FD XRC PCTO MARI - MEMO INRI CE - RGBO ALUI - EXC				# XOR Register C
 
 #
-# STP - Stop the processor (bump PCT first to prepare for continuation)
-# Bump PCT, then HLT
-FF STP CE - HLT
+# ### HLT - Stop the processor (bump PCT first to prepare for continuation)
+#
+FF HLT CE - HLT
 
