@@ -4,36 +4,21 @@
 Release 1.2 will contain conditional jumps. All of the intermediate small releases will work towards that goal.
 
 #### DONE - 1.1.2	Arithmetic
-Add code to decode ALU instructions and control it's operations:
-- Add
-- Subtract
-- Compare
-- And
-- Or
-- Not
+Add code to decode ALU instructions and control it's operations.
 
 #### DONE - 1.1.4	Set appropriate flags
-Depending on the outcome of ALU operations, set flags:
-- C		Carry
-- Z		Zero
-- EQ 	Equal
-- LT	Less then
-- GT	Greater then
+Depending on the outcome of ALU operations, set flags.
 
 #### DONE -  1.1.5	Implement conditional jumps
-Implement control signals to facilitatie conditional jumps (they would work the same way as the existing PCTI, only dependent on conditions):
-- SPCC	Set Program Counter when Carry set
-- SPCZ	Set Program Counter when Zero
-- SPCE	Set Program Counter when Equal
-- SPCL	Set Program Counter when Less
-- SPCG	Set Program Counter when Greater
+Implement control signals to facilitatie conditional jumps (they would work the same way as the existing PCTI, only dependent on conditions).
 
 #### DONE -  1.1.6	Expand example instruction set with examples of conditional jumps
-- JC, JZ, JE, JL, JG
 
-#### 1.1.7	Introduce the possibility to execute one instruction (with all its microsteps) at once
+#### 1.1.7	Introduce the 'execute one instruction' command
+Build code for the 'I' instruction to execute a complete instruction with all it's microcode steps.
 
-#### 1.1.8	Introduce the possibility to execute the program from the point where the PCT in pointing
+#### 1.1.8	Introduce the 'execute the program' command
+Build code for the 'R' instruction to execute the program from where the PCT is pointing; includes building code for the HLT instruction / status.
 
 #### 1.1.9	Where needed, fix minor bugs, do housekeeping
 
