@@ -21,6 +21,7 @@
 /*   v1.1.8   Code for running the program until HLT condition reached        */
 /*   v1.1.9   Fixed various little bugs                                       */
 /*            - fixed error: running program went past end of memory          */
+/*            - ENTER now works as the "S" command in the control panel       */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -53,6 +54,7 @@ Main:
 		Call controlPanelDisplay(errorMsg)
 		choice = Strip(Upper(linein()))					/* get next command ----- */
 		Parse Var choice command value
+		If (choice =="") Then choice = "S"
 		errorMsg = ""
 		Select
 
