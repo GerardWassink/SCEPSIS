@@ -19,6 +19,8 @@
 /*   v1.1.6   Implemented examples of conditioanal jumps in langdef file      */
 /*   v1.1.7   Code for the 'I' command to exceute one instruction             */
 /*   v1.1.8   Code for running the program until HLT condition reached        */
+/*   v1.1.9   Fixed various little bugs                                       */
+/*            - fixed error: running program went past end of memory          */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -27,7 +29,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.1.8"
+	versionString = "1.1.9"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -317,6 +319,12 @@ Return
 emulateInstruction:
 	If (cs_HLT == 1) Then Do
 		errorMsg = "System in HLT condition; stopped"
+		Return
+	End
+	
+	If (comp_PCT > (memSize - 1)) Then Do			/* Check memory bounds -- */
+		errorMsg = "Program running past end of memory, HLT raised"
+		cs_HLT = 1									/* Raise HLT condition -- */
 		Return
 	End
 	
