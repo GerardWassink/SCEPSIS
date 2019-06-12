@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            May 2019                                                  */
-/* Version:         1.1.6                                                     */
+/* Version:         1.2                                                       */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -22,6 +22,8 @@
 /*   v1.1.9   Fixed various little bugs                                       */
 /*            - fixed error: running program went past end of memory          */
 /*            - ENTER now works as the "S" command in the control panel       */
+/*   v1.2     Wrapped everything up to be a working program including all     */
+/*            functionality above.                                            */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -30,7 +32,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.1.9"
+	versionString = "1.2"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
