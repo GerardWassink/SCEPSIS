@@ -605,6 +605,57 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
+/* ----- List Memory in hex dump format----------------------- listMemory --- */
+/* -------------------------------------------------------------------------- */
+listMemory:
+	Call screenHeader "SCEPSIS - memory display"
+	
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+	
+							/* --- Display contents of memory in neat ------- */
+							/* ---   little groups, 32 bytes per row -------- */
+	lnum = 5; p = 0
+	line = Right("0000"||d2x(p),4) || ": "
+	Do p = 0 to memSize - 1
+		If p > 0 Then Do
+			Select
+				When ((p // 32) == 0) Then Do
+					Call Display lnum 2 color.cyan line
+					lnum = lnum + 1
+					line = Right("0000"||d2x(p),4) || ": "
+				End
+				When ((p // 16) == 0) Then line = line || " - "
+				When ((p //  8) == 0) Then line = line || " "
+				When ((p //  4) == 0) Then line = line || " "
+				Otherwise Nop
+			End
+		End
+		line = line || Right("00"||d2x(MEM.p),2)
+	End
+	Call Display lnum 2 color.cyan line
+	lnum = lnum + 1
+
+
+	Call Display 20  3 color.brightwhite "X"
+	Call Display 20  5 color.brightcyan "return"
+	Call Display 20 13 color.brightwhite "M"
+	Call Display 20 15 color.brightcyan "{adr] {val ...}"
+	Call Display 20 32 color.brightwhite "INIT"
+	Call Display 20 37 color.brightwhite "SAVE"
+	Call Display 20 42 color.brightwhite "LOAD"
+	Call Display 20 47 color.brightcyan  "Memory"
+		
+	
+	If Strip(memMsg) <> "" Then Do
+		Call Display 21 1 color.brightwhite "===>" memMsg
+	End
+	Call Display  2 6 color.brightwhite
+	memChoice = Strip(Upper(linein()))
+Return memChoice
+
+
+/* -------------------------------------------------------------------------- */
 /* ----- Save Memory in hex format --------------------------- saveMemory --- */
 /* -------------------------------------------------------------------------- */
 saveMemory:
@@ -661,57 +712,6 @@ regel = ""
 	End
 
 Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List Memory in hex dump format----------------------- listMemory --- */
-/* -------------------------------------------------------------------------- */
-listMemory:
-	Call screenHeader "SCEPSIS - memory display"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
-	
-							/* --- Display contents of memory in neat ------- */
-							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 5; p = 0
-	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to memSize - 1
-		If p > 0 Then Do
-			Select
-				When ((p // 32) == 0) Then Do
-					Call Display lnum 2 color.cyan line
-					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || ": "
-				End
-				When ((p // 16) == 0) Then line = line || " - "
-				When ((p //  8) == 0) Then line = line || " "
-				When ((p //  4) == 0) Then line = line || " "
-				Otherwise Nop
-			End
-		End
-		line = line || Right("00"||d2x(MEM.p),2)
-	End
-	Call Display lnum 2 color.cyan line
-	lnum = lnum + 1
-
-
-	Call Display 20  3 color.brightwhite "X"
-	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val ...}"
-	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightwhite "SAVE"
-	Call Display 20 42 color.brightwhite "LOAD"
-	Call Display 20 47 color.brightcyan  "Memory"
-		
-	
-	If Strip(memMsg) <> "" Then Do
-		Call Display 21 1 color.brightwhite "===>" memMsg
-	End
-	Call Display  2 6 color.brightwhite
-	memChoice = Strip(Upper(linein()))
-Return memChoice
 
 
 /* -------------------------------------------------------------------------- */

@@ -1,0 +1,10 @@
+#
+# Example SCEPSIS program
+#
+Main	LDA 00	A	# A = 0
+Loop	ADM 40      # A = A + valueFromMEMadres(40)
+#		ADI 01		# A = A + 1 (commented out)
+		OQPA			# Print A
+		CPI 03		# Compare A with 3
+		JL	Loop	# Jump to 'Loop' when A < 3
+End		HLT		Q	# STOP

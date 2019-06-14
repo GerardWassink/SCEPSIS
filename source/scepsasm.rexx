@@ -69,6 +69,12 @@ Main:
 			/* -------------------------------------------------------------- */
 			When command == "SRC" Then	SRCfile = CheckInputFileName(value)
 			When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
+
+
+			/* -------------------------------------------------------------- */
+			/* ----- Assembler commands ------------------------------------- */
+			/* -------------------------------------------------------------- */
+			When command == "ASM" Then	Call Assemble
 			
 			
 			/* -------------------------------------------------------------- */
@@ -91,34 +97,6 @@ Main:
 	Call endProgram
 
 Exit
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Check Input file name ----------------------- CheckInputFileName --- */
-/* -------------------------------------------------------------------------- */
-CheckInputFileName:
-	Procedure Expose errorMsg
-	Parse arg filename
-	If Stream(filename, 'C', 'OPEN READ') = "READY:" Then Do
-		errorMsg = "File" filename "exists, ready to read"
-	End; Else Do
-		errorMsg = "File can not be found:" filename
-	End
-Return filename
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Check Output file name --------------------- CheckOutputFileName --- */
-/* -------------------------------------------------------------------------- */
-CheckOutputFileName:
-	Procedure Expose errorMsg
-	Parse arg filename
-	If Stream(filename, 'C', 'OPEN WRITE') = "READY:" Then Do
-		errorMsg = "File" filename "ready to write"
-	End; Else Do
-		errorMsg = "File can not be found:" filename
-	End
-Return filename
 
 
 /* -------------------------------------------------------------------------- */
@@ -165,6 +143,116 @@ controlPanelDisplay:
 		Call Display 21 1 color.brightwhite "===>" message
 	End
 	Call Display  2 6 color.brightwhite
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Assemble the source into an object -------------------- Assemble --- */
+/* -------------------------------------------------------------------------- */
+Assemble:
+	
+	Call screenHeader "SCEPSASM - Generating executable from source file"
+	Call Display  3  1 color.cyan " "
+	
+	Call readParseSource				/* Result is formal parsed table ---- */
+	
+	
+	Call enterForMore
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Read and parse the source file ----------------- readParseSource --- */
+/* -------------------------------------------------------------------------- */
+readParseSource: 
+	Say "Reading and parsing source file"
+	Say ""
+
+	lnum = 0
+	parsePhase = "OK"
+
+	Say "Query read: ("||Stream(filename, 'C', 'POSITION =')||")"
+		
+	/* -------------------------------------------------------------------------- */
+	/* Create array that contains the assembly code as follows: ----------------- */
+	/*   source.0	-	number of instructions ---------------------------------- */
+	/*   source.n.1	-	label if present, else "" ------------------------------- */
+	/*   source.n.2	-	instruction mnemonic ------------------------------------ */
+	/*   source.n.3	-	operand when present, else "" --------------------------- */
+	/*   source.n.4	-	instruction line nummer in source file ------------------ */
+	/*   source.n.5	-	instruction address ------------------------------------- */
+	/*   source.n.6	-	instruction opcode -------------------------------------- */
+	/*   source.n.7	-	instruction operand value if present, else "" ----------- */
+	/*   source.n.8	-	instruction length -------------------------------------- */
+	/* -------------------------------------------------------------------------- */
+	source. = ""
+	source.0 = 0
+	Do While Lines(SRCfile)
+		line = Upper(Linein(SRCfile))
+		lnum = lnum + 1
+		asmMsg = ""
+		Select
+			When ( Substr(line,1,1) == "#") Then Nop
+			When ( Strip(line) == "") Then Nop
+			Otherwise Do
+				Parse Var line line '#' comment		/* leave comment out ---- */
+				source.0 = source.0 + 1
+				instrPtr = source.0
+				labl = ""
+				If isWhiteSpace(Left(line,1))
+					Then Parse Var line mnem oprnd junk
+					Else Parse Var line labl mnem oprnd junk
+				labl  = Strip(labl)
+				mnem  = Strip(mnem)
+				oprnd = Strip(oprnd)
+				junk  = Strip(junk)
+
+				If (labl <> "") Then Do
+					source.instrPtr.1 = labl
+				End
+								
+				source.instrPtr.2 = mnem		/* store mnemonic ----------- */
+				source.instrPtr.3 = oprnd		/* store operand ------------ */
+				source.instrPtr.4 = lnum		/* store line number--------- */
+				source.instrPtr.5 = 0			/* zero to address (for now)  */
+				source.instrPtr.7 = ""			/* store operand value ------ */
+				If (oprnd == "") Then Do
+					source.instrPtr.8 = 1		/* store instruction length - */
+				End; Else Do
+					source.instrPtr.8 = 2		/* store instruction length - */
+				End
+				
+				i = findMnem(mnem)		/* yields position or 0 ------------- */
+				If (i > 0) Then Do
+					source.instrPtr.6 = instr.i.1	/* store opcode ------------- */
+				End; Else Do
+					asmMsg =  "Error: Unknown instruction '"||mnem||"' found in source line" lnum
+					parsePhase = "NOK"
+				End
+				
+				If ((instr.i.2.1 == "") & (oprnd <> "")) Then Do
+					asmMsg =  "Error: unexpected operand '"||oprnd||"' found in source line" lnum
+					parsePhase = "NOK"
+				End
+				
+				If junk <> "" Then Do
+					asmMsg = "Error: Superfluous '"||junk||"' found in source line" lnum
+					parsePhase = "NOK"
+				End
+				
+				Say Right("000000"||source.instrPtr.4,6) " "	|| ,
+					Left(source.instrPtr.6||"   ",3)			|| ,
+					Left(source.instrPtr.7||"   ",5)			|| ,
+					Left(source.instrPtr.1||"         ",9)		|| ,
+					Left(source.instrPtr.2||"     ",5)			|| ,
+					Left(source.instrPtr.3||"         ",9)		|| ,
+					asmMsg
+			End
+		End
+	End
+	Say " "
+	Say "Parse phase" parsePhase
+	Say " "
 Return
 
 
@@ -234,6 +322,57 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
+/* ----- List Memory in hex dump format----------------------- listMemory --- */
+/* -------------------------------------------------------------------------- */
+listMemory:
+	Call screenHeader "SCEPSASM - memory display"
+	
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+	
+							/* --- Display contents of memory in neat ------- */
+							/* ---   little groups, 32 bytes per row -------- */
+	lnum = 5; p = 0
+	line = Right("0000"||d2x(p),4) || ": "
+	Do p = 0 to memSize - 1
+		If p > 0 Then Do
+			Select
+				When ((p // 32) == 0) Then Do
+					Call Display lnum 2 color.cyan line
+					lnum = lnum + 1
+					line = Right("0000"||d2x(p),4) || ": "
+				End
+				When ((p // 16) == 0) Then line = line || " - "
+				When ((p //  8) == 0) Then line = line || " "
+				When ((p //  4) == 0) Then line = line || " "
+				Otherwise Nop
+			End
+		End
+		line = line || Right("00"||d2x(MEM.p),2)
+	End
+	Call Display lnum 2 color.cyan line
+	lnum = lnum + 1
+
+
+	Call Display 20  3 color.brightwhite "X"
+	Call Display 20  5 color.brightcyan "return"
+	Call Display 20 13 color.brightwhite "M"
+	Call Display 20 15 color.brightcyan "{adr] {val ...}"
+	Call Display 20 32 color.brightwhite "INIT"
+	Call Display 20 37 color.brightwhite "SAVE"
+	Call Display 20 42 color.brightwhite "LOAD"
+	Call Display 20 47 color.brightcyan  "Memory"
+		
+	
+	If Strip(memMsg) <> "" Then Do
+		Call Display 21 1 color.brightwhite "===>" memMsg
+	End
+	Call Display  2 6 color.brightwhite
+	memChoice = Strip(Upper(linein()))
+Return memChoice
+
+
+/* -------------------------------------------------------------------------- */
 /* ----- Save Memory in hex format --------------------------- saveMemory --- */
 /* -------------------------------------------------------------------------- */
 saveMemory:
@@ -293,57 +432,6 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- List Memory in hex dump format----------------------- listMemory --- */
-/* -------------------------------------------------------------------------- */
-listMemory:
-	Call screenHeader "SCEPSASM - memory display"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
-	
-							/* --- Display contents of memory in neat ------- */
-							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 5; p = 0
-	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to memSize - 1
-		If p > 0 Then Do
-			Select
-				When ((p // 32) == 0) Then Do
-					Call Display lnum 2 color.cyan line
-					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || ": "
-				End
-				When ((p // 16) == 0) Then line = line || " - "
-				When ((p //  8) == 0) Then line = line || " "
-				When ((p //  4) == 0) Then line = line || " "
-				Otherwise Nop
-			End
-		End
-		line = line || Right("00"||d2x(MEM.p),2)
-	End
-	Call Display lnum 2 color.cyan line
-	lnum = lnum + 1
-
-
-	Call Display 20  3 color.brightwhite "X"
-	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val ...}"
-	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightwhite "SAVE"
-	Call Display 20 42 color.brightwhite "LOAD"
-	Call Display 20 47 color.brightcyan  "Memory"
-		
-	
-	If Strip(memMsg) <> "" Then Do
-		Call Display 21 1 color.brightwhite "===>" memMsg
-	End
-	Call Display  2 6 color.brightwhite
-	memChoice = Strip(Upper(linein()))
-Return memChoice
-
-
-/* -------------------------------------------------------------------------- */
 /* ----- Check whether a value is bin or not ------------------- checkBin --- */
 /* -------------------------------------------------------------------------- */
 isBin:
@@ -366,6 +454,22 @@ isHex:
 	rval = 1
 	Do h = 1 to Length(possibleHex)
 		If Index("0123456789ABCDEF", Substr(possibleHex,h,1)) == 0 Then Do
+			rval = 0
+			Leave
+		End
+	End
+Return rval
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check whether a value is hex or not ------------------- checkHex --- */
+/* -------------------------------------------------------------------------- */
+isWhiteSpace:
+	Parse Arg possibleWhiteSpace
+	rval = 1
+	isTab = D2C(9)
+	Do h = 1 to Length(possibleWhiteSpace)
+		If Index(" "||isTab, Substr(possibleWhiteSpace,h,1)) == 0 Then Do
 			rval = 0
 			Leave
 		End
@@ -723,6 +827,35 @@ endProgram:
 	Call reset
 	Say "SCEPSASM signing of - Goodbye"
 Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check Input file name ----------------------- CheckInputFileName --- */
+/* -------------------------------------------------------------------------- */
+CheckInputFileName:
+	Procedure Expose errorMsg
+	Parse arg filename
+	If Stream(filename, 'C', 'OPEN READ') = "READY:" Then Do
+		errorMsg = "File" filename "exists, ready to read"
+	End; Else Do
+		errorMsg = "File can not be found:" filename
+	End
+Return filename
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check Output file name --------------------- CheckOutputFileName --- */
+/* -------------------------------------------------------------------------- */
+CheckOutputFileName:
+	Procedure Expose errorMsg
+	Parse arg filename
+	If Stream(filename, 'C', 'OPEN WRITE') = "READY:" Then Do
+		errorMsg = "File" filename "ready to write"
+	End; Else Do
+		errorMsg = "File can not be found:" filename
+	End
+	retCod = Stream(filename, 'C', 'CLOSE')
+Return filename
 
 
 /* -------------------------------------------------------------------------- */
