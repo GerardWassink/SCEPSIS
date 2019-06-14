@@ -63,19 +63,16 @@ Main:
 				errorMsg = "Memory loaded"
 			End
 			
-			
 			/* -------------------------------------------------------------- */
 			/* ----- File commands ------------------------------------------ */
 			/* -------------------------------------------------------------- */
 			When command == "SRC" Then	SRCfile = CheckInputFileName(value)
 			When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
 
-
 			/* -------------------------------------------------------------- */
 			/* ----- Assembler commands ------------------------------------- */
 			/* -------------------------------------------------------------- */
 			When command == "ASM" Then	Call Assemble
-			
 			
 			/* -------------------------------------------------------------- */
 			/* ----- Miscelaneous commands ---------------------------------- */
@@ -156,6 +153,15 @@ Assemble:
 	
 	Call readParseSource				/* Result is formal parsed table ---- */
 	
+	If (parsePhase == "OK") Then Do
+		Say " "
+		Say "Parse phase" parsePhase
+		Say " "
+	End; Else Do	
+		Say " "
+		Say "Parse phase" parsePhase
+		Say " "
+	End
 	
 	Call enterForMore
 Return
@@ -171,8 +177,10 @@ readParseSource:
 	lnum = 0
 	parsePhase = "OK"
 
-	Say "Query read: ("||Stream(filename, 'C', 'POSITION =')||")"
-		
+	c = Stream(SRCfile, 'C', 'POSITION =')
+	c = Stream(SRCfile, 'C', 'OPEN READ')
+	
+	
 	/* -------------------------------------------------------------------------- */
 	/* Create array that contains the assembly code as follows: ----------------- */
 	/*   source.0	-	number of instructions ---------------------------------- */
@@ -250,9 +258,6 @@ readParseSource:
 			End
 		End
 	End
-	Say " "
-	Say "Parse phase" parsePhase
-	Say " "
 Return
 
 
