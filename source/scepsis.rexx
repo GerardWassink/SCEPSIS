@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            May 2019                                                  */
-/* Version:         1.2                                                       */
+/* Version:         1.2.1                                                       */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -32,7 +32,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.2"
+	versionString = "1.2.1"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -278,13 +278,14 @@ controlPanelDisplay:
 	If (oPtr > 0) Then Do 							/* does it exist? ------- */
 		Oc   = instr.oPtr.1							/* get opcode ----------- */
 		Mn   = instr.oPtr.2							/* get mnemonic --------- */
+		Ag   = instr.oPtr.2.1						/* get argument --------- */
 		Ao   = c2x(BitAnd(x2c(Oc), x2c("07")))		/* get ALU operation ---- */
 		Signals = ""		/* walk through and display every control Signal  */
 		Do csC = 1 to instr.oPtr.3.comp_STC.0
 			cS = instr.oPtr.3.comp_STC.csC
 			Signals = Signals || " " || cS
 		End
-		Call Display 19 11 color.brightred "next: x"||Oc Mn "ALU opr("||Ao||") step" comp_STC || ":" Signals "                                                                    "
+		Call Display 19 11 color.brightred "next: x"||Oc Mn Ag "(ALU opr:"||Ao||") step" comp_STC || ":" Signals "                                                                    "
 	End; Else Do
 		message = "Unknown instruction" Right("00"||D2X(comp_INR),2) "at PCT address"
 	End
@@ -790,8 +791,8 @@ listInstructions:
 	liLine = ""
 	scrLine = 6
 	Do i = 1 to instr.0
-		liLine = liLine || Left(instr.i.1||"  ",2) || " " || Left(instr.i.2||"    ", 4) || "   "
-		If ((i //  8) == 0) Then Do
+		liLine = liLine || Left(instr.i.1||"  ",2) || " " || Left(instr.i.2||"    ", 4) || " " || Left(instr.i.2.1||"  ", 2) || "   "
+		If ((i //  6) == 0) Then Do
 			Call Display scrLine 3 color.cyan liLine
 			scrLine = scrLine + 1
 			liLine = ""
@@ -823,8 +824,8 @@ listInstruction:
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
 	
-	Call Display  5  3 color.brightwhite "OPC  Ins  Stp  Control Signals"
-	liLine = instr.pointer.1 "-" instr.pointer.2
+	Call Display  5  3 color.brightwhite "OPC  Ins Arg Stp  Control Signals"
+	liLine = instr.pointer.1 "-" left(instr.pointer.2||"    ",5) || Left(instr.pointer.2.1||"   ",3)
 	scrLine = 6
 	Call Display scrLine 3 color.brightwhite liLine
 	Do step = 1 to instr.pointer.3.0
@@ -832,7 +833,7 @@ listInstruction:
 		Do cs = 1 To instr.pointer.3.step.0
 			liLine2 = liLine2 instr.pointer.3.step.cs
 		End
-		Call Display scrLine 14 color.cyan liLine2
+		Call Display scrLine 17 color.cyan liLine2
 		scrLine = scrLine + 1
 	End
 	scrLine = scrLine + 1
@@ -1095,16 +1096,18 @@ processLangDefFile:
 			When ( Substr(line,1,1) == "#") Then Nop
 			When ( Strip(line) == "") Then Nop
 			Otherwise Do
-				Parse Var line opcd mnem mcSteps '#' comment
+				Parse Var line opcd mnem argm '|' mcSteps '#' comment
 				opcd = Strip(opcd)
 				mnem = Strip(mnem)
+				argm = Strip(argm)
 				i = findOpcd(opcd)		/* yields position or 0 ------------- */
 				If (i == 0) Then Do
 					instr.0 = instr.0 + 1
 					i = instr.0
 				End
-				instr.i.1 = opcd			/* store opcode ----------------- */
-				instr.i.2 = mnem			/* store mnemonic --------------- */
+				instr.i.1   = opcd			/* store opcode ----------------- */
+				instr.i.2   = mnem			/* store mnemonic --------------- */
+				instr.i.2.1 = argm			/* store argument --------------- */
 				instr.i.3.0 = 0				/* ptr to microde steps --------- */
 				Do While Words(mcSteps) > 0	/* store ctl signals per step --- */
 					Parse Var mcSteps mcStep '-' mcSteps
