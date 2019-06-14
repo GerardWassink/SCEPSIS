@@ -5,6 +5,10 @@ Using a langdef file and a source file, will generate a memory file that can be 
 
 ## History
 
+### DONE - 1.2.1	Prep SCEPSIS for ASM
+Change the .langdef file format to include arguments for the upcoming assembler syntax checking; 
+change SCEPSIS code to read and process it
+
 ### DONE - 1.2		Conditional jumps
 Release 1.2 contains control signals for the conditional loading of the PCT, to facilitate the definition of conditional jumps.
 
