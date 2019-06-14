@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            May 2019                                                  */
-/* Version:         1.2.1                                                       */
+/* Version:         1.2.2                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -32,7 +32,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.2.1"
+	versionString = "1.2.2"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -97,6 +97,8 @@ Main:
 			When choice == "S"  Then	Call emulateStep
 			When choice == "I"  Then	Call emulateInstruction
 			When choice == "R"  Then	Call emulateRun
+			
+			When choice == "C"  Then	Call emulatorReset
 			
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
@@ -298,6 +300,8 @@ controlPanelDisplay:
 	Call Display 18 21 color.brightcyan  "Instr"
 	Call Display 18 28 color.brightwhite "R"
 	Call Display 18 30 color.brightcyan  "Run"
+	Call Display 18 35 color.brightwhite "C"
+	Call Display 18 37 color.brightcyan  "Reset"
 	Call Display 18 53 color.brightwhite "?"
 	Call Display 18 57 color.brightcyan  "Help info"
 	
@@ -1044,6 +1048,15 @@ Initialize:
 		Exit 8
 	End
 	
+	/* Initialize the emulator --- */
+	Call emulatorReset
+	
+Return
+
+/* -------------------------------------------------------------------------- */
+/* ----- Rest the whole emulator -------------------------- emulatorReset --- */
+/* -------------------------------------------------------------------------- */
+emulatorReset:
 	/* ----- Initialize Memory ----- */
 	memSize = memorySize
 	Call initMemory
