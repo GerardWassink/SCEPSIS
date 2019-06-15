@@ -1,9 +1,9 @@
 # SCEPSIS - roadmap
 
-## Release 2.0 - SCEPSASM, an example of a SCEPSIS Assembler
-Using a langdef file and a source file, will generate a memory file that can be executed in the SCEPSIS emulator.
-
 ## History
+
+### DONE - 1.2.2 - Complete SCEPSASM
+Coded the assembler in three phases, and coded a proper assembly listing.
 
 ### DONE - 1.2.1 - Prep SCEPSIS for ASM
 Change the .langdef file format to include arguments for the upcoming assembler syntax checking; 
