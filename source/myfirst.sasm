@@ -1,10 +1,20 @@
 #
 # Example SCEPSIS program
 #
-Main	LDA 00		# A = 0
-Loop	ADM 40      # A = A + valueFromMEMadres(40)
-#		ADI 01		# A = A + 1 (commented out)
-		OPA			# Print A
-		CPI 03		# Compare A with 3
-		JL	Loop	# Jump to 'Loop' when A < 3
-End		HLT			# STOP
+Main	LDA B'0			# A = 0
+		LDB D'1			# B = 1
+		LDC X'2			# C = 3
+		STB X'40'		# Store B in memory address x'40'
+#Loop	ADI D'01'		# A = A + 1
+Loop	ADM X'40'		# A = A + valueFromMEMadres(x'40')
+		OPA				# Output A
+		CPI B'11'		# Compare A with 3
+		JL	Loop		# Jump to 'Loop' when A < 3
+#
+# OK, just goofing around in this last part
+#
+		LDA B'11		# A = 3
+		LDB D'2			# B = 2
+		LDC X'1			# C = 1
+Ending	HLT				# STOP
+#

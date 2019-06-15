@@ -5,11 +5,12 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-/* Version:         1.2.2                                                      */
+/* Version:         1.2.2                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
-/*   v0.1     Copies SCEPSIS soucre to make use of it's parsing routines      */
+/*   v1.2.1   Copied SCEPSIS source to make use of it's parsing routines      */
+/*   v1.2.2   Coded parse phase 1, 2 and 3 and produced assembly listing      */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -68,6 +69,7 @@ Main:
 			/* -------------------------------------------------------------- */
 			When command == "SRC" Then	SRCfile = CheckInputFileName(value)
 			When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
+			When command == "LST" Then	LSTfile = CheckOutputFileName(value)
 
 			/* -------------------------------------------------------------- */
 			/* ----- Assembler commands ------------------------------------- */
@@ -113,23 +115,27 @@ controlPanelDisplay:
 	Call Display  5 18 color.brightcyan  Left(SRCfile||"__________________________________________________",50)
 	Call Display  6  3 color.cyan		 "OBJ file name:"
 	Call Display  6 18 color.brightcyan  Left(OBJfile||"__________________________________________________",50)
+	Call Display  7  3 color.cyan		 "LST file name:"
+	Call Display  7 18 color.brightcyan  Left(LSTfile||"__________________________________________________",50)
 	
 	
-	Call Display 13  3 color.brightwhite "Commands ---------------"
-	Call Display 14  3 color.brightwhite "SRC"
-	Call Display 14  7 color.brightcyan  "Enter name of source file"
-	Call Display 15  3 color.brightwhite "OBJ"
-	Call Display 15  7 color.brightcyan  "Enter name of object file"
-	Call Display 16  3 color.brightwhite "ASM"
-	Call Display 16  7 color.brightcyan  "Assemble the source file"
+	Call Display 10  3 color.brightwhite "Commands ---------------"
+	Call Display 11  3 color.brightwhite "SRC"
+	Call Display 11  7 color.brightcyan  "Enter name of source file"
+	Call Display 12  3 color.brightwhite "OBJ"
+	Call Display 12  7 color.brightcyan  "Enter name of object file"
+	Call Display 13  3 color.brightwhite "LST"
+	Call Display 13  7 color.brightcyan  "Enter name of listing file"
+	Call Display 14  3 color.brightwhite "ASM"
+	Call Display 14  7 color.brightcyan  "Assemble the source file"
 
-	Call Display 13 33 color.brightwhite "------------------------"
-	Call Display 14 33 color.brightwhite "MEM"
-	Call Display 14 37 color.brightcyan  "Handle Memory"
-	Call Display 15 33 color.brightwhite "INS"
-	Call Display 15 37 color.brightcyan  "Handle Instructions"
-	Call Display 16 33 color.brightwhite "INIT SAVE LOAD"
-	Call Display 16 48 color.brightcyan  "Memory"
+	Call Display 10 37 color.brightwhite "------------------------"
+	Call Display 11 37 color.brightwhite "MEM"
+	Call Display 11 41 color.brightcyan  "Handle Memory"
+	Call Display 12 37 color.brightwhite "INS"
+	Call Display 12 41 color.brightcyan  "Handle Instructions"
+	Call Display 13 37 color.brightwhite "INIT SAVE LOAD"
+	Call Display 13 52 color.brightcyan  "Memory"
 
 	Call Display 18  3 color.brightwhite "X"
 	Call Display 18  5 color.brightcyan  "Exit"
@@ -150,114 +156,395 @@ Assemble:
 	
 	Call screenHeader "SCEPSASM - Generating executable from source file"
 	Call Display  3  1 color.cyan " "
-	
-	Call readParseSource				/* Result is formal parsed table ---- */
-	
-	If (parsePhase == "OK") Then Do
-		Say " "
-		Say "Parse phase" parsePhase
-		Say " "
+	phase1.0 = 0; parsePahse1 = 0
+	phase2.0 = 0; parsePahse2 = 0
+	phase3.0 = 0; parsePahse3 = 0
+
+	Say "Phase 1 - Reading and parsing source file"
+	If parseSourcePhase1() Then Do		/* Result is formal parsed table ---- */
+		Say "        finished successfully"
+		Say "Phase 2 - Reading and parsing source file"
+		If parseSourcePhase2() Then Do	/* Go through the parsed table ------ */
+			Say "        finished successfully"
+			Say "Phase 3 - Generating the code into memory"
+			If parseSourcePhase3() Then Do	/* Generate output in memory ---- */
+				Say "        finished successfully"
+				Say " "
+				
+				Call saveMemory			/* save generated code to OBJ file -- */
+				
+				Say "NOTE: your object code has been written to the OBJ file"
+				Say " "
+			End; Else Do
+				Say "Parse phase 3 contained errors"
+			End
+		End; Else Do	
+			Say "Parse phase 2 contained errors"
+		End
 	End; Else Do	
-		Say " "
-		Say "Parse phase" parsePhase
-		Say " "
+		Say "Parse phase 1 contained errors"
 	End
+	Say "Generating listing and messages file"
+	Call listResults
 	
 	Call enterForMore
 Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Read and parse the source file ----------------- readParseSource --- */
+/* ----- Read and parse the source file --------------- parseSourcePhase1 --- */
 /* -------------------------------------------------------------------------- */
-readParseSource: 
-	Say "Reading and parsing source file"
-	Say ""
-
+parseSourcePhase1: 
 	lnum = 0
-	parsePhase = "OK"
+	parsePhase1 = 1
 
 	c = Stream(SRCfile, 'C', 'POSITION =')
 	c = Stream(SRCfile, 'C', 'OPEN READ')
 	
+	phase1.  = ""						/* Initialize phase1 output --------- */
+	phase1.0 = 0
 	
-	/* -------------------------------------------------------------------------- */
-	/* Create array that contains the assembly code as follows: ----------------- */
-	/*   source.0	-	number of instructions ---------------------------------- */
-	/*   source.n.1	-	label if present, else "" ------------------------------- */
-	/*   source.n.2	-	instruction mnemonic ------------------------------------ */
-	/*   source.n.3	-	operand when present, else "" --------------------------- */
-	/*   source.n.4	-	instruction line nummer in source file ------------------ */
-	/*   source.n.5	-	instruction address ------------------------------------- */
-	/*   source.n.6	-	instruction opcode -------------------------------------- */
-	/*   source.n.7	-	instruction operand value if present, else "" ----------- */
-	/*   source.n.8	-	instruction length -------------------------------------- */
-	/* -------------------------------------------------------------------------- */
-	source. = ""
+	/* ---------------------------------------------------------------------- */
+	/* Create array that contains the assembly code as follows: ------------- */
+	/*   source.0	-	number of instructions ------------------------------ */
+	/*   source.n.1	-	label if present, else "" --------------------------- */
+	/*   source.n.2	-	instruction mnemonic -------------------------------- */
+	/*   source.n.3	-	operand when present, else "" ----------------------- */
+	/*   source.n.4	-	instruction line nummer in source file -------------- */
+	/*   source.n.5	-	instruction address --------------------------------- */
+	/*   source.n.6	-	instruction opcode ---------------------------------- */
+	/*   source.n.7	-	instruction operand value if present, else "" ------- */
+	/*   source.n.8	-	instruction length ---------------------------------- */
+	/*   source.n.9	-	original source line -------------------------------- */
+	/* ---------------------------------------------------------------------- */
+	
+	source. = ""						/* empty array to hold parse output - */
 	source.0 = 0
+	
+	instrAddr = 0						/* start address at start of memory - */
+	
 	Do While Lines(SRCfile)
-		line = Upper(Linein(SRCfile))
-		lnum = lnum + 1
+		inLine = Upper(Linein(SRCfile))
+		lnum   = lnum + 1
 		asmMsg = ""
+		source.0 = source.0 + 1					/* housekeeping for array --- */
+		instrPtr = source.0
 		Select
-			When ( Substr(line,1,1) == "#") Then Nop
-			When ( Strip(line) == "") Then Nop
+			
+			When ( Substr(inLine,1,1) == "#") Then Do	/* comment lines ---- */
+				source.instrPtr.4 = lnum		/* store line number -------- */
+				source.instrPtr.5 = ""			/* store address ------------ */
+				source.instrPtr.9 = inLine		/* store original source line */
+			End
+			
+			When ( Strip(inLine) == "") Then Do	/* blank lines -------------- */
+				source.instrPtr.4 = lnum		/* store line number -------- */
+				source.instrPtr.5 = ""			/* store address ------------ */
+				source.instrPtr.9 = inLine		/* store original source line */
+			End
+			
 			Otherwise Do
-				Parse Var line line '#' comment		/* leave comment out ---- */
-				source.0 = source.0 + 1
-				instrPtr = source.0
-				labl = ""
+				Parse Var inLine line '#' comment	/* Set comment aside ---- */
+				
+				labl = ""						/* see if there's a label --- */
 				If isWhiteSpace(Left(line,1))
-					Then Parse Var line mnem oprnd junk
-					Else Parse Var line labl mnem oprnd junk
-				labl  = Strip(labl)
+					Then Parse Var line mnem oprnd junk			/* no label   */
+					Else Parse Var line labl mnem oprnd junk	/* yes label  */
+				
+				labl  = Strip(labl)				/* Strip superfluous spaces - */
 				mnem  = Strip(mnem)
 				oprnd = Strip(oprnd)
 				junk  = Strip(junk)
-
-				If (labl <> "") Then Do
-					source.instrPtr.1 = labl
-				End
+				
+												/* store label when found --- */ 
+				If (labl <> "") Then source.instrPtr.1 = labl
 								
 				source.instrPtr.2 = mnem		/* store mnemonic ----------- */
-				source.instrPtr.3 = oprnd		/* store operand ------------ */
+				source.instrPtr.3 = oprnd		/* store operand text ------- */
 				source.instrPtr.4 = lnum		/* store line number--------- */
-				source.instrPtr.5 = 0			/* zero to address (for now)  */
-				source.instrPtr.7 = ""			/* store operand value ------ */
+				source.instrPtr.5 = Right("00"||D2X(instrAddr),2)	/* addr - */
+				source.instrPtr.9 = inLine		/* store original source line */
+				
+				i = findMnem(mnem)				/* Try to find mnemonic ----- */
+				If (i > 0) Then Do				/* zero if not found -------- */
+					source.instrPtr.6 = instr.i.1	/* store opcode if found  */
+				End; Else Do
+					Call addPhase1Msg "Error: Unknown instruction '"||mnem||"' found in source line" lnum
+					parsePhase1 = 0
+				End
+				
+				/* ---------------------------------------------------------------------- */
+				/* Handle operands, values set when given, other stuff save for phase 2 - */
+				/* ---------------------------------------------------------------------- */
+				If (oprnd <> "") Then Do
+					oprndValue = ""				/* initialize for phase 2 --- */
+					
+					If (Substr(oprnd,2,1) == "'") Then Do
+												/* assume it's a value, check */
+						Select
+							When Left(oprnd,1) == "X" Then Do
+												/* it's a hexadecimal value - */
+								Parse var oprnd "X'" opval "'"	/* strip quotes - */
+								If isHex(opval) Then Do
+									oprndValue = Right("00"||opval,2)
+								End; Else Do
+									Call addPhase1Msg "Error: invalid hexadecimal value "||opval||" found in source line" lnum
+									parsePhase1 = 0
+								End
+							End
+							
+							When Left(oprnd,1) == "B" Then Do
+												/* it's a binary value ------ */
+								Parse var oprnd "B'" opval "'"	/* strip quotes - */
+								If isBin(opval) Then Do
+									oprndValue = Right("00"||B2X(opval),2)
+								End; Else Do
+									Call addPhase1Msg "Error: invalid binary value "||opval||" found in source line" lnum
+									parsePhase1 = 0
+								End
+							End
+							
+							When Left(oprnd,1) == "D" Then Do
+												/* it's a decimal value ----- */
+								Parse var oprnd "D'" opval "'"	/* strip quotes - */
+								If isDec(opval) Then Do
+									oprndValue = Right("00"||D2X(opval),2)
+								End; Else Do
+									Call addPhase1Msg "Error: invalid decimal value "||opval||" found in source line" lnum
+									parsePhase1 = 0
+								End
+							End
+							
+							/* ---------------------------------------------- */
+							/* NOTE: labels handled in Parse Phase 2 -------- */
+							/* ---------------------------------------------- */
+							
+							Otherwise Do
+								Call addPhase1Msg "Error: invalid operand "||oprnd||" found in source line" lnum
+								parsePhase1 = 0
+							End
+							
+						End
+						
+						If oprndValue <> "" Then Do	/* check value in range - */
+							If (X2D(oprndValue) < 0 | X2D(oprndValue) > (memSize - 1)) Then Do
+								Call addPhase1Msg "Error: operand value '"||oprndValue||"' out of range in source line" lnum
+								parsePhase1 = 0
+							End; Else Do			/* store value ---------- */
+								source.instrPtr.7 = oprndValue
+							End
+						End
+					End
+				End
+				
 				If (oprnd == "") Then Do
 					source.instrPtr.8 = 1		/* store instruction length - */
 				End; Else Do
 					source.instrPtr.8 = 2		/* store instruction length - */
 				End
 				
-				i = findMnem(mnem)		/* yields position or 0 ------------- */
-				If (i > 0) Then Do
-					source.instrPtr.6 = instr.i.1	/* store opcode ------------- */
-				End; Else Do
-					asmMsg =  "Error: Unknown instruction '"||mnem||"' found in source line" lnum
-					parsePhase = "NOK"
-				End
+											/* bump address for next line --- */
+				instrAddr = instrAddr + source.instrPtr.8
 				
 				If ((instr.i.2.1 == "") & (oprnd <> "")) Then Do
-					asmMsg =  "Error: unexpected operand '"||oprnd||"' found in source line" lnum
-					parsePhase = "NOK"
+					Call addPhase1Msg "Error: unexpected operand '"||oprnd||"' found in source line" lnum
+					parsePhase1 = 0
 				End
 				
 				If junk <> "" Then Do
-					asmMsg = "Error: Superfluous '"||junk||"' found in source line" lnum
-					parsePhase = "NOK"
+					Call addPhase1Msg "Error: Superfluous '"||junk||"' found in source line" lnum
+					parsePhase1 = 0
 				End
-				
-				Say Right("000000"||source.instrPtr.4,6) " "	|| ,
-					Left(source.instrPtr.6||"   ",3)			|| ,
-					Left(source.instrPtr.7||"   ",5)			|| ,
-					Left(source.instrPtr.1||"         ",9)		|| ,
-					Left(source.instrPtr.2||"     ",5)			|| ,
-					Left(source.instrPtr.3||"         ",9)		|| ,
-					asmMsg
 			End
 		End
 	End
+Return parsePhase1
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Add a message as output of phase 1 ---------------- addPhase1Msg --- */
+/* -------------------------------------------------------------------------- */
+addPhase1Msg:
+	Procedure Expose phase1.
+	Parse arg msg
+	phase1.0 = phase1.0 + 1
+	p1 = phase1.0
+	phase1.p1 = msg
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Read and parse the source file ----------------- parseSourcePhase2 - */
+/* -------------------------------------------------------------------------- */
+parseSourcePhase2: 
+	parsePhase2 = 1
+	phase2.  = ""
+	phase2.0 = 0
+	
+	Do instrPtr = 1 To source.0			/* find label and substitute adress - */
+		oprnd		= source.instrPtr.3
+		oprndValue	= source.instrPtr.7
+		If (oprnd <> "" & oprndValue == "") Then Do
+			x = findLabel(oprnd)
+			If x > 0 Then Do
+				source.instrPtr.7 = source.x.5	/* substitute addres  */
+			End; Else Do
+				Call addPhase2Msg "Error: label '"||oprnd||"' not found in source line" source.instrPtr.4
+				parsePhase2 = 0
+			End
+		End
+	End
+Return parsePhase2
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Add a message as output of phase 2 ---------------- addPhase2Msg --- */
+/* -------------------------------------------------------------------------- */
+addPhase2Msg:
+	Procedure Expose phase2.
+	Parse arg msg
+	phase2.0 = phase2.0 + 1
+	p2 = phase2.0
+	phase2.p2 = msg
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Create the object file form the parse table ---- parseSourcePhase3- */
+/* -------------------------------------------------------------------------- */
+parseSourcePhase3: 
+	parsePhase3 = 1
+	phase3.  = ""
+	phase3.0 = 0
+	
+	Call initMemory						/* clear out memory ----------------- */
+	
+	adrPtr = 0							/* walk thru the memory ------------- */
+	
+	Do instrPtr = 1 To source.0			/* find label and substitute adress - */
+		opcode		= source.instrPtr.6
+		oprndValue	= source.instrPtr.7
+		instrLength	= source.instrPtr.8
+		lnum		= source.instrPtr.4
+		MEM.adrPtr = X2D(opcode)		/* store opcode into memory --------- */
+		adrPtr = adrPtr + 1				/* bump pointer --------------------- */
+		If adrPtr > (memSize - 1) Then Do
+			Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
+			Leave
+		End
+		If instrLength = 2 Then Do
+			MEM.adrPtr = X2D(oprndValue) /* store operand value into memory - */
+			adrPtr = adrPtr + 1			/* bump pointer --------------------- */
+			If adrPtr > (memSize - 1) Then Do
+				Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
+				Leave
+			End
+		End
+	End
+Return parsePhase3
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Add a message as output of phase 3 ---------------- addPhase3Msg --- */
+/* -------------------------------------------------------------------------- */
+addPhase3Msg:
+	Procedure Expose phase3.
+	Parse arg msg
+	phase3.0 = phase3.0 + 1
+	p3 = phase3.0
+	phase3.p3 = msg
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Read and parse the source file --------------- parseSourcePhase1 --- */
+/* -------------------------------------------------------------------------- */
+findLabel:
+	Procedure Expose source.
+	Parse Arg lable
+	ptr = 0
+	Do i = 1 to source.0
+		If lable == source.i.1 Then Do
+			ptr = i
+			Leave
+		End
+	End
+Return ptr
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- List listing and results -------------------------- list Results --- */
+/* -------------------------------------------------------------------------- */
+listResults:
+	If Stream(LSTfile, 'C', 'OPEN WRITE REPLACE') = "READY:" Then Do
+		Call listWrite Copies('-',80)
+		Call listWrite "Assembly listing for file" SRCfile
+		Call listWrite Copies('-',80)
+		Call listWrite " "
+		Call listWrite "SrcLin -Addr- Op Oprnd   --- Source line ---"
+		Do instrPtr = 1 to source.0			/* find label and substitute adress - */
+			If source.instrPtr.5 == "" Then Do
+				addrs = "      "
+			End; Else Do
+				addrs = Right("000000"||source.instrPtr.5,6)
+			End
+			Call listWrite  Right("      "||source.instrPtr.4,6)||" "|| ,	/* linenum -- */
+				addrs											||" "|| ,	/* address -- */
+				Left(source.instrPtr.6||"   ",3)				|| ,		/* opcode  -- */
+				Left(source.instrPtr.7||"   ",5)				|| ,		/* operand value */
+				"   " || source.instrPtr.9
+		End
+		Call listWrite " "
+		
+		If phase1.0 > 0 Then Do
+			Call listWrite Copies('-',80)
+			Call listWrite "Phase 1 messages for" SRCfile
+			Call listWrite Copies('-',80)
+			Do i = 1 To phase1.0
+				Call listWrite phase1.i
+			End
+		End; Else Do
+			Call listWrite "Phase 1 parsing ended successfully"
+		End
+
+		Call listWrite " "
+		
+		If phase2.0 > 0 Then Do
+			Call listWrite Copies('-',80)
+			Call listWrite "Phase 2 messages for" SRCfile
+			Call listWrite Copies('-',80)
+			Do i = 1 To phase2.0
+				Call listWrite phase2.i
+			End
+		End; Else Do
+			Call listWrite "Phase 2 parsing ended successfully"
+		End
+		
+		Call listWrite " "
+		
+		If phase3.0 > 0 Then Do
+			Call listWrite Copies('-',80)
+			Call listWrite "Phase 3 messages for" SRCfile
+			Call listWrite Copies('-',80)
+			Do i = 1 To phase3.0
+				Call listWrite phase3.i
+			End
+		End; Else Do
+			Call listWrite "Phase 3 parsing ended successfully"
+		End
+		
+		Call listWrite " "
+		Call listWrite "End of assembly for file" SRCfile
+	End
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Write a line to the listing file --------------------- listWrite --- */
+/* -------------------------------------------------------------------------- */
+listWrite:
+	Parse Arg outLine
+	lc = Lineout(LSTfile, outLine)
 Return
 
 
@@ -378,12 +665,27 @@ Return memChoice
 
 
 /* -------------------------------------------------------------------------- */
+/* ----- Initialize Memory ----------------------------------- initMemory --- */
+/* -------------------------------------------------------------------------- */
+initMemory:
+	Procedure Expose memSize MEM.
+	/* ----- Memory ----- */
+	Do p = 0 to (memSize - 1)
+		MEM.p = 0
+	End
+Return
+
+
+/* -------------------------------------------------------------------------- */
 /* ----- Save Memory in hex format --------------------------- saveMemory --- */
 /* -------------------------------------------------------------------------- */
 saveMemory:
 	lnum = 1; p = 0						/* save from location 0, count lines  */
 	line = ""
-	memFile = "./SCEPSIS.memory"
+	memFile = OBJfile
+
+	c = Stream(memFile, 'C', 'POSITION =')
+	
 	If Stream(memFile, 'C', 'OPEN WRITE') = "READY:" Then Do
 		Do p = 0 to memSize - 1
 			If p > 0 Then Do
@@ -437,7 +739,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Check whether a value is bin or not ------------------- checkBin --- */
+/* ----- Check whether a value is bin or not ---------------------- isBin --- */
 /* -------------------------------------------------------------------------- */
 isBin:
 	Parse Arg possibleBin
@@ -452,13 +754,28 @@ Return rval
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Check whether a value is hex or not ------------------- checkHex --- */
+/* ----- Check whether a value is hex or not ---------------------- isHex --- */
 /* -------------------------------------------------------------------------- */
 isHex:
 	Parse Arg possibleHex
 	rval = 1
 	Do h = 1 to Length(possibleHex)
 		If Index("0123456789ABCDEF", Substr(possibleHex,h,1)) == 0 Then Do
+			rval = 0
+			Leave
+		End
+	End
+Return rval
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Check whether a value is decimal or not ------------------ isDec --- */
+/* -------------------------------------------------------------------------- */
+isDec:
+	Parse Arg possibleDec
+	rval = 1
+	Do h = 1 to Length(possibleDec)
+		If Index("0123456789", Substr(possibleDec,h,1)) == 0 Then Do
 			rval = 0
 			Leave
 		End
@@ -674,7 +991,10 @@ Initialize:
 	langDefFile		= "./config/SCEPSIS.langdef"	/* File containing the instruction definitions */
 	
 	SRCfile			= "./myfirst.sasm"		/* Example source file */
-	OBJfile			= "./myfirst.memory"	/* Example source file */
+	OBJfile			= "./myfirst.memory"	/* Example object file */
+	LSTfile			= "./myfirst.lst"		/* Example listing file */
+	
+	asmDirectives	= "DC"					/* assembler Directives --------- */
 	
 	/* ----- Read language definition file ----- */
 	instr.	= 0								/* stem to hold instructions */
@@ -809,18 +1129,6 @@ processConfigFile:
 				End
 			End
 		End
-	End
-Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Initialize Memory ----------------------------------- initMemory --- */
-/* -------------------------------------------------------------------------- */
-initMemory:
-	Procedure Expose memSize MEM.
-	/* ----- Memory ----- */
-	Do p = 0 to (memSize - 1)
-		MEM.p = 0
 	End
 Return
 
