@@ -38,18 +38,25 @@
 15 JG   XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCG		# Jump when Greater
 
 #
-# ### LD[A|B|C] {value} - Load immediate value into REG[A|B|C]
+# ### LD[A|B|C] {value} - Load value XX into REG[A|B|C]
 #
 20 LDA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGAI		# Load immediate A
 21 LDB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGBI		# Load immediate B
 22 LDC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGCI		# Load immediate C
 
 #
+# ### STA|B|C] {value} - Store value from REG[A|B|C] into memory address XX
+#
+28 STA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO MARI - RGAO MEMI	# Store A
+29 STB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO MARI - RGBO	MEMI	# Store B
+2A STC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO MARI - RGCO	MEMI	# Store C
+
+#
 # ### OPA|B|C] - ouput the value from REG[A|B|C] to the output register
 #
-28 OPA     | PCTO MARI - MEMO INRI CE - RGAO OUTI						# Output A
-29 OPB     | PCTO MARI - MEMO INRI CE - RGBO OUTI						# Output B
-2A OPC     | PCTO MARI - MEMO INRI CE - RGCO OUTI						# Output C
+30 OPA     | PCTO MARI - MEMO INRI CE - RGAO OUTI						# Output A
+31 OPB     | PCTO MARI - MEMO INRI CE - RGBO OUTI						# Output B
+32 OPC     | PCTO MARI - MEMO INRI CE - RGCO OUTI						# Output C
 
 #
 # ### RD[A|B|C] {address} - read a value into REG[A|B|C] from a location in memory

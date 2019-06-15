@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            May 2019                                                  */
-/* Version:         1.2.1                                                       */
+/* Version:         1.2.2                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -32,7 +32,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.2.1"
+	versionString = "1.2.2"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -97,6 +97,8 @@ Main:
 			When choice == "S"  Then	Call emulateStep
 			When choice == "I"  Then	Call emulateInstruction
 			When choice == "R"  Then	Call emulateRun
+			
+			When choice == "C"  Then	Call emulatorReset
 			
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
@@ -298,6 +300,8 @@ controlPanelDisplay:
 	Call Display 18 21 color.brightcyan  "Instr"
 	Call Display 18 28 color.brightwhite "R"
 	Call Display 18 30 color.brightcyan  "Run"
+	Call Display 18 35 color.brightwhite "C"
+	Call Display 18 37 color.brightcyan  "Reset"
 	Call Display 18 53 color.brightwhite "?"
 	Call Display 18 57 color.brightcyan  "Help info"
 	
@@ -601,6 +605,57 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
+/* ----- List Memory in hex dump format----------------------- listMemory --- */
+/* -------------------------------------------------------------------------- */
+listMemory:
+	Call screenHeader "SCEPSIS - memory display"
+	
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred "___________________________________________________________________________"
+	
+							/* --- Display contents of memory in neat ------- */
+							/* ---   little groups, 32 bytes per row -------- */
+	lnum = 5; p = 0
+	line = Right("0000"||d2x(p),4) || ": "
+	Do p = 0 to memSize - 1
+		If p > 0 Then Do
+			Select
+				When ((p // 32) == 0) Then Do
+					Call Display lnum 2 color.cyan line
+					lnum = lnum + 1
+					line = Right("0000"||d2x(p),4) || ": "
+				End
+				When ((p // 16) == 0) Then line = line || " - "
+				When ((p //  8) == 0) Then line = line || " "
+				When ((p //  4) == 0) Then line = line || " "
+				Otherwise Nop
+			End
+		End
+		line = line || Right("00"||d2x(MEM.p),2)
+	End
+	Call Display lnum 2 color.cyan line
+	lnum = lnum + 1
+
+
+	Call Display 20  3 color.brightwhite "X"
+	Call Display 20  5 color.brightcyan "return"
+	Call Display 20 13 color.brightwhite "M"
+	Call Display 20 15 color.brightcyan "{adr] {val ...}"
+	Call Display 20 32 color.brightwhite "INIT"
+	Call Display 20 37 color.brightwhite "SAVE"
+	Call Display 20 42 color.brightwhite "LOAD"
+	Call Display 20 47 color.brightcyan  "Memory"
+		
+	
+	If Strip(memMsg) <> "" Then Do
+		Call Display 21 1 color.brightwhite "===>" memMsg
+	End
+	Call Display  2 6 color.brightwhite
+	memChoice = Strip(Upper(linein()))
+Return memChoice
+
+
+/* -------------------------------------------------------------------------- */
 /* ----- Save Memory in hex format --------------------------- saveMemory --- */
 /* -------------------------------------------------------------------------- */
 saveMemory:
@@ -657,57 +712,6 @@ regel = ""
 	End
 
 Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List Memory in hex dump format----------------------- listMemory --- */
-/* -------------------------------------------------------------------------- */
-listMemory:
-	Call screenHeader "SCEPSIS - memory display"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
-	
-							/* --- Display contents of memory in neat ------- */
-							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 5; p = 0
-	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to memSize - 1
-		If p > 0 Then Do
-			Select
-				When ((p // 32) == 0) Then Do
-					Call Display lnum 2 color.cyan line
-					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || ": "
-				End
-				When ((p // 16) == 0) Then line = line || " - "
-				When ((p //  8) == 0) Then line = line || " "
-				When ((p //  4) == 0) Then line = line || " "
-				Otherwise Nop
-			End
-		End
-		line = line || Right("00"||d2x(MEM.p),2)
-	End
-	Call Display lnum 2 color.cyan line
-	lnum = lnum + 1
-
-
-	Call Display 20  3 color.brightwhite "X"
-	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val ...}"
-	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightwhite "SAVE"
-	Call Display 20 42 color.brightwhite "LOAD"
-	Call Display 20 47 color.brightcyan  "Memory"
-		
-	
-	If Strip(memMsg) <> "" Then Do
-		Call Display 21 1 color.brightwhite "===>" memMsg
-	End
-	Call Display  2 6 color.brightwhite
-	memChoice = Strip(Upper(linein()))
-Return memChoice
 
 
 /* -------------------------------------------------------------------------- */
@@ -1044,6 +1048,15 @@ Initialize:
 		Exit 8
 	End
 	
+	/* Initialize the emulator --- */
+	Call emulatorReset
+	
+Return
+
+/* -------------------------------------------------------------------------- */
+/* ----- Rest the whole emulator -------------------------- emulatorReset --- */
+/* -------------------------------------------------------------------------- */
+emulatorReset:
 	/* ----- Initialize Memory ----- */
 	memSize = memorySize
 	Call initMemory
