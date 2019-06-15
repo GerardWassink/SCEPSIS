@@ -422,22 +422,24 @@ parseSourcePhase3:
 	adrPtr = 0							/* walk thru the memory ------------- */
 	
 	Do instrPtr = 1 To source.0			/* find label and substitute adress - */
-		opcode		= source.instrPtr.6
-		oprndValue	= source.instrPtr.7
-		instrLength	= source.instrPtr.8
-		lnum		= source.instrPtr.4
-		MEM.adrPtr = X2D(opcode)		/* store opcode into memory --------- */
-		adrPtr = adrPtr + 1				/* bump pointer --------------------- */
-		If adrPtr > (memSize - 1) Then Do
-			Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
-			Leave
-		End
-		If instrLength = 2 Then Do
-			MEM.adrPtr = X2D(oprndValue) /* store operand value into memory - */
-			adrPtr = adrPtr + 1			/* bump pointer --------------------- */
+		If source.instrPtr.5 <> "" Then Do
+			opcode		= source.instrPtr.6
+			oprndValue	= source.instrPtr.7
+			instrLength	= source.instrPtr.8
+			lnum		= source.instrPtr.4
+			MEM.adrPtr = X2D(opcode)		/* store opcode into memory --------- */
+			adrPtr = adrPtr + 1				/* bump pointer --------------------- */
 			If adrPtr > (memSize - 1) Then Do
 				Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
 				Leave
+			End
+			If instrLength = 2 Then Do
+				MEM.adrPtr = X2D(oprndValue) /* store operand value into memory - */
+				adrPtr = adrPtr + 1			/* bump pointer --------------------- */
+				If adrPtr > (memSize - 1) Then Do
+					Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
+					Leave
+				End
 			End
 		End
 	End
