@@ -716,7 +716,7 @@ loadMemory:
 	lnum = 0; p = 0						/* load from location 0, count lines  */
 	line = ""
 regel = ""
-	memFile = "./SCEPSIS.memory"
+	memFile = "./scepsis.memory"
 	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Do While Lines(memFile)
 			line = Strip(Upper(Linein(memFile)))
@@ -987,8 +987,8 @@ Initialize:
 	/* ----- Set default values for program parameters ----- */
 	microCodeSteps	= 7						/* Max number of micro code steps */
 	memorySize		= 256					/* Size of memory in bytes*/
-	configFile		= "./config/SCEPSIS.conf"		/* File containing the engine parameters */
-	langDefFile		= "./config/SCEPSIS.langdef"	/* File containing the instruction definitions */
+	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
+	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
 	
 	SRCfile			= "./myfirst.sasm"		/* Example source file */
 	OBJfile			= "./myfirst.memory"	/* Example object file */
