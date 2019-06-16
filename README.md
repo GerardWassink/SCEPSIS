@@ -1,19 +1,28 @@
 
-# SCEPSIS
+# SCEPSIS and SCEPSASM
 
-## Simple CPU Emulator Program (Student Instruction System)
+There are two main programs in this respository, SCEPSIS and SCEPSASM.
+
+## SCEPSIS - Simple CPU Emulator Program (Student Instruction System)
 
 ![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsis_main.JPG "SCEPSIS main screen")
 
 ### Purpose
 
-The purpose of this project is to educate people in the concepts of low-level computing, by emulating a simple CPU. The properties of this CPU will be:
+The purpose of this project is to educate people in the concepts of low-level computing, by emulating a simple CPU. The properties of this CPU are:
 
 - 8 bits
 - fixed number of given components & control signals
 - ability to define custom microcode
 - thus being able to create one's own instruction set
 - combined data- and address bus
+
+## SCEPSASM - Simple CPU Emulator Program (ASeMbler)
+
+![SCEPSASM main screen](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepssm_main.JPG "SCEPSASM main screen")
+
+
+## General information
 
 ### Background
 
