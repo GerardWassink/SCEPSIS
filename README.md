@@ -21,8 +21,6 @@ The purpose of this project is to educate people in the concepts of low-level co
 
 ![SCEPSASM main screen](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsasm_main.JPG "SCEPSASM main screen")
 
-gfx/scepsasm_main.JPG
-
 ## General information
 
 ### Background
