@@ -11,6 +11,7 @@
 /* History:                                                                   */
 /*   v1.2.1   Copied SCEPSIS source to make use of it's parsing routines      */
 /*   v1.2.2   Coded parse phase 1, 2 and 3 and produced assembly listing      */
+/*   v1.2.3   Code cleanup, corrected a few minor bugs                        */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -410,7 +411,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Create the object file form the parse table ---- parseSourcePhase3- */
+/* ----- Create the object file form the parse table -- parseSourcePhase3 --- */
 /* -------------------------------------------------------------------------- */
 parseSourcePhase3: 
 	parsePhase3 = 1
@@ -422,20 +423,20 @@ parseSourcePhase3:
 	adrPtr = 0							/* walk thru the memory ------------- */
 	
 	Do instrPtr = 1 To source.0			/* find label and substitute adress - */
-		If source.instrPtr.5 <> "" Then Do
+		If source.instrPtr.5 <> "" Then Do	/* Not a comment or empty line? - */
 			opcode		= source.instrPtr.6
 			oprndValue	= source.instrPtr.7
 			instrLength	= source.instrPtr.8
 			lnum		= source.instrPtr.4
-			MEM.adrPtr = X2D(opcode)		/* store opcode into memory --------- */
-			adrPtr = adrPtr + 1				/* bump pointer --------------------- */
+			MEM.adrPtr = X2D(opcode)		/* store opcode into memory ----- */
+			adrPtr = adrPtr + 1				/* bump pointer ----------------- */
 			If adrPtr > (memSize - 1) Then Do
 				Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
 				Leave
 			End
 			If instrLength = 2 Then Do
-				MEM.adrPtr = X2D(oprndValue) /* store operand value into memory - */
-				adrPtr = adrPtr + 1			/* bump pointer --------------------- */
+				MEM.adrPtr = X2D(oprndValue) /* operand value into memory --- */
+				adrPtr = adrPtr + 1			/* bump pointer ----------------- */
 				If adrPtr > (memSize - 1) Then Do
 					Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
 					Leave
@@ -459,7 +460,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Read and parse the source file --------------- parseSourcePhase1 --- */
+/* ----- Find a label in the parse table ---------------------- findLabel --- */
 /* -------------------------------------------------------------------------- */
 findLabel:
 	Procedure Expose source.
@@ -479,6 +480,9 @@ Return ptr
 /* -------------------------------------------------------------------------- */
 listResults:
 	If Stream(LSTfile, 'C', 'OPEN WRITE REPLACE') = "READY:" Then Do
+										/* ---------------------------------- */
+										/* Print the assembled source file -- */
+										/* ---------------------------------- */
 		Call listWrite Copies('-',80)
 		Call listWrite "Assembly listing for file" SRCfile
 		Call listWrite Copies('-',80)
@@ -497,7 +501,9 @@ listResults:
 				"   " || source.instrPtr.9
 		End
 		Call listWrite " "
-		
+										/* ---------------------------------- */
+										/* Print phase 1 output ------------- */
+										/* ---------------------------------- */
 		If phase1.0 > 0 Then Do
 			Call listWrite Copies('-',80)
 			Call listWrite "Phase 1 messages for" SRCfile
@@ -508,9 +514,10 @@ listResults:
 		End; Else Do
 			Call listWrite "Phase 1 parsing ended successfully"
 		End
-
 		Call listWrite " "
-		
+										/* ---------------------------------- */
+										/* Print phase 2 output ------------- */
+										/* ---------------------------------- */
 		If phase2.0 > 0 Then Do
 			Call listWrite Copies('-',80)
 			Call listWrite "Phase 2 messages for" SRCfile
@@ -521,9 +528,10 @@ listResults:
 		End; Else Do
 			Call listWrite "Phase 2 parsing ended successfully"
 		End
-		
 		Call listWrite " "
-		
+										/* ---------------------------------- */
+										/* Print phase 3 output ------------- */
+										/* ---------------------------------- */
 		If phase3.0 > 0 Then Do
 			Call listWrite Copies('-',80)
 			Call listWrite "Phase 3 messages for" SRCfile
@@ -534,9 +542,13 @@ listResults:
 		End; Else Do
 			Call listWrite "Phase 3 parsing ended successfully"
 		End
-		
+										/* ---------------------------------- */
+										/* Final remarks -------------------- */
+										/* ---------------------------------- */
 		Call listWrite " "
+		Call listWrite Copies('-',80)
 		Call listWrite "End of assembly for file" SRCfile
+		Call listWrite Copies('-',80)
 	End
 Return
 
@@ -705,9 +717,7 @@ saveMemory:
 		memMsg = "Wrote" lnum "lines to" memFile
 	End; Else Do
 		memMsg = "Error opening file" memFile
-		Exit 8
 	End
-
 Return
 
 
@@ -717,8 +727,7 @@ Return
 loadMemory:
 	lnum = 0; p = 0						/* load from location 0, count lines  */
 	line = ""
-regel = ""
-	memFile = "./scepsis.memory"
+	memFile = OBJfile
 	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Do While Lines(memFile)
 			line = Strip(Upper(Linein(memFile)))
@@ -734,7 +743,6 @@ regel = ""
 		memMsg = "Loaded" lnum "lines from" memFile
 	End; Else Do
 		memMsg = "Error opening file" memFile
-		Exit 8
 	End
 
 Return
