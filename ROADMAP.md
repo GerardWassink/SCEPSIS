@@ -2,6 +2,9 @@
 
 ## History
 
+### DONE - 1.2.3 - Minor bug fixes
+Code cleanup and minor bug fixes.
+
 ### DONE - 1.2.2 - Complete SCEPSASM
 Coded the assembler in three phases, and coded a proper assembly listing.
 
