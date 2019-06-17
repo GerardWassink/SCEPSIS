@@ -1,0 +1,63 @@
+--------------------------------------------------------------------------------
+Assembly listing for file prime.sasm
+--------------------------------------------------------------------------------
+ 
+SrcLin -Addr- Op Oprnd   --- Source line ---
+     1                   #
+     2                   # ### FINDING PRIMES FROM 1 TO 255
+     3                   #
+     4 000000 00         START	NOP
+     5 000001 20 01      		LDA		X'01	
+     6 000003 28 35      		STA		NUMBER		# NUMBER TO INVESTIGATE FOR 'PRIME-NESS'
+     7 000005 28 36      		STA		COUNT		# COUNTER FROM 1 TO PRIME
+     8                   #
+     9 000007 00         PLOOP	NOP					# OUTER LOOP WHERE NUMBER GOES FROM 1 TO 255
+    10 000008 20 35      		LDA		NUMBER		# LOAD CURRENT VALUE OF NUMBER TO INVESTIGATE
+    11 00000A 28 37      		STA		CALC		# STORE IT IN CALC
+    12                   #
+    13 00000C 00         CLOOP	NOP					# INNER LOOP INVESTIGATING NUMBER
+    14 00000D 20 37      		LDA 	CALC		# GET CALC RESULT
+    15 00000F 21 36      		LDB		COUNT		# LOAD NUMBER TO SUBTRACT
+    16 000011 F1         		SBB					# CALC = CALC - COUNT
+    17 000012 28 37      		STA		CALC
+    18 000014 12 22      		JZ		FOUNDPR		# FOUND PRIME! OUTPUT!
+    19 000016 11 2B      		JC		BUMPN		# BECAME NEGATIVE, GO RESET COUNT AND BUMP NUMBER
+    20                   #
+    21 000018 20 36      		LDA		COUNT		# INCREMENT 
+    22 00001A E0 01      		ADI		X'01		#   INNER LOOP VALUE
+    23 00001C 28 36      		STA		COUNT
+    24 00001E 11 26      		JC		RESETC		# COUNT > 255, GO RESET COUNT AND BUMP NUMBER
+    25 000020 10 0C      		JMP		CLOOP		
+    26                   #
+    27 000022 00         FOUNDPR	NOP
+    28 000023 20 35      		LDA NUMBER			# LOAD NUMBER
+    29 000025 30         		OPA					# OUTPUT NUMBER WHEN PRIME
+    30                   #
+    31 000026 00         RESETC	NOP
+    32 000027 20 01      		LDA		X'01		# RESET COUNT TO 1
+    33 000029 28 36      		STA		COUNT
+    34                   #
+    35 00002B 00         BUMPN	NOP
+    36 00002C 20 35      		LDA		NUMBER		# GET NUMBER
+    37 00002E E0 01      		ADI		X'01		# ADD 1
+    38 000030 11 34      		JC		END			# BECAME > 255, END PROGRAM
+    39 000032 10 07      		JMP		PLOOP
+    40                   #
+    41 000034 FF         END		HLT					# END PROGRAM
+    42                   #
+    43                   # ### STORAGE AREA
+    44                   #
+    45 000035 00         NUMBER	NOP
+    46 000036 00         COUNT	NOP
+    47 000037 00         CALC	NOP
+    48                   #
+ 
+Phase 1 parsing ended successfully
+ 
+Phase 2 parsing ended successfully
+ 
+Phase 3 parsing ended successfully
+ 
+--------------------------------------------------------------------------------
+End of assembly for file prime.sasm
+--------------------------------------------------------------------------------
