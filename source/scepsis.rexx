@@ -24,6 +24,7 @@
 /*            - ENTER now works as the "S" command in the control panel       */
 /*   v1.2     Wrapped everything up to be a working program including all     */
 /*            functionality above.                                            */
+/*   v1.3     Suppress animation of steps when Running                        */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -96,7 +97,13 @@ Main:
 			/* -------------------------------------------------------------- */
 			When choice == "S"  Then	Call emulateStep
 			When choice == "I"  Then	Call emulateInstruction
-			When choice == "R"  Then	Call emulateRun
+			When choice == "A"  Then 	Call emulateRun
+			
+			When choice == "R"  Then Do
+				boolAnimate = 0
+				Call emulateRun
+				boolAnimate = 1
+			End
 			
 			When choice == "C"  Then	Call emulatorReset
 			
@@ -298,12 +305,14 @@ controlPanelDisplay:
 	Call Display 18 13 color.brightcyan  "Step"
 	Call Display 18 19 color.brightwhite "I"
 	Call Display 18 21 color.brightcyan  "Instr"
-	Call Display 18 28 color.brightwhite "R"
-	Call Display 18 30 color.brightcyan  "Run"
-	Call Display 18 35 color.brightwhite "C"
-	Call Display 18 37 color.brightcyan  "Reset"
-	Call Display 18 53 color.brightwhite "?"
-	Call Display 18 57 color.brightcyan  "Help info"
+	Call Display 18 28 color.brightwhite "A"
+	Call Display 18 30 color.brightcyan  "Animate"
+	Call Display 18 39 color.brightwhite "R"
+	Call Display 18 41 color.brightcyan  "Run"
+	Call Display 18 46 color.brightwhite "C"
+	Call Display 18 48 color.brightcyan  "Reset"
+	Call Display 18 64 color.brightwhite "?"
+	Call Display 18 68 color.brightcyan  "Help info"
 	
 	If Strip(message) <> "" Then Do
 		Call Display 21 1 color.brightwhite "===>" message
@@ -363,7 +372,7 @@ emulateInstruction:
 											/*   process the ctrl signals --- */
 			Call processCtlSignals
 											/*   Display control panel ------ */
-			Call controlPanelDisplay(errorMsg)
+			If boolAnimate Then Call controlPanelDisplay(errorMsg)
 											/* reset step counter ----------- */
 			If (comp_STC > instr.OpcodePtr.3.0) Then comp_STC = 1
 		End
@@ -1023,6 +1032,8 @@ Initialize:
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
 	
+	/* ----- Set default animation = true ----- */
+	boolAnimate = 1
 	
 	/* ----- Read language definition file ----- */
 	instr.	= 0								/* stem to hold instructions */
@@ -1047,6 +1058,10 @@ Initialize:
 		Say "MemorySize specified in config file too large, maximum is 256 byes)"
 		Exit 8
 	End
+
+	/* ----- Initialize Memory ----- */
+	memSize = memorySize
+	Call initMemory
 	
 	/* Initialize the emulator --- */
 	Call emulatorReset
@@ -1057,10 +1072,6 @@ Return
 /* ----- Rest the whole emulator -------------------------- emulatorReset --- */
 /* -------------------------------------------------------------------------- */
 emulatorReset:
-	/* ----- Initialize Memory ----- */
-	memSize = memorySize
-	Call initMemory
-	
 	/* ----- Set default values for Flags ----- */
 	Flags = "C Z EQ LT GT"
 	Do i = 1 To Words(Flags)

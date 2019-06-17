@@ -36,7 +36,7 @@ BumpN	NOP
 		LDA		Number		# Get Number
 		ADI		X'01		# Add 1
 		JC		END			# Became > 255, end program
-		J		Ploop
+		JMP		Ploop
 #
 End		HLT					# End program
 #
