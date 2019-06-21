@@ -38,11 +38,11 @@
 15 JG   XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO SPCG		# Jump when Greater
 
 #
-# ### LD[A|B|C] {value} - Load value XX into REG[A|B|C]
+# ### LI[A|B|C] {value} - Load Immediate value XX into REG[A|B|C]
 #
-20 LDA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGAI		# Load immediate A
-21 LDB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGBI		# Load immediate B
-22 LDC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGCI		# Load immediate C
+20 LIA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGAI		# Load immediate A
+21 LIB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGBI		# Load immediate B
+22 LIC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI CE - MEMO RGCI		# Load immediate C
 
 #
 # ### STA|B|C] {value} - Store value from REG[A|B|C] into memory address XX
@@ -59,18 +59,11 @@
 32 OPC     | PCTO MARI - MEMO INRI CE - RGCO OUTI						# Output C
 
 #
-# ### RD[A|B|C] {address} - read a value into REG[A|B|C] from a location in memory
+# ### RD[A|B|C] {address} - Load Memory value into REG[A|B|C]
 #
-50 RDA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE	# Read A from memory
-51 RDB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE	# Read B from memory
-52 RDC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE	# Read C from memory
-
-#
-# ### WR[A|B|C] {address} - write a value from REG[A|B|C] to a location in memory
-#
-54 WRA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGAO MEMI CE	# Write A to memory
-55 WRB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGBO MEMI CE	# Write B to memory
-56 WRC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - RGCO MEMI CE	# Write C to memory
+50 LMA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE	# Read A from memory
+51 LMB  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE	# Read B from memory
+52 LMC  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE	# Read C from memory
 
 #
 # ### I2M {address} - read a value from the input register to a location in memory
