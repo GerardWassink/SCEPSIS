@@ -25,6 +25,7 @@
 /*   v1.2     Wrapped everything up to be a working program including all     */
 /*            functionality above.                                            */
 /*   v1.3     Suppress animation of steps when Running                        */
+/*   v1.3.1   Correction of bug in flag setting                               */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -478,7 +479,7 @@ ProcessCtlSignals:
 				comp_REGA = comp_REGA + comp_AOPR
 				C_flag = 0; Z_flag = 0						/* reset flags -- */
 				If comp_REGA > 255 Then Do
-					com_REGA = comp_REGA - 255
+					comp_REGA = comp_REGA - 255
 					C_flag = 1					/* set Carry flag when needed */
 				End
 				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
@@ -488,7 +489,7 @@ ProcessCtlSignals:
 				comp_REGA = comp_REGA - comp_AOPR
 				C_flag = 0; Z_flag = 0						/* reset flags -- */
 				If comp_REGA < 0 Then Do
-					com_REGA = comp_REGA + 255
+					comp_REGA = comp_REGA + 255
 					C_flag = 1					/* set Carry flag when needed */
 				End
 				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
