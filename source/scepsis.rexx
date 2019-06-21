@@ -26,6 +26,7 @@
 /*            functionality above.                                            */
 /*   v1.3     Suppress animation of steps when Running                        */
 /*   v1.3.1   Correction of bug in flag setting                               */
+/*            Built in animate level R(un), I(nstruction), S(tep)             */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -101,9 +102,7 @@ Main:
 			When choice == "A"  Then 	Call emulateRun
 			
 			When choice == "R"  Then Do
-				boolAnimate = 0
 				Call emulateRun
-				boolAnimate = 1
 			End
 			
 			When choice == "C"  Then	Call emulatorReset
@@ -328,6 +327,9 @@ Return
 emulateRun:
 	Do Until (cs_HLT == 1)
 		Call emulateInstruction
+												/*   Display control panel ------ */
+		If Animate == "I" Then Call controlPanelDisplay(errorMsg)
+
 	End
 Return
 
@@ -373,7 +375,7 @@ emulateInstruction:
 											/*   process the ctrl signals --- */
 			Call processCtlSignals
 											/*   Display control panel ------ */
-			If boolAnimate Then Call controlPanelDisplay(errorMsg)
+			If Animate == "S" Then Call controlPanelDisplay(errorMsg)
 											/* reset step counter ----------- */
 			If (comp_STC > instr.OpcodePtr.3.0) Then comp_STC = 1
 		End
@@ -487,12 +489,15 @@ ProcessCtlSignals:
 			
 			When OpALUopr == 1 Then Do							/* SUBTRACT - */
 				comp_REGA = comp_REGA - comp_AOPR
-				C_flag = 0; Z_flag = 0						/* reset flags -- */
+				C_flag = 0; Z_flag = 0; EQ_flag = 0			/* reset flags -- */
 				If comp_REGA < 0 Then Do
 					comp_REGA = comp_REGA + 255
 					C_flag = 1					/* set Carry flag when needed */
 				End
-				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
+				If comp_REGA == 0 Then Do
+					Z_flag = 1								/* set Zero flag  */
+					EQ_flag = 1								/* set Equal flag */
+				End
 			End
 			
 			When OpALUopr == 2 Then Do							/* COMPARE -- */
@@ -1032,9 +1037,7 @@ Initialize:
 	memorySize		= 256					/* Size of memory in bytes*/
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
-	
-	/* ----- Set default animation = true ----- */
-	boolAnimate = 1
+	Animate			= "R"
 	
 	/* ----- Read language definition file ----- */
 	instr.	= 0								/* stem to hold instructions */
@@ -1188,6 +1191,7 @@ processConfigFile:
 					When keyword = "microCodeSteps"		Then microCodeSteps = value
 					When keyword = "memorySize"			Then memorySize = value
 					When keyword = "langDefFile"		Then langDefFile = value
+					When keyword = "Animate"			Then Animate = value
 					Otherwise Do
 						Say "Invalid keyword" keyword "in cofig file line" lnum 
 						Exit 8

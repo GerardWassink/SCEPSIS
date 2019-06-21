@@ -3,54 +3,91 @@ Assembly listing for file prime.sasm
 --------------------------------------------------------------------------------
  
 SrcLin -Addr- Op Oprnd   --- Source line ---
-     1                   #
-     2                   # ### FINDING PRIMES FROM 1 TO 255
-     3                   #
-     4 000000 00         START	NOP
-     5 000001 20 01      		LDA		X'01	
-     6 000003 28 35      		STA		NUMBER		# NUMBER TO INVESTIGATE FOR 'PRIME-NESS'
-     7 000005 28 36      		STA		COUNT		# COUNTER FROM 1 TO PRIME
-     8                   #
-     9 000007 00         PLOOP	NOP					# OUTER LOOP WHERE NUMBER GOES FROM 1 TO 255
-    10 000008 20 35      		LDA		NUMBER		# LOAD CURRENT VALUE OF NUMBER TO INVESTIGATE
-    11 00000A 28 37      		STA		CALC		# STORE IT IN CALC
+     1                   # ###########################################################################
+     2                   # 
+     3                   # NAME       : PRIME.SASM
+     4                   # AUTHOR     : GERARD WASSINK
+     5                   # DATE       : JUNE 2019
+     6                   # PURPOSE    : FINDING PRIMES FROM 1 TO 255
+     7                   #
+     8                   # ###########################################################################
+     9                   #
+    10 000000 20 01      START		LIA		X'01				# LOAD 1
+    11 000002 28 5A      			STA		NUMBER				#   INTO NUMBER
     12                   #
-    13 00000C 00         CLOOP	NOP					# INNER LOOP INVESTIGATING NUMBER
-    14 00000D 20 37      		LDA 	CALC		# GET CALC RESULT
-    15 00000F 21 36      		LDB		COUNT		# LOAD NUMBER TO SUBTRACT
-    16 000011 F1         		SBB					# CALC = CALC - COUNT
-    17 000012 28 37      		STA		CALC
-    18 000014 12 22      		JZ		FOUNDPR		# FOUND PRIME! OUTPUT!
-    19 000016 11 2B      		JC		BUMPN		# BECAME NEGATIVE, GO RESET COUNT AND BUMP NUMBER
-    20                   #
-    21 000018 20 36      		LDA		COUNT		# INCREMENT 
-    22 00001A E0 01      		ADI		X'01		#   INNER LOOP VALUE
-    23 00001C 28 36      		STA		COUNT
-    24 00001E 11 26      		JC		RESETC		# COUNT > 255, GO RESET COUNT AND BUMP NUMBER
-    25 000020 10 0C      		JMP		CLOOP		
+    13                   #										# LOOP NUMBER = 1 TO 255
+    14                   #
+    15 000004 20 01      NLOOP		LIA		X'01				# ASSUME THIS ONE 
+    16 000006 28 5D      			STA		PRIME				#   IS A PRIME
+    17                   #
+    18 000008 51 5A      			LMB		NUMBER				# TRACK NUMBER IN B REGISTER
+    19                   #
+    20 00000A 20 02      			LIA		X'02				# LOAD 2
+    21 00000C 28 5B      			STA		COUNT				#   INTO COUNT
+    22                   #						
+    23                   #										# LOOP COUNT = 2 TO NUMBER
+    24                   #
+    25 00000E 52 5B      CLOOP		LMC		COUNT				# TRACK COUNT IN C REGISTER
     26                   #
-    27 000022 00         FOUNDPR	NOP
-    28 000023 20 35      		LDA NUMBER			# LOAD NUMBER
-    29 000025 30         		OPA					# OUTPUT NUMBER WHEN PRIME
+    27 000010 50 5A      			LMA		NUMBER				# CALC = 
+    28 000012 E9 5B      			SBM		COUNT				#   NUMBER -
+    29 000014 28 5C      			STA		CALC				#     COUNT
     30                   #
-    31 000026 00         RESETC	NOP
-    32 000027 20 01      		LDA		X'01		# RESET COUNT TO 1
-    33 000029 28 36      		STA		COUNT
-    34                   #
-    35 00002B 00         BUMPN	NOP
-    36 00002C 20 35      		LDA		NUMBER		# GET NUMBER
-    37 00002E E0 01      		ADI		X'01		# ADD 1
-    38 000030 11 34      		JC		END			# BECAME > 255, END PROGRAM
-    39 000032 10 07      		JMP		PLOOP
-    40                   #
-    41 000034 FF         END		HLT					# END PROGRAM
-    42                   #
-    43                   # ### STORAGE AREA
-    44                   #
-    45 000035 00         NUMBER	NOP
-    46 000036 00         COUNT	NOP
-    47 000037 00         CALC	NOP
-    48                   #
+    31 000016 11 26      			JC		ATEND				# CALC < 0 ? : ATEND
+    32 000018 12 26      			JZ		ATEND				# CALC = 0 ? : ATEND
+    33                   #
+    34 00001A 50 5C      SUBTR		LMA		CALC				# CALC = 
+    35 00001C E9 5B      			SBM		COUNT				#   CALC - 
+    36 00001E 28 5C      			STA		CALC				#     COUNT
+    37                   #
+    38 000020 11 26      			JC		ATEND				# CALC < 0 ? : ATEND
+    39 000022 12 26      			JZ		ATEND				# CALC = 0 ? : ATEND
+    40 000024 10 1A      			JMP		SUBTR               #   ELSE KEEP SUBTRACTING
+    41                   #
+    42 000026 50 5C      ATEND		LMA		CALC				# CALC 
+    43 000028 E2 00      			CPI		X'00				#   EQUAL ZERO?
+    44 00002A 13 2E      			JE		SKIP				#      GO SKIP
+    45 00002C 10 3A      			JMP		NEXTC				#      ELSE NEXTC
+    46                   #
+    47 00002E 50 5A      SKIP		LMA		NUMBER				# NUMBER
+    48 000030 EA 5B      			CPM		COUNT				#   EQUAL COUNT?
+    49 000032 13 3A      			JE		NEXTC				#     GO NEXTC
+    50                   #
+    51 000034 20 00      			LIA		X'00				# SET PRIME INDICOATOR
+    52 000036 28 5D      			STA		PRIME				#   TO FALSE
+    53 000038 10 46      			JMP		SKIP1				#     LEAVE COUNT LOOP
+    54                   #	
+    55 00003A 50 5B      NEXTC		LMA 	COUNT				# COUNT =
+    56 00003C E0 01      			ADI		X'01				#   COUNT + 
+    57 00003E 28 5B      			STA		COUNT				#     1
+    58                   #
+    59 000040 EA 5A      			CPM		NUMBER				# COUNT > NUMBER ?
+    60 000042 15 46      			JG		SKIP1				#   GO SKIP1
+    61 000044 10 0E      			JMP		CLOOP				#   ELSE GO CLOOP
+    62                   #
+    63 000046 50 5D      SKIP1		LMA		PRIME				# PRIME INDICATOR
+    64 000048 E2 00      			CPI		X'00				#   FALSE ?
+    65 00004A 13 4F      			JE		NEXTN				#     GO NEXTN
+    66                   #
+    67 00004C 50 5A      FOUNDPR		LMA		NUMBER				# FOUND PRIME
+    68 00004E 30         			OPA							#   PUT ON OUTPUT
+    69                   #
+    70 00004F 50 5A      NEXTN		LMA		NUMBER				# INCREMENT
+    71 000051 E0 01      			ADI		X'01				#   NUMBER
+    72 000053 28 5A      			STA		NUMBER				#     BY 1
+    73 000055 E2 FF      			CPI		X'FF				# LESS THAN 255 ?
+    74 000057 14 04      			JL		NLOOP				#   GO NEXT NUMBER
+    75                   #	
+    76 000059 FF         FINISH		HLT							# HALT PROGRAM
+    77                   #
+    78                   # ###########################################################################
+    79                   # ### STORAGE AREA
+    80                   # ###########################################################################
+    81 00005A 00         NUMBER		NOP
+    82 00005B 00         COUNT		NOP
+    83 00005C 00         CALC		NOP
+    84 00005D 00         PRIME		NOP
+    85                   #
  
 Phase 1 parsing ended successfully
  
