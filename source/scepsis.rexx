@@ -4,8 +4,8 @@
 /* -------------------------------------------------------------------------- */
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
-/* Date:            May 2019                                                  */
-/* Version:         1.2.2                                                     */
+/* Date:            June 2019                                                  */
+/* Version:         1.3.1                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -35,7 +35,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.2.2"
+	versionString = "1.3.1"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
