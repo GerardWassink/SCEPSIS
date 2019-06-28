@@ -97,13 +97,10 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Emulator commands -------------------------------------- */
 			/* -------------------------------------------------------------- */
+			When choice == "P"  Then	Call processCtlSignals
 			When choice == "S"  Then	Call emulateStep
 			When choice == "I"  Then	Call emulateInstruction
-			When choice == "A"  Then 	Call emulateRun
-			
-			When choice == "R"  Then Do
-				Call emulateRun
-			End
+			When choice == "R"  Then 	Call emulateRun
 			
 			When choice == "C"  Then	Call emulatorReset
 			
@@ -301,18 +298,18 @@ controlPanelDisplay:
 	
 	Call Display 18  3 color.brightwhite "X"
 	Call Display 18  5 color.brightcyan  "Exit"
-	Call Display 18 11 color.brightwhite "S"
-	Call Display 18 13 color.brightcyan  "Step"
-	Call Display 18 19 color.brightwhite "I"
-	Call Display 18 21 color.brightcyan  "Instr"
-	Call Display 18 28 color.brightwhite "A"
-	Call Display 18 30 color.brightcyan  "Animate"
-	Call Display 18 39 color.brightwhite "R"
-	Call Display 18 41 color.brightcyan  "Run"
-	Call Display 18 46 color.brightwhite "C"
-	Call Display 18 48 color.brightcyan  "Reset"
-	Call Display 18 64 color.brightwhite "?"
-	Call Display 18 68 color.brightcyan  "Help info"
+	Call Display 18 11 color.brightwhite "P"
+	Call Display 18 13 color.brightcyan  "CtlSig"
+	Call Display 18 21 color.brightwhite "S"
+	Call Display 18 23 color.brightcyan  "Step"
+	Call Display 18 29 color.brightwhite "I"
+	Call Display 18 31 color.brightcyan  "Instr"
+	Call Display 18 38 color.brightwhite "R"
+	Call Display 18 40 color.brightcyan  "Run"
+	Call Display 18 45 color.brightwhite "C"
+	Call Display 18 47 color.brightcyan  "Reset"
+	Call Display 18 67 color.brightwhite "?"
+	Call Display 18 69 color.brightcyan  "Help info"
 	
 	If Strip(message) <> "" Then Do
 		Call Display 21 1 color.brightwhite "===>" message
@@ -878,7 +875,14 @@ CPhelpInfo:
 	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
 	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
 	Call Display  9  3 color.cyan  "Commands do not have parameters here"
-
+	
+	Call Display 11  3 color.cyan  "X - exit the program"
+	Call Display 12  3 color.cyan  "P - process the controlsignals"
+	Call Display 13  3 color.cyan  "S - execute one micro-step within an instruction"
+	Call Display 14  3 color.cyan  "I - execute one instruction (with all of it's micro-steps)"
+	Call Display 15  3 color.cyan  "R - execute the whole program until a HLT condition is reached"
+	Call Display 16  3 color.cyan  "C - reset the whole emulator"
+	
 	Call Display 19  3 color.cyan  "For more info see"
 	Call Display 19 21 color.brightred  "https://github.com/GerardWassink/SCEPSIS"
 
