@@ -1,5 +1,10 @@
 # SCEPSIS - roadmap
 
+## To Do
+
+### ToDo - 1.2.4 - Cleanup and restructure UI
+Code cleanup and make the UI consistent.
+
 ## History
 
 ### DONE - 1.2.3 - Minor bug fixes
