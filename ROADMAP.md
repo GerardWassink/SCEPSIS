@@ -2,13 +2,16 @@
 
 ## To Do
 
-### ToDo - 1.2.4 - Cleanup and restructure UI
-Code cleanup and make the UI consistent.
-
 ## History
 
-### DONE - 1.2.3 - Minor bug fixes
-Code cleanup and minor bug fixes.
+### DONE - 1.3.1 - Cleanup code and UI
+Code cleanup and make the UI consistent.
+Add possibility to test control signals.
+
+### DONE - 1.3 - Few little improvements, example program
+The computation of the flag settings was flawed; corrected the errors.
+Built in an animate level function in the config file.
+Coded a SCEPSASM program to generate prime numbers as an example.
 
 ### DONE - 1.2.2 - Complete SCEPSASM
 Coded the assembler in three phases, and coded a proper assembly listing.
