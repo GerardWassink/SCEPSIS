@@ -4,7 +4,7 @@
 /* -------------------------------------------------------------------------- */
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
-/* Date:            June 2019                                                  */
+/* Date:            July 2019                                                 */
 /* Version:         1.3.1                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
@@ -25,8 +25,9 @@
 /*   v1.2     Wrapped everything up to be a working program including all     */
 /*            functionality above.                                            */
 /*   v1.3     Suppress animation of steps when Running                        */
-/*   v1.3.1   Correction of bug in flag setting                               */
+/*            Correction of bug in flag setting                               */
 /*            Built in animate level R(un), I(nstruction), S(tep)             */
+/*   v1.3.1   Built in possibility to (P)rocess control signals               */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -57,7 +58,7 @@ Main:
 	errorMsg = ""
 	Do Until choice = "X"
 		Call controlPanelDisplay(errorMsg)
-		choice = Strip(Upper(linein()))					/* get next command ----- */
+		choice = Strip(Upper(linein()))				/* get next command ----- */
 		Parse Var choice command value
 		If (choice =="") Then choice = "S"
 		errorMsg = ""
@@ -107,6 +108,9 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
 			/* -------------------------------------------------------------- */
+			When choice == "MEM" Then Do
+				Call handleMemory
+			End
 			When choice == "INIT"  Then	Do
 				Call initMemory
 				errorMsg = "Memory initialized"
@@ -125,10 +129,8 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Miscelaneous commands ---------------------------------- */
 			/* -------------------------------------------------------------- */
-			When choice == "LH"  Then	Call listHardware
 			When choice == "LC"  Then	Call listComponents
 			When choice == "LS"  Then	Call listControlSignals
-			When choice == "MEM" Then	Call handleMemory
 			When choice == "INS" Then	Call handleInstructions
 			When choice == "?"   Then	Call CPhelpInfo
 			When choice == "IX"  Then	Call indexMe	/* hidden feature --- */
@@ -154,11 +156,8 @@ Exit
 controlPanelDisplay:
 	Parse Arg message
 	
-	Call screenHeader "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
-
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
-	
+	hdr =  "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
+	Call screenHeader hdr
 	
 	Call Display  4  3 color.brightwhite "Components --------------"
 	Call Display  5  3 color.brightwhite "PCT"
@@ -188,10 +187,9 @@ controlPanelDisplay:
 	Call Display  9  3 color.brightwhite "REGC"
 	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGC),2)
 	
-	
 	Call Display 10  3 color.brightwhite "Flag-CZELG"
-	Call Display 11  8 color.brightcyan  C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
-	
+	flgs = C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
+	Call Display 11  8 color.brightcyan  flgs
 	
 	Call Display  4 33 color.brightwhite "Control Signals -----------------"
 	Call Display  5 33 color.brightwhite "CE"
@@ -324,7 +322,7 @@ Return
 emulateRun:
 	Do Until (cs_HLT == 1)
 		Call emulateInstruction
-												/*   Display control panel ------ */
+											/*   Display control panel ------ */
 		If Animate == "I" Then Call controlPanelDisplay(errorMsg)
 
 	End
@@ -470,8 +468,10 @@ ProcessCtlSignals:
 	End
 											/* Execute ALU operation -------- */
 	If (cs_EXC   == 1)	Then Do	
+		/* ------------------------------------------------------------------ */
 		/* Premise at this time is that in previous microcode steps the ----- */
 		/* ALU operand (comp_ALUO) has been filled with the desired value --- */
+		/* ------------------------------------------------------------------ */
 		Select
 			
 			When OpALUopr == 0 Then Do								/* ADD -- */
@@ -581,10 +581,10 @@ handleMemory:
 									memMsg = "Value(s) entered into memory"
 									adr = adr + 1	/* in case there's more   */
 								End; Else Do
-									memMsg = "Value for MEM:" d2x(val) "value > 255"
+									memMsg = "Value:" d2x(val) "> 255"
 								End
 							End; Else Do
-								memMsg = "Value for MEM address > memSize"
+								memMsg = "Address" d2x(adr) "> memSize"
 							End
 						End; Else Do
 							memMsg = "Value for MEM value not HEXa-decimal"
@@ -621,9 +621,6 @@ Return
 /* -------------------------------------------------------------------------- */
 listMemory:
 	Call screenHeader "SCEPSIS - memory display"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
 	
 							/* --- Display contents of memory in neat ------- */
 							/* ---   little groups, 32 bytes per row -------- */
@@ -800,8 +797,6 @@ Return
 /* -------------------------------------------------------------------------- */
 listInstructions:
 	Call screenHeader "SCEPSIS - Instructions"
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
 
 	Call Display  5  3 color.brightwhite "List of opcodes and instructions"
 	liLine = ""
@@ -836,9 +831,6 @@ Return lstIChoice
 listInstruction:
 	Parse Arg pointer .
 	Call screenHeader "SCEPSIS - breakup of the " || instr.pointer.2 || " Instruction"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
 	
 	Call Display  5  3 color.brightwhite "OPC  Ins Arg Stp  Control Signals"
 	liLine = instr.pointer.1 "-" left(instr.pointer.2||"    ",5) || Left(instr.pointer.2.1||"   ",3)
@@ -893,39 +885,22 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- List Hardware in our model computer---------------- listHardware --- */
-/* -------------------------------------------------------------------------- */
-listHardware:
-	Call screenHeader "List of Hardware"
-	Say ""
-    Say "CPU - Central Processing Unit"
-    Say "CNB - CoNtrol Bus, means of control the different components"
-    Say "DAB - DAta Bus, a way to transport data back and forth"
-    Say "INP - means to input stuff"
-    Say "OUT - some way of outputting things"
-    Say "MEM - Memory"
-	Say ""
-	Call enterForMore
-Return
-
-
-/* -------------------------------------------------------------------------- */
 /* ----- List Components in our model computer------------ listComponents --- */
 /* -------------------------------------------------------------------------- */
 listComponents:
 	Call screenHeader "List of Components"
-	Say ""
-    Say "ALU - Arithmetic Logical Unit"
-    Say "CLK - A CLocK pulse generator"
-    Say "CTU - ConTrol Unit"
-    Say "INP - INPut Register"
-    Say "INR - INstruction Register"
-    Say "MAR - Memory Address Register"
-	Say "OUT - OUTput Register"
-    Say "PCT - Program CounTer"
-    Say "RGA - ReGister A"
-    Say "RGB - ReGister B"
-    Say "STC - STep CounTer"
+
+	Call Display  3  3 color.cyan	"ALU - Arithmetic Logical Unit"
+	Call Display  4  3 color.cyan	"CLK - A CLocK pulse generator"
+	Call Display  5  3 color.cyan	"CTU - ConTrol Unit"
+	Call Display  6  3 color.cyan	"INP - INPut Register"
+	Call Display  7  3 color.cyan	"INR - INstruction Register"
+	Call Display  8  3 color.cyan	"MAR - Memory Address Register"
+	Call Display  9  3 color.cyan	"OUT - OUTput Register"
+	Call Display 10  3 color.cyan	"PCT - Program CounTer"
+	Call Display 11  3 color.cyan	"RGA - ReGister A"
+	Call Display 12  3 color.cyan	"RGB - ReGister B"
+	Call Display 13  3 color.cyan	"STC - STep CounTer"
 	Say ""
 	Call enterForMore
 Return
@@ -938,7 +913,7 @@ listControlSignals:
 	Call screenHeader "List of Control Signals"
 	Say ""
 	Do c = 1 to ctlSig.0
-		Say ctlSig.c || " - " || ctlSig.c.1
+		Call Display  (2+c)  3 color.cyan ctlSig.c || " - " || ctlSig.c.1
 	End
 	Say ""
 	Call enterForMore
@@ -956,6 +931,10 @@ screenHeader:
 		Then headerLine = "SCEPSIS - Simple CPU Emulator Program (Student Instruction System)"
 	position = (37 - Trunc(Length(headerLine)/2))
 	Call Display  1 position color.brightwhite " " || headerLine || " "
+	
+	Call Display  2  1 color.brightwhite "===> "
+	Call Display  2  6 color.brightred Copies("_", 75)
+
 Return
 
 
@@ -966,13 +945,13 @@ Return
 Display:
 	Parse Arg row col atr txt
 	lineOut = ""
-	If ((row > 0) & (col > 0)) Then			/* Position? If yes, encode it ----- */
+	If ((row > 0) & (col > 0)) Then			/* Position? If yes, encode it -- */
 		lineOut = lineOut || ESC || row || ";" || col || "H"
-	If (atr <> "") Then					/* attribute? If yes, encode it	---- */
+	If (atr <> "") Then					/* attribute? If yes, encode it	----- */
 		lineOut = lineOut || ESC || atr || "m"
-	If (txt <> "") Then			/* Do we have text? If yes, encode it ------ */
+	If (txt <> "") Then			/* Do we have text? If yes, encode it ------- */
 		lineOut = lineOut || txt
-	Do j = 1 To Length(lineOut)		/* Write encoded string to the screen -- */
+	Do j = 1 To Length(lineOut)		/* Write encoded string to the screen --- */
 		call charout ,substr(lineOut,j,1)
 	End
 Return
@@ -1006,7 +985,6 @@ Initialize:
 	ctlSignals = ""
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
 	Call addCtlSig("HLT HALT the processor")
-	Call addCtlSig("EXC Execute the ALU operation at hand")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
 	Call addCtlSig("INRO Set the instruction register to output, put its on the DAB")
@@ -1028,12 +1006,12 @@ Initialize:
 	Call addCtlSig("STKI Set Stack for input, accept a value from the DAB")
 	Call addCtlSig("STKO Set stack for ouput, put its value out to the DAB")
 	Call addCtlSig("ALUI Set ALU operand for input, accept a value from the DAB")
+	Call addCtlSig("EXC Execute the ALU operation at hand")
 	Call addCtlSig("SPCC Set PCT for input when Carry set and accept a value from the DAB")
 	Call addCtlSig("SPCZ Set PCT for input when Zero-flag set and accept a value from the DAB")
 	Call addCtlSig("SPCE Set PCT for input when Equal-flag set and accept a value from the DAB")
 	Call addCtlSig("SPCL Set PCT for input when LessThan-flag set and accept a value from the DAB")
 	Call addCtlSig("SPCG Set PCT for input when GreaterThan-flag set and accept a value from the DAB")
-	
 	
 	
 	/* ----- Set default values for program parameters ----- */
@@ -1087,7 +1065,7 @@ emulatorReset:
 	End
 	
 	/* ----- Set default values for Components ----- */
-	Components = "PCT MAR INR INP OUT REGA REGB REGC STC SP AOPR"
+	Components = "PCT INR STC MAR INP OUT REGA REGB REGC SP AOPR"
 	Do i = 1 To Words(Components)
 		Interpret "comp_"||Word(Components,i) "=" 0
 	End
