@@ -2,10 +2,10 @@
 
 ## To Do
 
-### DONE - 1.3.2 - Solve several issues
-Issues 22, 23, 24 and 25.
-
 ## History
+
+### DONE - 1.3.2 - Solved several issues
+Issues 22, 23, 24 and 25.
 
 ### DONE - 1.3.1 - Cleanup code and UI
 Code cleanup and make the UI consistent.
