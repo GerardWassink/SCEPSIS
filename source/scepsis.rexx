@@ -993,8 +993,8 @@ Initialize:
 	/* ----- Available Control Signals ----- */
 	ctlSig.0 = 0
 	ctlSignals = ""
-	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
-	Call addCtlSig("HLT HALT the processor")
+	Call addCtlSig("CE   Counter Enable, the program counter advances to the next position")
+	Call addCtlSig("HLT  HALT the processor")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
 	Call addCtlSig("INRO Set the instruction register to output, put its on the DAB")
@@ -1011,12 +1011,12 @@ Initialize:
 	Call addCtlSig("RGBO Set RGB to output, put its value out to the DAB")
 	Call addCtlSig("RGCI Set RGC to input, accept a value from the DAB")
 	Call addCtlSig("RGCO Set RGC to output, put its value out to the DAB")
-	Call addCtlSig("SPI  Increment the stack pointer - after retrieval from the stack")
-	Call addCtlSig("SPD  Decrement the stack pointer - before pushing unto the stack")
+	Call addCtlSig("SPI  Increment the stack pointer (after retrieval from the stack)")
+	Call addCtlSig("SPD  Decrement the stack pointer (before pushing unto the stack)")
 	Call addCtlSig("STKI Set Stack for input, accept a value from the DAB")
-	Call addCtlSig("STKO Set stack for ouput, put its value out to the DAB")
-	Call addCtlSig("ALUI Set ALU operand for input, accept a value from the DAB")
-	Call addCtlSig("EXC Execute the ALU operation at hand")
+	Call addCtlSig("STKO Set Stack for ouput, put its value out to the DAB")
+	Call addCtlSig("ALUI Set ALU operand for input, accept a value for AOPR from the DAB")
+	Call addCtlSig("EXC  Execute the ALU operation at hand")
 	Call addCtlSig("SPCC Set PCT for input when Carry set and accept a value from the DAB")
 	Call addCtlSig("SPCZ Set PCT for input when Zero-flag set and accept a value from the DAB")
 	Call addCtlSig("SPCE Set PCT for input when Equal-flag set and accept a value from the DAB")
