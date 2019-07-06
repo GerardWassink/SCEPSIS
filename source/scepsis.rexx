@@ -923,7 +923,7 @@ listControlSignals:
 	Call screenHeader "List of Control Signals"
 	Say ""
 	Do c = 1 to ctlSig.0
-		Call Display  (2+c)  3 color.cyan ctlSig.c || " - " || ctlSig.c.1
+		Call Display  (2+c)  3 color.cyan Left(ctlSig.c||"    ",4) || " - " || ctlSig.c.1
 	End
 	Say ""
 	Call enterForMore
