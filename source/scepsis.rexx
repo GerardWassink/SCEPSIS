@@ -907,6 +907,8 @@ listComponents:
 	Call Display 17  3 color.cyan	"ALU - Arithmetic Logical Unit"
 	Call Display 18  3 color.cyan	"CLK - A CLocK pulse generator"
 	Call Display 19  3 color.cyan	"CTU - ConTrol Unit"
+	Call Display 20  3 color.cyan	"DAB - Data and Address Bus"
+	Call Display 21  3 color.cyan	"FLR - FLags Register"
 	
 	Say ""
 	Say ""
