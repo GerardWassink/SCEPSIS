@@ -892,17 +892,23 @@ Return
 listComponents:
 	Call screenHeader "List of Components"
 
-	Call Display  3  3 color.cyan	"ALU - Arithmetic Logical Unit"
-	Call Display  4  3 color.cyan	"CLK - A CLocK pulse generator"
-	Call Display  5  3 color.cyan	"CTU - ConTrol Unit"
-	Call Display  6  3 color.cyan	"INP - INPut Register"
-	Call Display  7  3 color.cyan	"INR - INstruction Register"
+	Call Display  4  3 color.brightwhite	"----- manually settable components -----"
+	Call Display  5  3 color.cyan	"PCT - Program CounTer"
+	Call Display  6  3 color.cyan	"INR - INstruction Register"
+	Call Display  7  3 color.cyan	"STC - STep CounTer (microsteps per instruction)"
 	Call Display  8  3 color.cyan	"MAR - Memory Address Register"
-	Call Display  9  3 color.cyan	"OUT - OUTput Register"
-	Call Display 10  3 color.cyan	"PCT - Program CounTer"
+	Call Display  9  3 color.cyan	"INP - INPut Register"
+	Call Display 10  3 color.cyan	"OUT - OUTput Register"
 	Call Display 11  3 color.cyan	"RGA - ReGister A"
 	Call Display 12  3 color.cyan	"RGB - ReGister B"
-	Call Display 13  3 color.cyan	"STC - STep CounTer"
+	Call Display 13  3 color.cyan	"RGB - ReGister B"
+	Call Display 14  3 color.cyan	"AOPR- ALU Operand 2 (Operand 1 = RGA)"
+	Call Display 16  3 color.brightwhite	"----- non settable components ----------"
+	Call Display 17  3 color.cyan	"ALU - Arithmetic Logical Unit"
+	Call Display 18  3 color.cyan	"CLK - A CLocK pulse generator"
+	Call Display 19  3 color.cyan	"CTU - ConTrol Unit"
+	
+	Say ""
 	Say ""
 	Call enterForMore
 Return
