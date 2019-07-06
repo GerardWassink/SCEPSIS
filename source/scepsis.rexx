@@ -28,6 +28,10 @@
 /*            Correction of bug in flag setting                               */
 /*            Built in animate level R(un), I(nstruction), S(tep)             */
 /*   v1.3.1   Built in possibility to (P)rocess control signals               */
+/*   v1.3.2   Solved issues:                                                  */
+/*            #22 - Superfluous LH command                                    */
+/*            #23 - LC output                                                 */
+/*            #24 - LS command check                                          */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -260,12 +264,10 @@ controlPanelDisplay:
 
 
 	Call Display 13  3 color.brightwhite "Commands ---------------"
-	Call Display 14  3 color.brightwhite "LH"
-	Call Display 14  7 color.brightcyan  "List hardware"
-	Call Display 15  3 color.brightwhite "LC"
-	Call Display 15  7 color.brightcyan  "List components"
-	Call Display 16  3 color.brightwhite "LS"
-	Call Display 16  7 color.brightcyan  "List Control Signals"
+	Call Display 14  3 color.brightwhite "LC"
+	Call Display 14  7 color.brightcyan  "List components"
+	Call Display 15  3 color.brightwhite "LS"
+	Call Display 15  7 color.brightcyan  "List Control Signals"
 
 	Call Display 13 33 color.brightwhite "------------------------"
 	Call Display 14 33 color.brightwhite "MEM"
