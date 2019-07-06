@@ -102,6 +102,7 @@ in my example langdef file. Then it would be:
 
 - [README file for SCEPSIS](../README.md)
 - [Components of the SCEPSIS CPU](./Components.md)
+- [Diagram of SCEPSIS components](../gfx/SCEPSIS_Components.JPG)
 - [Control signals in the SCEPSIS CPU](./ControlSignals.md)
 - [Example instruction for the SCEPSIS CPU](./Example.md)
 - [Language definition for the SCEPSIS CPU](./Langdef.md)

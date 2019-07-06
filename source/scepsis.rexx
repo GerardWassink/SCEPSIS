@@ -28,6 +28,10 @@
 /*            Correction of bug in flag setting                               */
 /*            Built in animate level R(un), I(nstruction), S(tep)             */
 /*   v1.3.1   Built in possibility to (P)rocess control signals               */
+/*   v1.3.2   Solved issues:                                                  */
+/*            #22 - Superfluous LH command                                    */
+/*            #23 - LC output                                                 */
+/*            #24 - LS command check                                          */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -260,12 +264,10 @@ controlPanelDisplay:
 
 
 	Call Display 13  3 color.brightwhite "Commands ---------------"
-	Call Display 14  3 color.brightwhite "LH"
-	Call Display 14  7 color.brightcyan  "List hardware"
-	Call Display 15  3 color.brightwhite "LC"
-	Call Display 15  7 color.brightcyan  "List components"
-	Call Display 16  3 color.brightwhite "LS"
-	Call Display 16  7 color.brightcyan  "List Control Signals"
+	Call Display 14  3 color.brightwhite "LC"
+	Call Display 14  7 color.brightcyan  "List components"
+	Call Display 15  3 color.brightwhite "LS"
+	Call Display 15  7 color.brightcyan  "List Control Signals"
 
 	Call Display 13 33 color.brightwhite "------------------------"
 	Call Display 14 33 color.brightwhite "MEM"
@@ -890,17 +892,25 @@ Return
 listComponents:
 	Call screenHeader "List of Components"
 
-	Call Display  3  3 color.cyan	"ALU - Arithmetic Logical Unit"
-	Call Display  4  3 color.cyan	"CLK - A CLocK pulse generator"
-	Call Display  5  3 color.cyan	"CTU - ConTrol Unit"
-	Call Display  6  3 color.cyan	"INP - INPut Register"
-	Call Display  7  3 color.cyan	"INR - INstruction Register"
+	Call Display  4  3 color.brightwhite	"----- manually settable components -----"
+	Call Display  5  3 color.cyan	"PCT - Program CounTer"
+	Call Display  6  3 color.cyan	"INR - INstruction Register"
+	Call Display  7  3 color.cyan	"STC - STep CounTer (microsteps per instruction)"
 	Call Display  8  3 color.cyan	"MAR - Memory Address Register"
-	Call Display  9  3 color.cyan	"OUT - OUTput Register"
-	Call Display 10  3 color.cyan	"PCT - Program CounTer"
+	Call Display  9  3 color.cyan	"INP - INPut Register"
+	Call Display 10  3 color.cyan	"OUT - OUTput Register"
 	Call Display 11  3 color.cyan	"RGA - ReGister A"
 	Call Display 12  3 color.cyan	"RGB - ReGister B"
-	Call Display 13  3 color.cyan	"STC - STep CounTer"
+	Call Display 13  3 color.cyan	"RGB - ReGister B"
+	Call Display 14  3 color.cyan	"AOPR- ALU Operand 2 (Operand 1 = RGA)"
+	Call Display 16  3 color.brightwhite	"----- non settable components ----------"
+	Call Display 17  3 color.cyan	"ALU - Arithmetic Logical Unit"
+	Call Display 18  3 color.cyan	"CLK - A CLocK pulse generator"
+	Call Display 19  3 color.cyan	"CTU - ConTrol Unit"
+	Call Display 20  3 color.cyan	"DAB - Data and Address Bus"
+	Call Display 21  3 color.cyan	"FLR - FLags Register"
+	
+	Say ""
 	Say ""
 	Call enterForMore
 Return
@@ -983,8 +993,8 @@ Initialize:
 	/* ----- Available Control Signals ----- */
 	ctlSig.0 = 0
 	ctlSignals = ""
-	Call addCtlSig("CE Counter Enable, the program counter advances to the next instruction")
-	Call addCtlSig("HLT HALT the processor")
+	Call addCtlSig("CE   Counter Enable, the program counter advances to the next position")
+	Call addCtlSig("HLT  HALT the processor")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
 	Call addCtlSig("INRO Set the instruction register to output, put its on the DAB")
@@ -1001,12 +1011,12 @@ Initialize:
 	Call addCtlSig("RGBO Set RGB to output, put its value out to the DAB")
 	Call addCtlSig("RGCI Set RGC to input, accept a value from the DAB")
 	Call addCtlSig("RGCO Set RGC to output, put its value out to the DAB")
-	Call addCtlSig("SPI  Increment the stack pointer - after retrieval from the stack")
-	Call addCtlSig("SPD  Decrement the stack pointer - before pushing unto the stack")
+	Call addCtlSig("SPI  Increment the stack pointer (after retrieval from the stack)")
+	Call addCtlSig("SPD  Decrement the stack pointer (before pushing unto the stack)")
 	Call addCtlSig("STKI Set Stack for input, accept a value from the DAB")
-	Call addCtlSig("STKO Set stack for ouput, put its value out to the DAB")
-	Call addCtlSig("ALUI Set ALU operand for input, accept a value from the DAB")
-	Call addCtlSig("EXC Execute the ALU operation at hand")
+	Call addCtlSig("STKO Set Stack for ouput, put its value out to the DAB")
+	Call addCtlSig("ALUI Set ALU operand for input, accept a value for AOPR from the DAB")
+	Call addCtlSig("EXC  Execute the ALU operation at hand")
 	Call addCtlSig("SPCC Set PCT for input when Carry set and accept a value from the DAB")
 	Call addCtlSig("SPCZ Set PCT for input when Zero-flag set and accept a value from the DAB")
 	Call addCtlSig("SPCE Set PCT for input when Equal-flag set and accept a value from the DAB")

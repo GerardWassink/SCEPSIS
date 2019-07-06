@@ -32,6 +32,7 @@ For example, the A register can be instructed to put it's value onto the databus
 
 - [README file for SCEPSIS](../README.md)
 - [Components of the SCEPSIS CPU](./Components.md)
+- [Diagram of SCEPSIS components](../gfx/SCEPSIS_Components.JPG)
 - [Control signals in the SCEPSIS CPU](./ControlSignals.md)
 - [Example instruction for the SCEPSIS CPU](./Example.md)
 - [ALU instructions for the SCEPSIS CPU](./ALUinstructions.md)

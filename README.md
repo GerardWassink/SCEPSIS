@@ -29,6 +29,7 @@ A dependency is the use of ANSI escape codes, especially on Windows systems wher
 
 ### Further reading
 - [Components of the SCEPSIS CPU](./doc/Components.md)
+- [Diagram of SCEPSIS components](./gfx/SCEPSIS_Components.JPG)
 - [Control signals in the SCEPSIS CPU](./doc/ControlSignals.md)
 - [Example instruction for the SCEPSIS CPU](./doc/Example.md)
 - [Language definition for the SCEPSIS CPU](./doc/Langdef.md)
