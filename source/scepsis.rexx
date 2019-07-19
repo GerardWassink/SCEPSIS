@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            July 2019                                                 */
-/* Version:         1.3.2                                                     3*/
+/* Version:         1.3.2                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -1224,8 +1224,14 @@ processConfigFile:
 					When keyword = "memorySize"			Then memorySize = value
 					When keyword = "langDefFile"		Then langDefFile = value
 					When keyword = "Animate"			Then Animate = value
+
+					/* discard SCEPSASM keywords ---------------------------- */
+					When keyword = "SRCfile"			Then NOP
+					When keyword = "OBJfile"			Then NOP
+					When keyword = "LSTfile"			Then NOP
+
 					Otherwise Do
-						Say "Invalid keyword" keyword "in cofig file line" lnum 
+						Say "Invalid keyword" keyword "in config file line" lnum 
 						Exit 8
 					End
 				End
