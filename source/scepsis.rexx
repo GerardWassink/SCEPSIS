@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            July 2019                                                 */
-/* Version:         1.3.2                                                     */
+/* Version:         1.3.2                                                     3*/
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -41,7 +41,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.3.2"
+	versionString = "1.3.3"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -75,7 +75,7 @@ Main:
 			When Wordpos(command, Components) > 0 Then Do	/* exists? ------ */
 				If isHex(value) Then Do						/* hex value? --- */
 					value = x2d(value)						/* make decimal - */
-					If (value <= 255) Then Do				/* value OK ? --- */
+					If (value <= 65535) Then Do				/* value OK ? --- */
 						Interpret "comp_" || command "=" value	/* SET it --- */
 					End; Else Do
 						errorMsg = "Value for " || command || " too large"
@@ -166,31 +166,31 @@ controlPanelDisplay:
 	
 	Call Display  4  3 color.brightwhite "Components --------------"
 	Call Display  5  3 color.brightwhite "PCT"
-	Call Display  5  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
-	Call Display  5 12 color.brightwhite "INR"
-	Call Display  5 17 color.brightcyan  Right("00"||D2X(comp_INR),2)
-	Call Display  5 21 color.brightwhite "STC"
-	Call Display  5 26 color.brightcyan  Right("00"||D2X(comp_STC),2)
+	Call Display  5  8 color.brightcyan  Right("0000"||D2X(comp_PCT),4)
+	Call Display  5 13 color.brightwhite "INR"
+	Call Display  5 17 color.brightcyan  Right("0000"||D2X(comp_INR),4)
+	Call Display  5 22 color.brightwhite "STC"
+	Call Display  5 27 color.brightcyan  Right("0000"||D2X(comp_STC),4)
 	
 	Call Display  6  3 color.brightwhite "MAR"
-	Call Display  6  8 color.brightcyan  Right("00"||D2X(comp_MAR),2)
-	Call Display  6 12 color.brightwhite "INP"
-	Call Display  6 17 color.brightcyan  Right("00"||D2X(comp_INP),2)
-	Call Display  6 21 color.brightwhite "OUT"
-	Call Display  6 26 color.brightcyan  Right("00"||D2X(comp_OUT),2)
+	Call Display  6  8 color.brightcyan  Right("0000"||D2X(comp_MAR),4)
+	Call Display  6 13 color.brightwhite "INP"
+	Call Display  6 17 color.brightcyan  Right("0000"||D2X(comp_INP),4)
+	Call Display  6 22 color.brightwhite "OUT"
+	Call Display  6 27 color.brightcyan  Right("0000"||D2X(comp_OUT),4)
 	
 	Call Display  7  3 color.brightwhite "REGA"
-	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
-	Call Display  7 12 color.brightwhite "SP"
-	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_SP),2)
-	Call Display  7 21 color.brightwhite "AOPR"
-	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_AOPR),2)
+	Call Display  7  8 color.brightcyan  Right("0000"||D2X(comp_REGA),4)
+	Call Display  7 13 color.brightwhite "SP"
+	Call Display  7 17 color.brightcyan  Right("0000"||D2X(comp_SP),4)
+	Call Display  7 22 color.brightwhite "AOPR"
+	Call Display  7 27 color.brightcyan  Right("0000"||D2X(comp_AOPR),4)
 	
 	Call Display  8  3 color.brightwhite "REGB"
-	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_REGB),2)
+	Call Display  8  8 color.brightcyan  Right("0000"||D2X(comp_REGB),4)
 	
 	Call Display  9  3 color.brightwhite "REGC"
-	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGC),2)
+	Call Display  9  8 color.brightcyan  Right("0000"||D2X(comp_REGC),4)
 	
 	Call Display 10  3 color.brightwhite "Flag-CZELG"
 	flgs = C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
@@ -572,8 +572,8 @@ handleMemory:
 			/* -------------------------------------------------------------- */
 			When command == "D" Then Do			/* display memory from address*/
 				If (value == "") 
-					Then startOfScreen = 0
-					Else startOfScreen = x2d(value)
+					Then startOfScreen = startOfScreen + 512
+					Else startOfScreen = 512*Trunc(x2d(value)/512)
 			End
 			
 			When command == "M" Then	Do		/* fill memory with values -- */
