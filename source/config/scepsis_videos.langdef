@@ -1,0 +1,19 @@
+# SCEPSIS - Simple CPU Emulation Program (Student Instruction System)
+#
+# Language definition file
+#
+
+#
+# ### NOP - No OPeration; do nothing
+00 NOP     | PCTO MARI - MEMO INRI CE
+
+#
+# ### LIA {value} - Load Immediate value XX into REGA
+#
+10 LIA  XX | PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO RGAI CE		# Load immediate A
+
+#
+# ### xxI {value} - Immediate instructions
+#
+E0 ADI  XX |  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI CE - EXC	# Add immediate
+E1 SBI  XX |  PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO ALUI CE - EXC	# Subtract Immediate
