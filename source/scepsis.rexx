@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            July 2019                                                 */
-/* Version:         1.3.2                                                     */
+/* Version:         1.3.3                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
