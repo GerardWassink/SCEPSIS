@@ -32,6 +32,7 @@
 /*            #22 - Superfluous LH command                                    */
 /*            #23 - LC output                                                 */
 /*            #24 - LS command check                                          */
+/*   v1.3.3   make memory 64K (65536 bytes)                                   */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -559,6 +560,7 @@ Return
 handleMemory:
 	memChoice = ""
 	memMsg = ""
+	startOfScreen = 0
 	Do Until memChoice = "X"
 		memChoice = Upper(strip(listMemory(memMsg)))
 		Parse Var memChoice command value
@@ -568,6 +570,12 @@ handleMemory:
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
 			/* -------------------------------------------------------------- */
+			When command == "D" Then Do			/* display memory from address*/
+				If (value == "") 
+					Then startOfScreen = 0
+					Else startOfScreen = x2d(value)
+			End
+			
 			When command == "M" Then	Do		/* fill memory with values -- */
 				Parse Var value adr vals
 				If isHex(adr) Then Do
@@ -622,27 +630,34 @@ Return
 /* ----- List Memory in hex dump format----------------------- listMemory --- */
 /* -------------------------------------------------------------------------- */
 listMemory:
-	Call screenHeader "SCEPSIS - memory display"
+	pMem = startOfScreen
+	endOfScreen = startOfScreen + 511
+
+	Call screenHeader "SCEPSIS - memory from " || d2x(startofScreen) || " to " || d2x(endOfScreen)
 	
 							/* --- Display contents of memory in neat ------- */
 							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 5; p = 0
-	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to memSize - 1
-		If p > 0 Then Do
+	lnum = 3
+
+
+
+	line = Right("0000"||d2x(pMem),4) || ": "
+	
+	Do pMem = startOfScreen to (endOfScreen)
+		If pMem > startOfScreen Then Do
 			Select
-				When ((p // 32) == 0) Then Do
+				When ((pMem // 32) == 0) Then Do
 					Call Display lnum 2 color.cyan line
 					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || ": "
+					line = Right("0000"||d2x(pMem),4) || ": "
 				End
-				When ((p // 16) == 0) Then line = line || " - "
-				When ((p //  8) == 0) Then line = line || " "
-				When ((p //  4) == 0) Then line = line || " "
+				When ((pMem // 16) == 0) Then line = line || " - "
+				When ((pMem //  8) == 0) Then line = line || " "
+				When ((pMem //  4) == 0) Then line = line || " "
 				Otherwise Nop
 			End
 		End
-		line = line || Right("00"||d2x(MEM.p),2)
+		line = line || Right("00"||d2x(MEM.pMem),2)
 	End
 	Call Display lnum 2 color.cyan line
 	lnum = lnum + 1
@@ -650,12 +665,14 @@ listMemory:
 
 	Call Display 20  3 color.brightwhite "X"
 	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val ...}"
-	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightwhite "SAVE"
-	Call Display 20 42 color.brightwhite "LOAD"
-	Call Display 20 47 color.brightcyan  "Memory"
+	Call Display 20 13 color.brightwhite "D"
+	Call Display 20 15 color.brightcyan "{adr}"
+	Call Display 20 22 color.brightwhite "M"
+	Call Display 20 24 color.brightcyan "{adr} {val ...}"
+	Call Display 20 41 color.brightwhite "INIT"
+	Call Display 20 46 color.brightwhite "SAVE"
+	Call Display 20 51 color.brightwhite "LOAD"
+	Call Display 20 56 color.brightcyan  "Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
@@ -1025,8 +1042,8 @@ Initialize:
 	
 	
 	/* ----- Set default values for program parameters ----- */
-	microCodeSteps	= 7						/* Max number of micro code steps */
-	memorySize		= 256					/* Size of memory in bytes*/
+	microCodeSteps	= 16							/* Max number of micro code steps */
+	memorySize		= 65536							/* Size of memory in bytes*/
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
 	Animate			= "R"
@@ -1050,8 +1067,8 @@ Initialize:
 		Exit 8
 	End
 	
-	If (memorySize > 256) Then Do
-		Say "MemorySize specified in config file too large, maximum is 256 byes)"
+	If (memorySize > 65536) Then Do
+		Say "MemorySize specified in config file too large, maximum is 64K (65536 bytes)"
 		Exit 8
 	End
 
