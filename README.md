@@ -6,8 +6,9 @@ There are two main programs in this respository, SCEPSIS and SCEPSASM.
 ![SCEPSIS control panel](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsis_main.JPG "SCEPSIS main screen")
 
 ### Purpose
-The purpose of this project is to educate people in the concepts of low-level computing, by emulating a simple CPU. The properties of this CPU are:
-- 8 bits
+The purpose of this project is to educate people in the concepts of low-level computing, by emulating a simple CPU. As of release 1.3.3 the properties of this CPU are:
+- 8 bits instructions
+- 16 bits data and registers
 - fixed number of given components & control signals
 - ability to define custom microcode
 - thus being able to create one's own instruction set

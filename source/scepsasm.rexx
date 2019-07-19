@@ -5,13 +5,14 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-/* Version:         1.2.2                                                     */
+/* Version:         1.3.3                                                     */
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
 /*   v1.2.1   Copied SCEPSIS source to make use of it's parsing routines      */
 /*   v1.2.2   Coded parse phase 1, 2 and 3 and produced assembly listing      */
 /*   v1.2.3   Code cleanup, corrected a few minor bugs                        */
+/*   v1.3.3   Altered to accomodate larger memory                             */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -20,7 +21,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.2.2"
+	versionString = "1.3.3"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -263,7 +264,7 @@ parseSourcePhase1:
 				source.instrPtr.2 = mnem		/* store mnemonic ----------- */
 				source.instrPtr.3 = oprnd		/* store operand text ------- */
 				source.instrPtr.4 = lnum		/* store line number--------- */
-				source.instrPtr.5 = Right("00"||D2X(instrAddr),2)	/* addr - */
+				source.instrPtr.5 = Right("0000"||D2X(instrAddr),4)	/* addr - */
 				source.instrPtr.9 = inLine		/* store original source line */
 				
 				i = findMnem(mnem)				/* Try to find mnemonic ----- */
@@ -287,7 +288,7 @@ parseSourcePhase1:
 												/* it's a hexadecimal value - */
 								Parse var oprnd "X'" opval "'"	/* strip quotes - */
 								If isHex(opval) Then Do
-									oprndValue = Right("00"||opval,2)
+									oprndValue = Right("0000"||opval,4)
 								End; Else Do
 									Call addPhase1Msg "Error: invalid hexadecimal value "||opval||" found in source line" lnum
 									parsePhase1 = 0
@@ -298,7 +299,7 @@ parseSourcePhase1:
 												/* it's a binary value ------ */
 								Parse var oprnd "B'" opval "'"	/* strip quotes - */
 								If isBin(opval) Then Do
-									oprndValue = Right("00"||B2X(opval),2)
+									oprndValue = Right("0000"||B2X(opval),4)
 								End; Else Do
 									Call addPhase1Msg "Error: invalid binary value "||opval||" found in source line" lnum
 									parsePhase1 = 0
@@ -309,7 +310,7 @@ parseSourcePhase1:
 												/* it's a decimal value ----- */
 								Parse var oprnd "D'" opval "'"	/* strip quotes - */
 								If isDec(opval) Then Do
-									oprndValue = Right("00"||D2X(opval),2)
+									oprndValue = Right("0000"||D2X(opval),4)
 								End; Else Do
 									Call addPhase1Msg "Error: invalid decimal value "||opval||" found in source line" lnum
 									parsePhase1 = 0
@@ -341,7 +342,7 @@ parseSourcePhase1:
 				If (oprnd == "") Then Do
 					source.instrPtr.8 = 1		/* store instruction length - */
 				End; Else Do
-					source.instrPtr.8 = 2		/* store instruction length - */
+					source.instrPtr.8 = 3		/* store instruction length - */
 				End
 				
 											/* bump address for next line --- */
@@ -434,8 +435,12 @@ parseSourcePhase3:
 				Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
 				Leave
 			End
-			If instrLength = 2 Then Do
-				MEM.adrPtr = X2D(oprndValue) /* operand value into memory --- */
+			If oprndValue <> "" Then Do
+											 /* operand value into memory --- */
+				memval = X2D(oprndValue)
+				MEM.adrPtr = Trunc(memval / 256)
+				adrPtr = adrPtr + 1			/* bump pointer ----------------- */
+				MEM.adrPtr = memval - Trunc(memval / 256)
 				adrPtr = adrPtr + 1			/* bump pointer ----------------- */
 				If adrPtr > (memSize - 1) Then Do
 					Call addPhase3Msg "Error: program longer than allowable memSize ("||memSize||") in source line" lnum
@@ -568,6 +573,7 @@ Return
 handleMemory:
 	memChoice = ""
 	memMsg = ""
+	startOfScreen = 0
 	Do Until memChoice = "X"
 		memChoice = Upper(strip(listMemory(memMsg)))
 		Parse Var memChoice command value
@@ -577,6 +583,12 @@ handleMemory:
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
 			/* -------------------------------------------------------------- */
+			When command == "D" Then Do			/* display memory from address*/
+				If (value == "") 
+					Then startOfScreen = startOfScreen + 512
+					Else startOfScreen = 512*Trunc(x2d(value)/512)
+			End
+			
 			When command == "M" Then	Do		/* fill memory with values -- */
 				Parse Var value adr vals
 				If isHex(adr) Then Do
@@ -592,10 +604,10 @@ handleMemory:
 									memMsg = "Value(s) entered into memory"
 									adr = adr + 1	/* in case there's more   */
 								End; Else Do
-									memMsg = "Value for MEM:" d2x(val) "value > 255"
+									memMsg = "Value:" d2x(val) "> 255"
 								End
 							End; Else Do
-								memMsg = "Value for MEM address > memSize"
+								memMsg = "Address" d2x(adr) "> memSize"
 							End
 						End; Else Do
 							memMsg = "Value for MEM value not HEXa-decimal"
@@ -631,30 +643,34 @@ Return
 /* ----- List Memory in hex dump format----------------------- listMemory --- */
 /* -------------------------------------------------------------------------- */
 listMemory:
-	Call screenHeader "SCEPSASM - memory display"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
+	pMem = startOfScreen
+	endOfScreen = startOfScreen + 511
+
+	Call screenHeader "SCEPSIS - memory from " || d2x(startofScreen) || " to " || d2x(endOfScreen)
 	
 							/* --- Display contents of memory in neat ------- */
 							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 5; p = 0
-	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to memSize - 1
-		If p > 0 Then Do
+	lnum = 3
+
+
+
+	line = Right("0000"||d2x(pMem),4) || ": "
+	
+	Do pMem = startOfScreen to (endOfScreen)
+		If pMem > startOfScreen Then Do
 			Select
-				When ((p // 32) == 0) Then Do
+				When ((pMem // 32) == 0) Then Do
 					Call Display lnum 2 color.cyan line
 					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || ": "
+					line = Right("0000"||d2x(pMem),4) || ": "
 				End
-				When ((p // 16) == 0) Then line = line || " - "
-				When ((p //  8) == 0) Then line = line || " "
-				When ((p //  4) == 0) Then line = line || " "
+				When ((pMem // 16) == 0) Then line = line || " - "
+				When ((pMem //  8) == 0) Then line = line || " "
+				When ((pMem //  4) == 0) Then line = line || " "
 				Otherwise Nop
 			End
 		End
-		line = line || Right("00"||d2x(MEM.p),2)
+		line = line || Right("00"||d2x(MEM.pMem),2)
 	End
 	Call Display lnum 2 color.cyan line
 	lnum = lnum + 1
@@ -662,12 +678,14 @@ listMemory:
 
 	Call Display 20  3 color.brightwhite "X"
 	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val ...}"
-	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightwhite "SAVE"
-	Call Display 20 42 color.brightwhite "LOAD"
-	Call Display 20 47 color.brightcyan  "Memory"
+	Call Display 20 13 color.brightwhite "D"
+	Call Display 20 15 color.brightcyan "{adr}"
+	Call Display 20 22 color.brightwhite "M"
+	Call Display 20 24 color.brightcyan "{adr} {val ...}"
+	Call Display 20 41 color.brightwhite "INIT"
+	Call Display 20 46 color.brightwhite "SAVE"
+	Call Display 20 51 color.brightwhite "LOAD"
+	Call Display 20 56 color.brightcyan  "Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
@@ -679,27 +697,12 @@ Return memChoice
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Initialize Memory ----------------------------------- initMemory --- */
-/* -------------------------------------------------------------------------- */
-initMemory:
-	Procedure Expose memSize MEM.
-	/* ----- Memory ----- */
-	Do p = 0 to (memSize - 1)
-		MEM.p = 0
-	End
-Return
-
-
-/* -------------------------------------------------------------------------- */
 /* ----- Save Memory in hex format --------------------------- saveMemory --- */
 /* -------------------------------------------------------------------------- */
 saveMemory:
 	lnum = 1; p = 0						/* save from location 0, count lines  */
 	line = ""
 	memFile = OBJfile
-
-	c = Stream(memFile, 'C', 'POSITION =')
-	
 	If Stream(memFile, 'C', 'OPEN WRITE') = "READY:" Then Do
 		Do p = 0 to memSize - 1
 			If p > 0 Then Do
@@ -717,7 +720,10 @@ saveMemory:
 		memMsg = "Wrote" lnum "lines to" memFile
 	End; Else Do
 		memMsg = "Error opening file" memFile
+		SAY memMsg
+		Exit 8
 	End
+
 Return
 
 
@@ -727,7 +733,8 @@ Return
 loadMemory:
 	lnum = 0; p = 0						/* load from location 0, count lines  */
 	line = ""
-	memFile = OBJfile
+regel = ""
+	memFile = "./scepsis.memory"
 	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Do While Lines(memFile)
 			line = Strip(Upper(Linein(memFile)))
@@ -743,8 +750,21 @@ loadMemory:
 		memMsg = "Loaded" lnum "lines from" memFile
 	End; Else Do
 		memMsg = "Error opening file" memFile
+		Exit 8
 	End
 
+Return
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Initialize Memory ----------------------------------- initMemory --- */
+/* -------------------------------------------------------------------------- */
+initMemory:
+	Procedure Expose memSize MEM.
+	/* ----- Memory ----- */
+	Do p = 0 to (memSize - 1)
+		MEM.p = 0
+	End
 Return
 
 
@@ -996,10 +1016,11 @@ Return
 Initialize:
 	/* ----- Set default values for program parameters ----- */
 	microCodeSteps	= 7						/* Max number of micro code steps */
-	memorySize		= 256					/* Size of memory in bytes*/
+	memorySize		= 65536					/* Size of memory in bytes*/
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
-	
+
+					/* These can be overwritten in the config file --------- */
 	SRCfile			= "./myfirst.sasm"		/* Example source file */
 	OBJfile			= "./myfirst.memory"	/* Example object file */
 	LSTfile			= "./myfirst.lst"		/* Example listing file */
@@ -1025,8 +1046,8 @@ Initialize:
 		Exit 8
 	End
 	
-	If (memorySize > 256) Then Do
-		Say "MemorySize specified in config file too large, maximum is 256 byes)"
+	If (memorySize > 65536) Then Do
+		Say "MemorySize specified in config file too large, maximum is 64K (65536 byes)"
 		Exit 8
 	End
 	
@@ -1132,8 +1153,12 @@ processConfigFile:
 					When keyword = "microCodeSteps"		Then microCodeSteps = value
 					When keyword = "memorySize"			Then memorySize = value
 					When keyword = "langDefFile"		Then langDefFile = value
+					When keyword = "SRCfile"			Then SRCfile = CheckInputFileName(value)
+					When keyword = "OBJfile"			Then OBJfile = CheckOutputFileName(value)
+					When keyword = "LSTfile"			Then LSTfile = CheckOutputFileName(value)
+					When keyword = "Animate"			Then NOP
 					Otherwise Do
-						Say "Invalid keyword" keyword "in cofig file line" lnum 
+						Say "Invalid keyword" keyword "in config file line" lnum 
 						Exit 8
 					End
 				End
