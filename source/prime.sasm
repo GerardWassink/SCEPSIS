@@ -3,14 +3,14 @@
 # Name       : prime.sasm
 # Author     : Gerard Wassink
 # Date       : june 2019
-# Purpose    : Finding primes from 1 to 255
+# Purpose    : Finding primes from 1 to 4095
 #
 # ###########################################################################
 #
 Start		LIA		X'01				# Load 1
 			STA		NUMBER				#   Into NUMBER
 #
-#										# Loop NUMBER = 1 to 255
+#										# Loop NUMBER = 1 to 4095
 #
 Nloop		LIA		X'01				# Assume this one 
 			STA		PRIME				#   is a prime
