@@ -8,14 +8,14 @@ SrcLin -Addr- Op Oprnd   --- Source line ---
      3                   # NAME       : PRIME.SASM
      4                   # AUTHOR     : GERARD WASSINK
      5                   # DATE       : JUNE 2019
-     6                   # PURPOSE    : FINDING PRIMES FROM 1 TO 4095
+     6                   # PURPOSE    : FINDING PRIMES FROM 1 TO 255
      7                   #
      8                   # ###########################################################################
      9                   #
     10 000000 20 0001    START		LIA		X'01				# LOAD 1
     11 000003 28 0086    			STA		NUMBER				#   INTO NUMBER
     12                   #
-    13                   #										# LOOP NUMBER = 1 TO max
+    13                   #										# LOOP NUMBER = 1 TO 255
     14                   #
     15 000006 20 0001    NLOOP		LIA		X'01				# ASSUME THIS ONE 
     16 000009 28 008C    			STA		PRIME				#   IS A PRIME
