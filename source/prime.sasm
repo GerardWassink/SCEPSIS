@@ -70,16 +70,20 @@ FoundPR		LMA		NUMBER				# Found Prime
 NEXTN		LMA		NUMBER				# Increment
 			ADI		X'01				#   NUMBER
 			STA		NUMBER				#     by 1
-			CPI		X'FF				# Less than 255 ?
+			CPI		X'0FFF				# Less than 4095 ?
 			JL		NLOOP				#   Go next number
 #	
 FINISH		HLT							# Halt program
 #
 # ###########################################################################
-# ### Storage area
+# ### Storage area (reserve two bytes per number)
 # ###########################################################################
 NUMBER		NOP
+			NOP
 COUNT		NOP
+			NOP
 CALC		NOP
+			NOP
 PRIME		NOP
+			NOP
 #

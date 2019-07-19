@@ -32,6 +32,7 @@
 /*            #22 - Superfluous LH command                                    */
 /*            #23 - LC output                                                 */
 /*            #24 - LS command check                                          */
+/*   v1.3.3   make memory 64K (65536 bytes)                                   */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -40,7 +41,7 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.3.2"
+	versionString = "1.3.3"
 	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
@@ -74,7 +75,7 @@ Main:
 			When Wordpos(command, Components) > 0 Then Do	/* exists? ------ */
 				If isHex(value) Then Do						/* hex value? --- */
 					value = x2d(value)						/* make decimal - */
-					If (value <= 255) Then Do				/* value OK ? --- */
+					If (value <= 65535) Then Do				/* value OK ? --- */
 						Interpret "comp_" || command "=" value	/* SET it --- */
 					End; Else Do
 						errorMsg = "Value for " || command || " too large"
@@ -165,31 +166,31 @@ controlPanelDisplay:
 	
 	Call Display  4  3 color.brightwhite "Components --------------"
 	Call Display  5  3 color.brightwhite "PCT"
-	Call Display  5  8 color.brightcyan  Right("00"||D2X(comp_PCT),2)
-	Call Display  5 12 color.brightwhite "INR"
-	Call Display  5 17 color.brightcyan  Right("00"||D2X(comp_INR),2)
-	Call Display  5 21 color.brightwhite "STC"
-	Call Display  5 26 color.brightcyan  Right("00"||D2X(comp_STC),2)
+	Call Display  5  8 color.brightcyan  Right("0000"||D2X(comp_PCT),4)
+	Call Display  5 13 color.brightwhite "INR"
+	Call Display  5 17 color.brightcyan  Right("0000"||D2X(comp_INR),4)
+	Call Display  5 22 color.brightwhite "STC"
+	Call Display  5 27 color.brightcyan  Right("0000"||D2X(comp_STC),4)
 	
 	Call Display  6  3 color.brightwhite "MAR"
-	Call Display  6  8 color.brightcyan  Right("00"||D2X(comp_MAR),2)
-	Call Display  6 12 color.brightwhite "INP"
-	Call Display  6 17 color.brightcyan  Right("00"||D2X(comp_INP),2)
-	Call Display  6 21 color.brightwhite "OUT"
-	Call Display  6 26 color.brightcyan  Right("00"||D2X(comp_OUT),2)
+	Call Display  6  8 color.brightcyan  Right("0000"||D2X(comp_MAR),4)
+	Call Display  6 13 color.brightwhite "INP"
+	Call Display  6 17 color.brightcyan  Right("0000"||D2X(comp_INP),4)
+	Call Display  6 22 color.brightwhite "OUT"
+	Call Display  6 27 color.brightcyan  Right("0000"||D2X(comp_OUT),4)
 	
 	Call Display  7  3 color.brightwhite "REGA"
-	Call Display  7  8 color.brightcyan  Right("00"||D2X(comp_REGA),2)
-	Call Display  7 12 color.brightwhite "SP"
-	Call Display  7 17 color.brightcyan  Right("00"||D2X(comp_SP),2)
-	Call Display  7 21 color.brightwhite "AOPR"
-	Call Display  7 26 color.brightcyan  Right("00"||D2X(comp_AOPR),2)
+	Call Display  7  8 color.brightcyan  Right("0000"||D2X(comp_REGA),4)
+	Call Display  7 13 color.brightwhite "SP"
+	Call Display  7 17 color.brightcyan  Right("0000"||D2X(comp_SP),4)
+	Call Display  7 22 color.brightwhite "AOPR"
+	Call Display  7 27 color.brightcyan  Right("0000"||D2X(comp_AOPR),4)
 	
 	Call Display  8  3 color.brightwhite "REGB"
-	Call Display  8  8 color.brightcyan  Right("00"||D2X(comp_REGB),2)
+	Call Display  8  8 color.brightcyan  Right("0000"||D2X(comp_REGB),4)
 	
 	Call Display  9  3 color.brightwhite "REGC"
-	Call Display  9  8 color.brightcyan  Right("00"||D2X(comp_REGC),2)
+	Call Display  9  8 color.brightcyan  Right("0000"||D2X(comp_REGC),4)
 	
 	Call Display 10  3 color.brightwhite "Flag-CZELG"
 	flgs = C_flag||Z_flag||EQ_flag||LT_flag||GT_flag
@@ -198,8 +199,8 @@ controlPanelDisplay:
 	Call Display  4 33 color.brightwhite "Control Signals -----------------"
 	Call Display  5 33 color.brightwhite "CE"
 	Call Display  5 38 color.brightcyan  cs_CE
-	Call Display  5 42 color.brightwhite "HLT"
-	Call Display  5 47 color.brightcyan  cs_HLT
+	Call Display  5 42 color.brightwhite "CE2"
+	Call Display  5 47 color.brightcyan  cs_CE2
 	Call Display  5 51 color.brightwhite "INPO"
 	Call Display  5 56 color.brightcyan  cs_INPO
 	Call Display  5 60 color.brightwhite "OUTI"
@@ -256,6 +257,8 @@ controlPanelDisplay:
 	Call Display 11 47 color.brightcyan  cs_SPCZ
 	Call Display 11 51 color.brightwhite "SPCE"
 	Call Display 11 56 color.brightcyan  cs_SPCE
+	Call Display 11 60 color.brightwhite "HLT"
+	Call Display 11 65 color.brightcyan  cs_HLT
 	
 	Call Display 12 33 color.brightwhite "SPCL"
 	Call Display 12 38 color.brightcyan  cs_SPCL
@@ -428,22 +431,40 @@ ProcessCtlSignals:
 	If (cs_INRO == 1)	Then DAB = comp_INR
 	If (cs_MARO == 1)	Then DAB = comp_MAR
 	If (cs_PCTO == 1)	Then DAB = comp_PCT
-	If (cs_MEMO == 1)	Then DAB = MEM.comp_MAR
 	If (cs_RGAO == 1)	Then DAB = comp_REGA
 	If (cs_RGBO == 1)	Then DAB = comp_REGB
 	If (cs_RGCO == 1)	Then DAB = comp_REGC
-	If (cs_STKO == 1)	Then DAB = MEM.comp_SP
+	If (cs_FTCH == 1)	Then DAB = MEM.comp_PCT
+											/* process two bytes from memory  */
+	If (cs_MEMO == 1)	Then Do
+		temp_MAR = comp_MAR + 1
+		DAB = (256 * MEM.comp_MAR) + (MEM.temp_MAR)
+	End
+	If (cs_STKO == 1)	Then Do
+		temp_SP = comp_SP + 1
+		DAB = (256 * MEM.comp_SP) + (MEM.temp_SP)
+	End
+
 											/* input from DAB processed 2nd   */
 	If (cs_OUTI == 1)	Then comp_OUT     = DAB
 	If (cs_INRI == 1)	Then comp_INR     = DAB
 	If (cs_MARI == 1)	Then comp_MAR     = DAB
 	If (cs_PCTI == 1)	Then comp_PCT     = DAB
-	If (cs_MEMI == 1)	Then MEM.comp_MAR = DAB
 	If (cs_RGAI == 1)	Then comp_REGA    = DAB
 	If (cs_RGBI == 1)	Then comp_REGB    = DAB
 	If (cs_RGCI == 1)	Then comp_REGC    = DAB
-	If (cs_STKI == 1)	Then MEM.comp_SP  = DAB
 	If (cs_ALUI == 1)	Then comp_AOPR    = DAB
+											/* process two bytes for memory   */
+	If (cs_MEMI == 1)	Then Do
+		temp_MAR = comp_MAR + 1
+		MEM.comp_MAR = Trunc(DAB/256)
+		MEM.temp_MAR = DAB - (256 * (MEM.comp_MAR))
+	End
+	If (cs_STKI == 1)	Then Do
+		temp_SP = comp_SP + 1
+		MEM.comp_SP = Trunc(DAB / 256)
+		MEM.temp_SP = DAB - (256 * (MEM.comp_SP))
+	End
 
 													/* Conditional Jumps ---- */
 	If (cs_SPCC == 1) & (C_flag == 1) Then comp_PCT = DAB 		/* On Carry - */
@@ -454,16 +475,16 @@ ProcessCtlSignals:
 
 											/* Stack pointer increment ------ */
 	If (cs_SPI == 1)	Then Do
-		If (comp_SP < (memSize - 1)) Then Do
-			comp_SP      = comp_SP + 1
+		If (comp_SP < (memSize - 2)) Then Do
+			comp_SP      = comp_SP + 2
 		End; Else Do
 			errorMsg = "S0C4 - SP increment invalid"
 		End
 	End
 											/* Stack pointer decrement ------ */
 	If (cs_SPD == 1)	Then Do
-		If (comp_SP > (memSize - 16)) Then Do
-			comp_SP      = comp_SP - 1
+		If (comp_SP > (memSize - 256)) Then Do
+			comp_SP      = comp_SP - 2
 		End; Else Do
 			errorMsg = "S0C4 - SP decrement invalid"
 		End
@@ -537,6 +558,7 @@ ProcessCtlSignals:
 	End
 											/* Count Enable, bump PCT         */
 	If (cs_CE   == 1)	Then comp_PCT = comp_PCT + 1
+	If (cs_CE2  == 1)	Then comp_PCT = comp_PCT + 2
 	
 	comp_STC = comp_STC + 1					/* Next microcode step            */
 Return
@@ -559,6 +581,7 @@ Return
 handleMemory:
 	memChoice = ""
 	memMsg = ""
+	startOfScreen = 0
 	Do Until memChoice = "X"
 		memChoice = Upper(strip(listMemory(memMsg)))
 		Parse Var memChoice command value
@@ -568,6 +591,12 @@ handleMemory:
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
 			/* -------------------------------------------------------------- */
+			When command == "D" Then Do			/* display memory from address*/
+				If (value == "") 
+					Then startOfScreen = startOfScreen + 512
+					Else startOfScreen = 512*Trunc(x2d(value)/512)
+			End
+			
 			When command == "M" Then	Do		/* fill memory with values -- */
 				Parse Var value adr vals
 				If isHex(adr) Then Do
@@ -622,27 +651,34 @@ Return
 /* ----- List Memory in hex dump format----------------------- listMemory --- */
 /* -------------------------------------------------------------------------- */
 listMemory:
-	Call screenHeader "SCEPSIS - memory display"
+	pMem = startOfScreen
+	endOfScreen = startOfScreen + 511
+
+	Call screenHeader "SCEPSIS - memory from " || d2x(startofScreen) || " to " || d2x(endOfScreen)
 	
 							/* --- Display contents of memory in neat ------- */
 							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 5; p = 0
-	line = Right("0000"||d2x(p),4) || ": "
-	Do p = 0 to memSize - 1
-		If p > 0 Then Do
+	lnum = 3
+
+
+
+	line = Right("0000"||d2x(pMem),4) || ": "
+	
+	Do pMem = startOfScreen to (endOfScreen)
+		If pMem > startOfScreen Then Do
 			Select
-				When ((p // 32) == 0) Then Do
+				When ((pMem // 32) == 0) Then Do
 					Call Display lnum 2 color.cyan line
 					lnum = lnum + 1
-					line = Right("0000"||d2x(p),4) || ": "
+					line = Right("0000"||d2x(pMem),4) || ": "
 				End
-				When ((p // 16) == 0) Then line = line || " - "
-				When ((p //  8) == 0) Then line = line || " "
-				When ((p //  4) == 0) Then line = line || " "
+				When ((pMem // 16) == 0) Then line = line || " - "
+				When ((pMem //  8) == 0) Then line = line || " "
+				When ((pMem //  4) == 0) Then line = line || " "
 				Otherwise Nop
 			End
 		End
-		line = line || Right("00"||d2x(MEM.p),2)
+		line = line || Right("00"||d2x(MEM.pMem),2)
 	End
 	Call Display lnum 2 color.cyan line
 	lnum = lnum + 1
@@ -650,12 +686,14 @@ listMemory:
 
 	Call Display 20  3 color.brightwhite "X"
 	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "M"
-	Call Display 20 15 color.brightcyan "{adr] {val ...}"
-	Call Display 20 32 color.brightwhite "INIT"
-	Call Display 20 37 color.brightwhite "SAVE"
-	Call Display 20 42 color.brightwhite "LOAD"
-	Call Display 20 47 color.brightcyan  "Memory"
+	Call Display 20 13 color.brightwhite "D"
+	Call Display 20 15 color.brightcyan "{adr}"
+	Call Display 20 22 color.brightwhite "M"
+	Call Display 20 24 color.brightcyan "{adr} {val ...}"
+	Call Display 20 41 color.brightwhite "INIT"
+	Call Display 20 46 color.brightwhite "SAVE"
+	Call Display 20 51 color.brightwhite "LOAD"
+	Call Display 20 56 color.brightcyan  "Memory"
 		
 	
 	If Strip(memMsg) <> "" Then Do
@@ -994,6 +1032,7 @@ Initialize:
 	ctlSig.0 = 0
 	ctlSignals = ""
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next position")
+	Call addCtlSig("CE2 Counter Enable 2, the program counter advances two bytes to the next position")
 	Call addCtlSig("HLT HALT the processor")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
@@ -1005,6 +1044,7 @@ Initialize:
 	Call addCtlSig("OUTI Set the output register to input, getting a value from the DAB")
 	Call addCtlSig("MEMI Set memory, pointed to by MAR to input, getting the value from the DAB")
 	Call addCtlSig("MEMO Set memory, pointed to by MAR to output, put value on the DAB")
+	Call addCtlSig("FTCH Fetch next instruction, put value on the DAB")
 	Call addCtlSig("RGAI Set RGA to input, accept a value from the DAB")
 	Call addCtlSig("RGAO Set RGA to output, put its value out to the DAB")
 	Call addCtlSig("RGBI Set RGB to input, accept a value from the DAB")
@@ -1025,8 +1065,8 @@ Initialize:
 	
 	
 	/* ----- Set default values for program parameters ----- */
-	microCodeSteps	= 7						/* Max number of micro code steps */
-	memorySize		= 256					/* Size of memory in bytes*/
+	microCodeSteps	= 16							/* Max number of micro code steps */
+	memorySize		= 65536							/* Size of memory in bytes*/
 	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
 	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
 	Animate			= "R"
@@ -1050,8 +1090,8 @@ Initialize:
 		Exit 8
 	End
 	
-	If (memorySize > 256) Then Do
-		Say "MemorySize specified in config file too large, maximum is 256 byes)"
+	If (memorySize > 65536) Then Do
+		Say "MemorySize specified in config file too large, maximum is 64K (65536 bytes)"
 		Exit 8
 	End
 
@@ -1184,8 +1224,14 @@ processConfigFile:
 					When keyword = "memorySize"			Then memorySize = value
 					When keyword = "langDefFile"		Then langDefFile = value
 					When keyword = "Animate"			Then Animate = value
+
+					/* discard SCEPSASM keywords ---------------------------- */
+					When keyword = "SRCfile"			Then NOP
+					When keyword = "OBJfile"			Then NOP
+					When keyword = "LSTfile"			Then NOP
+
 					Otherwise Do
-						Say "Invalid keyword" keyword "in cofig file line" lnum 
+						Say "Invalid keyword" keyword "in config file line" lnum 
 						Exit 8
 					End
 				End
