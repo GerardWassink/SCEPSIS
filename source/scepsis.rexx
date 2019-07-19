@@ -199,8 +199,8 @@ controlPanelDisplay:
 	Call Display  4 33 color.brightwhite "Control Signals -----------------"
 	Call Display  5 33 color.brightwhite "CE"
 	Call Display  5 38 color.brightcyan  cs_CE
-	Call Display  5 42 color.brightwhite "HLT"
-	Call Display  5 47 color.brightcyan  cs_HLT
+	Call Display  5 42 color.brightwhite "CE2"
+	Call Display  5 47 color.brightcyan  cs_CE2
 	Call Display  5 51 color.brightwhite "INPO"
 	Call Display  5 56 color.brightcyan  cs_INPO
 	Call Display  5 60 color.brightwhite "OUTI"
@@ -257,6 +257,8 @@ controlPanelDisplay:
 	Call Display 11 47 color.brightcyan  cs_SPCZ
 	Call Display 11 51 color.brightwhite "SPCE"
 	Call Display 11 56 color.brightcyan  cs_SPCE
+	Call Display 11 60 color.brightwhite "HLT"
+	Call Display 11 65 color.brightcyan  cs_HLT
 	
 	Call Display 12 33 color.brightwhite "SPCL"
 	Call Display 12 38 color.brightcyan  cs_SPCL
@@ -429,22 +431,40 @@ ProcessCtlSignals:
 	If (cs_INRO == 1)	Then DAB = comp_INR
 	If (cs_MARO == 1)	Then DAB = comp_MAR
 	If (cs_PCTO == 1)	Then DAB = comp_PCT
-	If (cs_MEMO == 1)	Then DAB = MEM.comp_MAR
 	If (cs_RGAO == 1)	Then DAB = comp_REGA
 	If (cs_RGBO == 1)	Then DAB = comp_REGB
 	If (cs_RGCO == 1)	Then DAB = comp_REGC
-	If (cs_STKO == 1)	Then DAB = MEM.comp_SP
+	If (cs_FTCH == 1)	Then DAB = MEM.comp_PCT
+											/* process two bytes from memory  */
+	If (cs_MEMO == 1)	Then Do
+		temp_MAR = comp_MAR + 1
+		DAB = (256 * MEM.comp_MAR) + (MEM.temp_MAR)
+	End
+	If (cs_STKO == 1)	Then Do
+		temp_SP = comp_SP + 1
+		DAB = (256 * MEM.comp_SP) + (MEM.temp_SP)
+	End
+
 											/* input from DAB processed 2nd   */
 	If (cs_OUTI == 1)	Then comp_OUT     = DAB
 	If (cs_INRI == 1)	Then comp_INR     = DAB
 	If (cs_MARI == 1)	Then comp_MAR     = DAB
 	If (cs_PCTI == 1)	Then comp_PCT     = DAB
-	If (cs_MEMI == 1)	Then MEM.comp_MAR = DAB
 	If (cs_RGAI == 1)	Then comp_REGA    = DAB
 	If (cs_RGBI == 1)	Then comp_REGB    = DAB
 	If (cs_RGCI == 1)	Then comp_REGC    = DAB
-	If (cs_STKI == 1)	Then MEM.comp_SP  = DAB
 	If (cs_ALUI == 1)	Then comp_AOPR    = DAB
+											/* process two bytes for memory   */
+	If (cs_MEMI == 1)	Then Do
+		temp_MAR = comp_MAR + 1
+		MEM.comp_MAR = Trunc(DAB/256)
+		MEM.temp_MAR = DAB - (256 * (MEM.comp_MAR))
+	End
+	If (cs_STKI == 1)	Then Do
+		temp_SP = comp_SP + 1
+		MEM.comp_SP = Trunc(DAB / 256)
+		MEM.temp_SP = DAB - (256 * (MEM.comp_SP))
+	End
 
 													/* Conditional Jumps ---- */
 	If (cs_SPCC == 1) & (C_flag == 1) Then comp_PCT = DAB 		/* On Carry - */
@@ -455,16 +475,16 @@ ProcessCtlSignals:
 
 											/* Stack pointer increment ------ */
 	If (cs_SPI == 1)	Then Do
-		If (comp_SP < (memSize - 1)) Then Do
-			comp_SP      = comp_SP + 1
+		If (comp_SP < (memSize - 2)) Then Do
+			comp_SP      = comp_SP + 2
 		End; Else Do
 			errorMsg = "S0C4 - SP increment invalid"
 		End
 	End
 											/* Stack pointer decrement ------ */
 	If (cs_SPD == 1)	Then Do
-		If (comp_SP > (memSize - 16)) Then Do
-			comp_SP      = comp_SP - 1
+		If (comp_SP > (memSize - 256)) Then Do
+			comp_SP      = comp_SP - 2
 		End; Else Do
 			errorMsg = "S0C4 - SP decrement invalid"
 		End
@@ -538,6 +558,7 @@ ProcessCtlSignals:
 	End
 											/* Count Enable, bump PCT         */
 	If (cs_CE   == 1)	Then comp_PCT = comp_PCT + 1
+	If (cs_CE2  == 1)	Then comp_PCT = comp_PCT + 2
 	
 	comp_STC = comp_STC + 1					/* Next microcode step            */
 Return
@@ -1011,6 +1032,7 @@ Initialize:
 	ctlSig.0 = 0
 	ctlSignals = ""
 	Call addCtlSig("CE Counter Enable, the program counter advances to the next position")
+	Call addCtlSig("CE2 Counter Enable 2, the program counter advances two bytes to the next position")
 	Call addCtlSig("HLT HALT the processor")
 	Call addCtlSig("INPO Set the input register to output, put its on the DAB")
 	Call addCtlSig("INRI Set the instruction register to input, to take a value from the DAB")
@@ -1022,6 +1044,7 @@ Initialize:
 	Call addCtlSig("OUTI Set the output register to input, getting a value from the DAB")
 	Call addCtlSig("MEMI Set memory, pointed to by MAR to input, getting the value from the DAB")
 	Call addCtlSig("MEMO Set memory, pointed to by MAR to output, put value on the DAB")
+	Call addCtlSig("FTCH Fetch next instruction, put value on the DAB")
 	Call addCtlSig("RGAI Set RGA to input, accept a value from the DAB")
 	Call addCtlSig("RGAO Set RGA to output, put its value out to the DAB")
 	Call addCtlSig("RGBI Set RGB to input, accept a value from the DAB")
