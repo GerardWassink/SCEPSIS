@@ -36,66 +36,25 @@ Globals:
 /* ----- Control the machine functions --------------------- controlPanel --- */
 /* -------------------------------------------------------------------------- */
 Main:
-	
 	Parse Arg arguments
 	
 	Call screenHeader
-	
 	Call Initialize
-
 	choice = ""
 	errorMsg = ""
-	
 	Call processArguments
 
 	If Interactive == 1 Then Do
-		Do Until choice = "X"
-			Call controlPanelDisplay(errorMsg)
-			choice = Strip(linein())					/* get next command - */
-			Parse Var choice command value
-			command = Upper(command)
-			If (choice =="") Then choice = "S"
-			errorMsg = ""
-			Select
-
-				/* ---------------------------------------------------------- */
-				/* ----- File commands -------------------------------------- */
-				/* ---------------------------------------------------------- */
-				When command == "SRC" Then	SRCfile = CheckInputFileName(value)
-				When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
-				When command == "LST" Then	LSTfile = CheckOutputFileName(value)
-
-				/* ---------------------------------------------------------- */
-				/* ----- Assembler commands --------------------------------- */
-				/* ---------------------------------------------------------- */
-				When command == "ASM" Then	Call Assemble
-				
-				/* ---------------------------------------------------------- */
-				/* ----- Miscelaneous commands ------------------------------ */
-				/* ---------------------------------------------------------- */
-				When command == "?"   Then	Call CPhelpInfo
-				When command == "IX"  Then	Call indexMe	/* hidden feature */
-				When command == "X"   Then	Do
-					command = ""
-					Leave
-				End
-				Otherwise Do
-					errorMsg = "Invalid command: " || choice 
-				End
-			End
-		End
+		Call handleDisplay
 	End; Else Do
 		Call screenHeader "SCEPSASM - Generating executable from source file"
-		
 		Say "source  file =" SRCfile
 		Say "object  file =" OBJfile
 		Say "listing file =" LSTfile
-		
 		Call Assemble
 	End
 
 	Call endProgram
-
 Exit
 
 
@@ -186,6 +145,48 @@ Usage:
 	Say "Usage:"
 	Say "scepsasm sourcefile [-o objectfile] [-l listingfile]"
 Exit
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Handle commands from screen ---------------------- handleDisplay --- */
+/* -------------------------------------------------------------------------- */
+handleDisplay:
+	Do Until choice = "X"
+		Call controlPanelDisplay(errorMsg)
+		choice = Strip(linein())					/* get next command - */
+		Parse Var choice command value
+		command = Upper(command)
+		If (choice =="") Then choice = "S"
+		errorMsg = ""
+		Select
+
+			/* ---------------------------------------------------------- */
+			/* ----- File commands -------------------------------------- */
+			/* ---------------------------------------------------------- */
+			When command == "SRC" Then	SRCfile = CheckInputFileName(value)
+			When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
+			When command == "LST" Then	LSTfile = CheckOutputFileName(value)
+
+			/* ---------------------------------------------------------- */
+			/* ----- Assembler commands --------------------------------- */
+			/* ---------------------------------------------------------- */
+			When command == "ASM" Then	Call Assemble
+			
+			/* ---------------------------------------------------------- */
+			/* ----- Miscelaneous commands ------------------------------ */
+			/* ---------------------------------------------------------- */
+			When command == "?"   Then	Call CPhelpInfo
+			When command == "IX"  Then	Call indexMe	/* hidden feature */
+			When command == "X"   Then	Do
+				command = ""
+				Leave
+			End
+			Otherwise Do
+				errorMsg = "Invalid command: " || choice 
+			End
+		End
+	End
+Return
 
 
 /* -------------------------------------------------------------------------- */
