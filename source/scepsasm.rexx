@@ -48,10 +48,6 @@ Main:
 	
 	Call processArguments
 
-	Say "source  file =" SRCfile
-	Say "object  file =" OBJfile
-	Say "listing file =" LSTfile
-	
 	If Interactive == 1 Then Do
 		Do Until choice = "X"
 			Call controlPanelDisplay(errorMsg)
@@ -89,6 +85,12 @@ Main:
 			End
 		End
 	End; Else Do
+		Call screenHeader "SCEPSASM - Generating executable from source file"
+		
+		Say "source  file =" SRCfile
+		Say "object  file =" OBJfile
+		Say "listing file =" LSTfile
+		
 		Call Assemble
 	End
 
@@ -192,7 +194,7 @@ Exit
 controlPanelDisplay:
 	Parse Arg message
 	
-	Call screenHeader "SCEPSASM - Simple CPU Emulator Program (Student Instruction System)"
+	Call screenHeader
 
 	Call Display  2  1 color.brightwhite "===> "
 	Call Display  2  6 color.brightred "___________________________________________________________________________"
@@ -234,7 +236,6 @@ Return
 /* -------------------------------------------------------------------------- */
 Assemble:
 	
-	Call screenHeader "SCEPSASM - Generating executable from source file"
 	If Interactive == 1 Then Call Display  3  1 color.cyan " "
 	phase1.0 = 0; parsePhase1 = 0
 	phase2.0 = 0; parsePhase2 = 0
