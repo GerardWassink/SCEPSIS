@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
-Assembly listing for file ./prime.sasm
+Assembly listing for file ./prime_sasm/prime.sasm
 --------------------------------------------------------------------------------
  
 SrcLin -Addr- Op Oprnd   --- Source line ---
@@ -8,90 +8,99 @@ SrcLin -Addr- Op Oprnd   --- Source line ---
      3                   # NAME       : PRIME.SASM
      4                   # AUTHOR     : GERARD WASSINK
      5                   # DATE       : JUNE 2019
-     6                   # PURPOSE    : FINDING PRIMES FROM 1 TO 255
+     6                   # PURPOSE    : FINDING PRIMES FROM 1 TO 4095
      7                   #
      8                   # ###########################################################################
      9                   #
-    10 000000 20 0001    START		LIA		X'01				# LOAD 1
-    11 000003 28 0086    			STA		NUMBER				#   INTO NUMBER
-    12                   #
-    13                   #										# LOOP NUMBER = 1 TO 255
-    14                   #
-    15 000006 20 0001    NLOOP		LIA		X'01				# ASSUME THIS ONE 
-    16 000009 28 008C    			STA		PRIME				#   IS A PRIME
-    17                   #
-    18 00000C 51 0086    			LMB		NUMBER				# TRACK NUMBER IN B REGISTER
+    10 000000            START		EQU
+    11 000000 20 0001    			LIA		X'01				# LOAD 1
+    12 000003 28 0086    			STA		NUMBER				#   INTO NUMBER
+    13                   #
+    14                   #										# LOOP NUMBER = 1 TO 4095
+    15                   #
+    16 000006            NLOOP		EQU
+    17 000006 20 0001    			LIA		X'01				# ASSUME THIS ONE 
+    18 000009 28 008C    			STA		PRIME				#   IS A PRIME
     19                   #
-    20 00000F 20 0002    			LIA		X'02				# LOAD 2
-    21 000012 28 0088    			STA		COUNT				#   INTO COUNT
-    22                   #						
-    23                   #										# LOOP COUNT = 2 TO NUMBER
-    24                   #
-    25 000015 52 0088    CLOOP		LMC		COUNT				# TRACK COUNT IN C REGISTER
+    20 00000C 51 0086    			LMB		NUMBER				# TRACK NUMBER IN B REGISTER
+    21                   #
+    22 00000F 20 0002    			LIA		X'02				# LOAD 2
+    23 000012 28 0088    			STA		COUNT				#   INTO COUNT
+    24                   #						
+    25                   #										# LOOP COUNT = 2 TO NUMBER
     26                   #
-    27 000018 50 0086    			LMA		NUMBER				# CALC = 
-    28 00001B E9 0088    			SBM		COUNT				#   NUMBER -
-    29 00001E 28 008A    			STA		CALC				#     COUNT
-    30                   #
-    31 000021 11 0039    			JC		ATEND				# CALC < 0 ? : ATEND
-    32 000024 12 0039    			JZ		ATEND				# CALC = 0 ? : ATEND
+    27 000015            CLOOP		EQU
+    28 000015 52 0088    			LMC		COUNT				# TRACK COUNT IN C REGISTER
+    29                   #
+    30 000018 50 0086    			LMA		NUMBER				# CALC = 
+    31 00001B E9 0088    			SBM		COUNT				#   NUMBER -
+    32 00001E 28 008A    			STA		CALC				#     COUNT
     33                   #
-    34 000027 50 008A    SUBTR		LMA		CALC				# CALC = 
-    35 00002A E9 0088    			SBM		COUNT				#   CALC - 
-    36 00002D 28 008A    			STA		CALC				#     COUNT
-    37                   #
-    38 000030 11 0039    			JC		ATEND				# CALC < 0 ? : ATEND
-    39 000033 12 0039    			JZ		ATEND				# CALC = 0 ? : ATEND
-    40 000036 10 0027    			JMP		SUBTR               #   ELSE KEEP SUBTRACTING
+    34 000021 11 0039    			JC		ATEND				# CALC < 0 ? : ATEND
+    35 000024 12 0039    			JZ		ATEND				# CALC = 0 ? : ATEND
+    36                   #
+    37 000027            SUBTR		EQU
+    38 000027 50 008A    			LMA		CALC				# CALC = 
+    39 00002A E9 0088    			SBM		COUNT				#   CALC - 
+    40 00002D 28 008A    			STA		CALC				#     COUNT
     41                   #
-    42 000039 50 008A    ATEND		LMA		CALC				# CALC 
-    43 00003C E2 0000    			CPI		X'00				#   EQUAL ZERO?
-    44 00003F 13 0045    			JE		SKIP				#      GO SKIP
-    45 000042 10 0057    			JMP		NEXTC				#      ELSE NEXTC
-    46                   #
-    47 000045 50 0086    SKIP		LMA		NUMBER				# NUMBER
-    48 000048 EA 0088    			CPM		COUNT				#   EQUAL COUNT?
-    49 00004B 13 0057    			JE		NEXTC				#     GO NEXTC
-    50                   #
-    51 00004E 20 0000    			LIA		X'00				# SET PRIME INDICOATOR
-    52 000051 28 008C    			STA		PRIME				#   TO FALSE
-    53 000054 10 0069    			JMP		SKIP1				#     LEAVE COUNT LOOP
-    54                   #	
-    55 000057 50 0088    NEXTC		LMA 	COUNT				# COUNT =
-    56 00005A E0 0001    			ADI		X'01				#   COUNT + 
-    57 00005D 28 0088    			STA		COUNT				#     1
-    58                   #
-    59 000060 EA 0086    			CPM		NUMBER				# COUNT > NUMBER ?
-    60 000063 15 0069    			JG		SKIP1				#   GO SKIP1
-    61 000066 10 0015    			JMP		CLOOP				#   ELSE GO CLOOP
-    62                   #
-    63 000069 50 008C    SKIP1		LMA		PRIME				# PRIME INDICATOR
-    64 00006C E2 0000    			CPI		X'00				#   FALSE ?
-    65 00006F 13 0076    			JE		NEXTN				#     GO NEXTN
-    66                   #
-    67 000072 50 0086    FOUNDPR		LMA		NUMBER				# FOUND PRIME
-    68 000075 30         			OPA							#   PUT ON OUTPUT
+    42 000030 11 0039    			JC		ATEND				# CALC < 0 ? : ATEND
+    43 000033 12 0039    			JZ		ATEND				# CALC = 0 ? : ATEND
+    44 000036 10 0027    			JMP		SUBTR               #   ELSE KEEP SUBTRACTING
+    45                   #
+    46 000039            ATEND		EQU
+    47 000039 50 008A    			LMA		CALC				# CALC 
+    48 00003C E2 0000    			CPI		X'00				#   EQUAL ZERO?
+    49 00003F 13 0045    			JE		SKIP				#      GO SKIP
+    50 000042 10 0057    			JMP		NEXTC				#      ELSE NEXTC
+    51                   #
+    52 000045            SKIP		EQU
+    53 000045 50 0086    			LMA		NUMBER				# NUMBER
+    54 000048 EA 0088    			CPM		COUNT				#   EQUAL COUNT?
+    55 00004B 13 0057    			JE		NEXTC				#     GO NEXTC
+    56                   #
+    57 00004E 20 0000    			LIA		X'00				# SET PRIME INDICOATOR
+    58 000051 28 008C    			STA		PRIME				#   TO FALSE
+    59 000054 10 0069    			JMP		SKIP1				#     LEAVE COUNT LOOP
+    60                   #	
+    61 000057            NEXTC		EQU
+    62 000057 50 0088    			LMA 	COUNT				# COUNT =
+    63 00005A E0 0001    			ADI		X'01				#   COUNT + 
+    64 00005D 28 0088    			STA		COUNT				#     1
+    65                   #
+    66 000060 EA 0086    			CPM		NUMBER				# COUNT > NUMBER ?
+    67 000063 15 0069    			JG		SKIP1				#   GO SKIP1
+    68 000066 10 0015    			JMP		CLOOP				#   ELSE GO CLOOP
     69                   #
-    70 000076 50 0086    NEXTN		LMA		NUMBER				# INCREMENT
-    71 000079 E0 0001    			ADI		X'01				#   NUMBER
-    72 00007C 28 0086    			STA		NUMBER				#     BY 1
-    73 00007F E2 0FFF    			CPI		X'0FFF				# LESS THAN 4095 ?
-    74 000082 14 0006    			JL		NLOOP				#   GO NEXT NUMBER
-    75                   #	
-    76 000085 FF         FINISH		HLT							# HALT PROGRAM
-    77                   #
-    78                   # ###########################################################################
-    79                   # ### STORAGE AREA (RESERVE TWO BYTES PER NUMBER)
-    80                   # ###########################################################################
-    81 000086 00         NUMBER		NOP
-    82 000087 00         			NOP
-    83 000088 00         COUNT		NOP
-    84 000089 00         			NOP
-    85 00008A 00         CALC		NOP
-    86 00008B 00         			NOP
-    87 00008C 00         PRIME		NOP
-    88 00008D 00         			NOP
-    89                   #
+    70 000069            SKIP1		EQU
+    71 000069 50 008C    			LMA		PRIME				# PRIME INDICATOR
+    72 00006C E2 0000    			CPI		X'00				#   FALSE ?
+    73 00006F 13 0076    			JE		NEXTN				#     GO NEXTN
+    74                   #
+    75 000072            FOUNDPR		EQU
+    76 000072 50 0086    			LMA		NUMBER				# FOUND PRIME
+    77 000075 30         			OPA							#   PUT ON OUTPUT
+    78                   #
+    79 000076            NEXTN		EQU
+    80 000076 50 0086    			LMA		NUMBER				# INCREMENT
+    81 000079 E0 0001    			ADI		X'01				#   NUMBER
+    82 00007C 28 0086    			STA		NUMBER				#     BY 1
+    83 00007F E2 0FFF    			CPI		X'0FFF				# LESS THAN 4095 ?
+    84 000082 14 0006    			JL		NLOOP				#   GO NEXT NUMBER
+    85                   #	
+    86 000085            FINISH		EQU
+    87 000085 FF         			HLT							# HALT PROGRAM
+    88                   #
+    89                   # ###########################################################################
+    90                   # ### STORAGE AREA (RESERVE TWO BYTES PER NUMBER)
+    91                   # ###########################################################################
+    92 000086            NUMBER		DS  CL2
+    93 000088            COUNT		DS  CL2
+    94 00008A            CALC		DS  CL2
+    95 00008C            PRIME		DS  CL2
+    96                   #
+    97 00008E    FFFFF   			DC	X'FFFFFFFF
+    98                   #
  
 Phase 1 parsing ended successfully
  
@@ -100,5 +109,5 @@ Phase 2 parsing ended successfully
 Phase 3 parsing ended successfully
  
 --------------------------------------------------------------------------------
-End of assembly for file ./prime.sasm
+End of assembly for file ./prime_sasm/prime.sasm
 --------------------------------------------------------------------------------
