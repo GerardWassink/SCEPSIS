@@ -5,7 +5,7 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-/* Version:         1.3.3                                                     */
+	versionString = "1.3.4"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -13,6 +13,7 @@
 /*   v1.2.2   Coded parse phase 1, 2 and 3 and produced assembly listing      */
 /*   v1.2.3   Code cleanup, corrected a few minor bugs                        */
 /*   v1.3.3   Altered to accomodate larger memory                             */
+/*   v1.3.4   Make SCEPSASM a commandline tool, strip the GUI bloat           */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -21,8 +22,6 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.3.3"
-	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
 	color.brightblack  = 90; color.brightred    = 91; color.brightgreen   = 92
@@ -37,66 +36,153 @@ Globals:
 /* ----- Control the machine functions --------------------- controlPanel --- */
 /* -------------------------------------------------------------------------- */
 Main:
+	
+	Parse Arg arguments
+	
+	Call screenHeader
+	
 	Call Initialize
 
 	choice = ""
 	errorMsg = ""
-	Do Until choice = "X"
-		Call controlPanelDisplay(errorMsg)
-		choice = Strip(linein())					/* get next command ----- */
-		Parse Var choice command value
-		command = Upper(command)
-		If (choice =="") Then choice = "S"
-		errorMsg = ""
-		Select
+	
+	Call processArguments
 
-			/* -------------------------------------------------------------- */
-			/* ----- Memory commands ---------------------------------------- */
-			/* -------------------------------------------------------------- */
-			When command == "INIT"  Then	Do
-				Call initMemory
-				errorMsg = "Memory initialized"
-			End
-			When command == "SAVE"  Then	Do
-				Call saveMemory
-				errorMsg = "Memory saved"
-			End
-			When command == "LOAD"  Then	Do
-				Call loadMemory
-				errorMsg = "Memory loaded"
-			End
-			
-			/* -------------------------------------------------------------- */
-			/* ----- File commands ------------------------------------------ */
-			/* -------------------------------------------------------------- */
-			When command == "SRC" Then	SRCfile = CheckInputFileName(value)
-			When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
-			When command == "LST" Then	LSTfile = CheckOutputFileName(value)
+	Say "source  file =" SRCfile
+	Say "object  file =" OBJfile
+	Say "listing file =" LSTfile
+	
+	If Interactive == 1 Then Do
+		Do Until choice = "X"
+			Call controlPanelDisplay(errorMsg)
+			choice = Strip(linein())					/* get next command - */
+			Parse Var choice command value
+			command = Upper(command)
+			If (choice =="") Then choice = "S"
+			errorMsg = ""
+			Select
 
-			/* -------------------------------------------------------------- */
-			/* ----- Assembler commands ------------------------------------- */
-			/* -------------------------------------------------------------- */
-			When command == "ASM" Then	Call Assemble
-			
-			/* -------------------------------------------------------------- */
-			/* ----- Miscelaneous commands ---------------------------------- */
-			/* -------------------------------------------------------------- */
-			When command == "MEM" Then	Call handleMemory
-			When command == "INS" Then	Call handleInstructions
-			When command == "?"   Then	Call CPhelpInfo
-			When command == "IX"  Then	Call indexMe	/* hidden feature --- */
-			When command == "X"   Then	Do
-				command = ""
-				Leave
-			End
-			Otherwise Do
-				errorMsg = "Invalid command: " || choice 
+				/* ---------------------------------------------------------- */
+				/* ----- File commands -------------------------------------- */
+				/* ---------------------------------------------------------- */
+				When command == "SRC" Then	SRCfile = CheckInputFileName(value)
+				When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
+				When command == "LST" Then	LSTfile = CheckOutputFileName(value)
+
+				/* ---------------------------------------------------------- */
+				/* ----- Assembler commands --------------------------------- */
+				/* ---------------------------------------------------------- */
+				When command == "ASM" Then	Call Assemble
+				
+				/* ---------------------------------------------------------- */
+				/* ----- Miscelaneous commands ------------------------------ */
+				/* ---------------------------------------------------------- */
+				When command == "?"   Then	Call CPhelpInfo
+				When command == "IX"  Then	Call indexMe	/* hidden feature */
+				When command == "X"   Then	Do
+					command = ""
+					Leave
+				End
+				Otherwise Do
+					errorMsg = "Invalid command: " || choice 
+				End
 			End
 		End
+	End; Else Do
+		Call Assemble
 	End
 
 	Call endProgram
 
+Exit
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Split command line, redefine defaults --------- processArguments --- */
+/* -------------------------------------------------------------------------- */
+processArguments:
+	Parse Var arguments val0 '-' opt1 val1 '-' opt2 val2 junk
+	
+										/* initialize output vars ----------- */
+	sourceFile = ""; objectFile = ""; listFile = ""
+	Interactive = 0
+
+										/* Get source file name ------------- */
+	If val0 <> "" Then Do
+		sourceFile = val0
+		If opt1 <> "" Then Do
+			If val1 <> "" Then Do
+				Select
+					When Upper(opt1) == "O" Then objectFile = val1
+					When Upper(opt1) == "L" Then listFile   = val1
+					Otherwise Do
+						Say "Invalid option:" opt1
+						Call Usage
+					End
+				End
+				If opt2 <> "" Then Do
+					If val2 <> "" Then Do
+						Select
+							When Upper(opt2) == "O" Then objectFile = val2
+							When Upper(opt2) == "L" Then listFile   = val2
+							Otherwise Do
+								Say "Invalid option:" opt2
+								Call Usage
+							End
+						End
+						If junk <> "" Then Do
+							Say "Invalid junk at end of command:" junk
+							Call Usage
+						End
+					End; Else Do
+						Say opt2 "specified but no filename found"
+						Call Usage
+					End
+				End
+			End; Else Do
+				Say opt1 "specified but no filename found"
+				Call Usage
+			End
+
+		End
+		If sourceFile <> "" Then Do
+			SRCfile = CheckInputFileName(sourceFile)
+			If SRCfile == "" Then Do
+				Say "source" errorMsg
+				Exit
+			End
+		End
+		
+		If objectFile <> "" Then Do
+			OBJfile = CheckOutputFileName(objectFile)
+			If OBJfile == "" Then Do
+				Say "object" errorMsg
+				Exit
+			End
+		End
+			
+		If listFile <> "" Then Do
+			LSTfile = CheckOutputFileName(listFile)
+			If LSTfile == "" Then Do
+				Say "listing" errorMsg
+				Exit
+			End
+		End
+
+	End; Else Do
+		errorMsg = "no arguments given, switched to interactive mode with default values"
+		Interactive = 1
+	End
+	
+Return	
+
+
+/* -------------------------------------------------------------------------- */
+/* ----- Display usage of the command line ------------------------ Usage --- */
+/* -------------------------------------------------------------------------- */
+Usage:
+	Say "Usage:"
+	Say "scepsasm sourcefile [-o objectfile] [-l listingfile]"
 Exit
 
 
@@ -128,16 +214,8 @@ controlPanelDisplay:
 	Call Display 12  7 color.brightcyan  "Enter name of object file"
 	Call Display 13  3 color.brightwhite "LST"
 	Call Display 13  7 color.brightcyan  "Enter name of listing file"
-	Call Display 14  3 color.brightwhite "ASM"
-	Call Display 14  7 color.brightcyan  "Assemble the source file"
-
-	Call Display 10 37 color.brightwhite "------------------------"
-	Call Display 11 37 color.brightwhite "MEM"
-	Call Display 11 41 color.brightcyan  "Handle Memory"
-	Call Display 12 37 color.brightwhite "INS"
-	Call Display 12 41 color.brightcyan  "Handle Instructions"
-	Call Display 13 37 color.brightwhite "INIT SAVE LOAD"
-	Call Display 13 52 color.brightcyan  "Memory"
+	Call Display 15  3 color.brightwhite "ASM"
+	Call Display 15  7 color.brightcyan  "Assemble the source file"
 
 	Call Display 18  3 color.brightwhite "X"
 	Call Display 18  5 color.brightcyan  "Exit"
@@ -157,26 +235,23 @@ Return
 Assemble:
 	
 	Call screenHeader "SCEPSASM - Generating executable from source file"
-	Call Display  3  1 color.cyan " "
-	phase1.0 = 0; parsePahse1 = 0
-	phase2.0 = 0; parsePahse2 = 0
-	phase3.0 = 0; parsePahse3 = 0
+	If Interactive == 1 Then Call Display  3  1 color.cyan " "
+	phase1.0 = 0; parsePhase1 = 0
+	phase2.0 = 0; parsePhase2 = 0
+	phase3.0 = 0; parsePhase3 = 0
 
-	Say "Phase 1 - Reading and parsing source file"
+	Say "- Phase 1 - Reading and parsing source file"
 	If parseSourcePhase1() Then Do		/* Result is formal parsed table ---- */
-		Say "        finished successfully"
-		Say "Phase 2 - Reading and parsing source file"
+		Say "   finished"
+		Say "- Phase 2 - Reading and parsing source file"
 		If parseSourcePhase2() Then Do	/* Go through the parsed table ------ */
-			Say "        finished successfully"
-			Say "Phase 3 - Generating the code into memory"
+			Say "   finished"
+			Say "- Phase 3 - Generating the code into memory"
 			If parseSourcePhase3() Then Do	/* Generate output in memory ---- */
-				Say "        finished successfully"
-				Say " "
+				Say "   finished"
 				
 				Call saveMemory			/* save generated code to OBJ file -- */
 				
-				Say "NOTE: your object code has been written to the OBJ file"
-				Say " "
 			End; Else Do
 				Say "Parse phase 3 contained errors"
 			End
@@ -189,7 +264,8 @@ Assemble:
 	Say "Generating listing and messages file"
 	Call listResults
 	
-	Call enterForMore
+	If Interactive == 1 Then Call enterForMore
+	
 Return
 
 
@@ -372,6 +448,7 @@ addPhase1Msg:
 	phase1.0 = phase1.0 + 1
 	p1 = phase1.0
 	phase1.p1 = msg
+	Say "   MSG -" msg
 Return
 
 
@@ -408,6 +485,7 @@ addPhase2Msg:
 	phase2.0 = phase2.0 + 1
 	p2 = phase2.0
 	phase2.p2 = msg
+	Say "   MSG -" msg
 Return
 
 
@@ -461,6 +539,7 @@ addPhase3Msg:
 	phase3.0 = phase3.0 + 1
 	p3 = phase3.0
 	phase3.p3 = msg
+	Say "   MSG -" msg
 Return
 
 
@@ -554,6 +633,9 @@ listResults:
 		Call listWrite Copies('-',80)
 		Call listWrite "End of assembly for file" SRCfile
 		Call listWrite Copies('-',80)
+		
+		Say "listing and results written to" LSTfile
+		
 	End
 Return
 
@@ -568,132 +650,15 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Handle Memory related stuff ----------------------- handleMemory --- */
+/* ----- Initialize Memory ----------------------------------- initMemory --- */
 /* -------------------------------------------------------------------------- */
-handleMemory:
-	memChoice = ""
-	memMsg = ""
-	startOfScreen = 0
-	Do Until memChoice = "X"
-		memChoice = Upper(strip(listMemory(memMsg)))
-		Parse Var memChoice command value
-		memMsg = ""
-
-		Select
-			/* -------------------------------------------------------------- */
-			/* ----- Memory commands ---------------------------------------- */
-			/* -------------------------------------------------------------- */
-			When command == "D" Then Do			/* display memory from address*/
-				If (value == "") 
-					Then startOfScreen = startOfScreen + 512
-					Else startOfScreen = 512*Trunc(x2d(value)/512)
-			End
-			
-			When command == "M" Then	Do		/* fill memory with values -- */
-				Parse Var value adr vals
-				If isHex(adr) Then Do
-					adr = x2d(adr)
-					Do i = 1 To Words(vals)
-						Parse Var vals val vals
-						val = Strip(val)
-						If isHex(val) Then Do
-							val = x2d(val)
-							If (adr <= memSize) Then Do
-								If (val <= 255) Then Do
-									MEM.adr = val
-									memMsg = "Value(s) entered into memory"
-									adr = adr + 1	/* in case there's more   */
-								End; Else Do
-									memMsg = "Value:" d2x(val) "> 255"
-								End
-							End; Else Do
-								memMsg = "Address" d2x(adr) "> memSize"
-							End
-						End; Else Do
-							memMsg = "Value for MEM value not HEXa-decimal"
-						End
-					End
-				End; Else Do
-					memMsg = "Value for MEM address not HEXa-decimal"
-				End
-			End
-
-			When command == "INIT"  Then	Do
-				Call initMemory
-				memMsg = "Memory initialized"
-			End
-
-			When command == "SAVE"  Then	Do
-				Call saveMemory
-			End
-
-			When command == "LOAD"  Then	Do
-				Call loadMemory
-			End
-
-			Otherwise Do
-				memMsg = "Invalid choice: " || memChoice 
-			End
-		End
+initMemory:
+	Procedure Expose memSize MEM.
+	/* ----- Memory ----- */
+	Do p = 0 to (memSize - 1)
+		MEM.p = 0
 	End
 Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List Memory in hex dump format----------------------- listMemory --- */
-/* -------------------------------------------------------------------------- */
-listMemory:
-	pMem = startOfScreen
-	endOfScreen = startOfScreen + 511
-
-	Call screenHeader "SCEPSIS - memory from " || d2x(startofScreen) || " to " || d2x(endOfScreen)
-	
-							/* --- Display contents of memory in neat ------- */
-							/* ---   little groups, 32 bytes per row -------- */
-	lnum = 3
-
-
-
-	line = Right("0000"||d2x(pMem),4) || ": "
-	
-	Do pMem = startOfScreen to (endOfScreen)
-		If pMem > startOfScreen Then Do
-			Select
-				When ((pMem // 32) == 0) Then Do
-					Call Display lnum 2 color.cyan line
-					lnum = lnum + 1
-					line = Right("0000"||d2x(pMem),4) || ": "
-				End
-				When ((pMem // 16) == 0) Then line = line || " - "
-				When ((pMem //  8) == 0) Then line = line || " "
-				When ((pMem //  4) == 0) Then line = line || " "
-				Otherwise Nop
-			End
-		End
-		line = line || Right("00"||d2x(MEM.pMem),2)
-	End
-	Call Display lnum 2 color.cyan line
-	lnum = lnum + 1
-
-
-	Call Display 20  3 color.brightwhite "X"
-	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "D"
-	Call Display 20 15 color.brightcyan "{adr}"
-	Call Display 20 22 color.brightwhite "M"
-	Call Display 20 24 color.brightcyan "{adr} {val ...}"
-	Call Display 20 41 color.brightwhite "INIT"
-	Call Display 20 46 color.brightwhite "SAVE"
-	Call Display 20 51 color.brightwhite "LOAD"
-	Call Display 20 56 color.brightcyan  "Memory"
-		
-	
-	If Strip(memMsg) <> "" Then Do
-		Call Display 21 1 color.brightwhite "===>" memMsg
-	End
-	Call Display  2 6 color.brightwhite
-	memChoice = Strip(Upper(linein()))
-Return memChoice
 
 
 /* -------------------------------------------------------------------------- */
@@ -703,7 +668,7 @@ saveMemory:
 	lnum = 1; p = 0						/* save from location 0, count lines  */
 	line = ""
 	memFile = OBJfile
-	If Stream(memFile, 'C', 'OPEN WRITE') = "READY:" Then Do
+	If Stream(memFile, 'C', 'OPEN WRITE REPLACE') = "READY:" Then Do
 		Do p = 0 to memSize - 1
 			If p > 0 Then Do
 				If ((p // 32) == 0) Then Do
@@ -717,54 +682,12 @@ saveMemory:
 		lc = Lineout(memFile, line, lnum)
 		lnum = lnum + 1
 		line = ""
-		memMsg = "Wrote" lnum "lines to" memFile
+		Say "Saved object in" lnum "lines to object file" memFile 
 	End; Else Do
-		memMsg = "Error opening file" memFile
-		SAY memMsg
+		memMsg = "Error opening object file" memFile
 		Exit 8
 	End
 
-Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Load Memory in hex format --------------------------- loadMemory --- */
-/* -------------------------------------------------------------------------- */
-loadMemory:
-	lnum = 0; p = 0						/* load from location 0, count lines  */
-	line = ""
-regel = ""
-	memFile = "./scepsis.memory"
-	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
-		Do While Lines(memFile)
-			line = Strip(Upper(Linein(memFile)))
-			lnum = lnum + 1
-			llen = Length(line)
-			If (llen > 0) Then Do
-				Do lp = 1 To llen By 2
-					MEM.p = X2D(Substr(line, lp,2))
-					p = p + 1
-				End
-			End
-		End
-		memMsg = "Loaded" lnum "lines from" memFile
-	End; Else Do
-		memMsg = "Error opening file" memFile
-		Exit 8
-	End
-
-Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- Initialize Memory ----------------------------------- initMemory --- */
-/* -------------------------------------------------------------------------- */
-initMemory:
-	Procedure Expose memSize MEM.
-	/* ----- Memory ----- */
-	Do p = 0 to (memSize - 1)
-		MEM.p = 0
-	End
 Return
 
 
@@ -830,113 +753,6 @@ Return rval
 
 
 /* -------------------------------------------------------------------------- */
-/* --------------------------------------------------- handleInstructions --- */
-/* -------------------------------------------------------------------------- */
-/* ----- Show Instructions and display individual ones ---------------------- */
-/* -------------------------------------------------------------------------- */
-handleInstructions:
-	lstIChoice = ""
-	lstIMsg = ""
-	liMsg = ""
-	Do Until lstIChoice = "X"
-		lstIChoice = Upper(strip(listInstructions(lstIMsg)))
-		Parse Var lstIChoice command value
-		lstIMsg = ""
-
-		Select
-			/* -------------------------------------------------------------- */
-			/* ----- Instruction commands ----------------------------------- */
-			/* -------------------------------------------------------------- */
-			When command == "D" Then Do
-				Parse Var value opc .
-				opc = Strip(opc)
-				optr = findOpcd(Strip(opc))
-				If (optr == 0) Then Do
-					lstIMsg = "Opcode" opc "does not exist (yet)"
-				End; Else Do
-					Call listInstruction(optr)
-				End
-			End
-			
-			Otherwise Do
-				lstImMsg = "Invalid choice: " || lstIChoice 
-			End
-			
-		End
-		
-	End
-Return
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List all instructions ------------------------- listInstructions --- */
-/* -------------------------------------------------------------------------- */
-listInstructions:
-	Call screenHeader "SCEPSASM - Instructions"
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
-
-	Call Display  5  3 color.brightwhite "List of opcodes and instructions"
-	liLine = ""
-	scrLine = 6
-	Do i = 1 to instr.0
-		liLine = liLine || Left(instr.i.1||"  ",2) || " " || Left(instr.i.2||"    ", 4) || " " || Left(instr.i.2.1||"  ", 2) || "   "
-		If ((i //  6) == 0) Then Do
-			Call Display scrLine 3 color.cyan liLine
-			scrLine = scrLine + 1
-			liLine = ""
-		End
-	End
-	If (liLine <> "") Then Call Display scrLine 3 color.cyan liLine
-	scrLine = scrLine + 1
-	
-	Call Display 20  3 color.brightwhite "X"
-	Call Display 20  5 color.brightcyan "return"
-	Call Display 20 13 color.brightwhite "D"
-	Call Display 20 15 color.brightcyan "{opcode}"
-
-	If Strip(lstIMsg) <> "" Then Do
-		Call Display 21 1 color.brightwhite "===>" lstIMsg
-	End
-	Call Display  2 6 color.brightwhite
-	lstIChoice = Strip(Upper(linein()))
-Return lstIChoice
-
-
-/* -------------------------------------------------------------------------- */
-/* ----- List one instruction --------------------------- listInstruction --- */
-/* -------------------------------------------------------------------------- */
-listInstruction:
-	Parse Arg pointer .
-	Call screenHeader "SCEPSASM - breakup of the " || instr.pointer.2 || " Instruction"
-	
-	Call Display  2  1 color.brightwhite "===> "
-	Call Display  2  6 color.brightred "___________________________________________________________________________"
-	
-	Call Display  5  3 color.brightwhite "OPC  Ins Arg Stp  Control Signals"
-	liLine = instr.pointer.1 "-" left(instr.pointer.2||"    ",5) || Left(instr.pointer.2.1||"   ",3)
-	scrLine = 6
-	Call Display scrLine 3 color.brightwhite liLine
-	Do step = 1 to instr.pointer.3.0
-		liLine2 = step " "
-		Do cs = 1 To instr.pointer.3.step.0
-			liLine2 = liLine2 instr.pointer.3.step.cs
-		End
-		Call Display scrLine 17 color.cyan liLine2
-		scrLine = scrLine + 1
-	End
-	scrLine = scrLine + 1
-	
-	If Strip(liMsg) <> "" Then Do
-		Call Display 21 1 color.brightwhite "===>" liMsg
-	End
-	
-	Call Display 21 6 color.brightwhite
-	Call enterForMore
-Return
-
-
-/* -------------------------------------------------------------------------- */
 /* ----- Help info for control panel ------------------------- CPhelpInfo --- */
 /* -------------------------------------------------------------------------- */
 CPhelpInfo:
@@ -963,12 +779,18 @@ Return
 /* -------------------------------------------------------------------------- */
 screenHeader:
 	Parse Arg headerLine
-	"clear"
-	Call Display  1  1 color.brightwhite Copies("-", 74) versionString
+
 	If (Strip(headerLine) == "") 
 		Then headerLine = "SCEPSASM - Simple CPU Emulator Program (Simple ASseMbler)"
-	position = (37 - Trunc(Length(headerLine)/2))
-	Call Display  1 position color.brightwhite " " || headerLine || " "
+	
+	If Interactive == 1 Then Do
+		"clear"
+		Call Display  1  1 color.brightwhite Copies("-", 74) versionString
+		position = (37 - Trunc(Length(headerLine)/2))
+		Call Display  1 position color.brightwhite " " || headerLine || " "
+	End; Else Do
+		Say headerline " - " versionString
+	End
 Return
 
 
@@ -1004,7 +826,6 @@ Return
 /* -------------------------------------------------------------------------- */
 enterForMore:
 	Say "----- "
-	Say ""
 	Say "Enter to continue"
 	junk = linein()
 Return
@@ -1015,17 +836,19 @@ Return
 /* -------------------------------------------------------------------------- */
 Initialize:
 	/* ----- Set default values for program parameters ----- */
-	microCodeSteps	= 7						/* Max number of micro code steps */
-	memorySize		= 65536					/* Size of memory in bytes*/
-	configFile		= "./config/scepsis.conf"		/* File containing the engine parameters */
-	langDefFile		= "./config/scepsis.langdef"	/* File containing the instruction definitions */
+	microCodeSteps	= 16					/* Max number of micro code steps */
+	memorySize		= 65536					/* Size of memory in bytes ------ */
+									/* File containing the engine parameters  */
+	configFile		= "./config/scepsis.conf"
+							/* File containing the instruction definitions -- */
+	langDefFile		= "./config/scepsis.langdef"
 
-					/* These can be overwritten in the config file --------- */
-	SRCfile			= "./myfirst.sasm"		/* Example source file */
-	OBJfile			= "./myfirst.memory"	/* Example object file */
-	LSTfile			= "./myfirst.lst"		/* Example listing file */
+					/* These can be overwritten in the config file ---------- */
+	SRCfile			= "./myfirst/myfirst.sasm"		/* Example source file -- */
+	OBJfile			= "./myfirst/myfirst.memory"	/* Example object file -- */
+	LSTfile			= "./myfirst/myfirst.lst"		/* Example listing file - */
 	
-	asmDirectives	= "DC"					/* assembler Directives --------- */
+	asmDirectives	= "EQU DC DS BASE"		/* assembler Directives --------- */
 	
 	/* ----- Read language definition file ----- */
 	instr.	= 0								/* stem to hold instructions */
@@ -1172,7 +995,7 @@ Return
 /* ----- End of program -------------------------------------- endProgram --- */
 /* -------------------------------------------------------------------------- */
 endProgram:
-	Call reset
+	If Interactive == 1 Then Call reset
 	Say "SCEPSASM signing of - Goodbye"
 Return
 
@@ -1183,10 +1006,11 @@ Return
 CheckInputFileName:
 	Procedure Expose errorMsg
 	Parse arg filename
-	If Stream(filename, 'C', 'OPEN READ') = "READY:" Then Do
-		errorMsg = "File" filename "exists, ready to read"
+	If Stream(filename, 'C', 'OPEN READ') == "READY:" Then Do
+		errorMsg = "file" filename "exists, ready to read"
 	End; Else Do
-		errorMsg = "File can not be found:" filename
+		errorMsg = "file can not be found:" filename
+		filename = ""
 	End
 Return filename
 
@@ -1197,10 +1021,11 @@ Return filename
 CheckOutputFileName:
 	Procedure Expose errorMsg
 	Parse arg filename
-	If Stream(filename, 'C', 'OPEN WRITE') = "READY:" Then Do
-		errorMsg = "File" filename "ready to write"
+	If Stream(filename, 'C', 'OPEN WRITE') == "READY:" Then Do
+		errorMsg = "file" filename "ready to write"
 	End; Else Do
-		errorMsg = "File can not be found:" filename
+		errorMsg = "file not available for writing:" filename
+		filename = ""
 	End
 	retCod = Stream(filename, 'C', 'CLOSE')
 Return filename
