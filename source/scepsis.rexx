@@ -740,7 +740,7 @@ Return
 loadMemory:
 	lnum = 0; p = 0						/* load from location 0, count lines  */
 	line = ""
-regel = ""
+	regel = ""
 	memFile = "./scepsis.memory"
 	If Stream(memFile, 'C', 'OPEN READ') = "READY:" Then Do
 		Do While Lines(memFile)

@@ -1,0 +1,57 @@
+--------------------------------------------------------------------------------
+Assembly listing for file dir/dir.sasm 
+--------------------------------------------------------------------------------
+ 
+SrcLin -Addr- Op Oprnd   --- Source line ---
+     1                   #
+     2                   # EXAMPLE SCEPSIS PROGRAM
+     3                   #
+     4 000000            MAIN	EQU	*
+     5 000000 20 0000    		LIA B'0			# A = 0
+     6 000003 21 0001    		LIB D'1			# B = 1
+     7 000006 22 000A    		LIC X'A			# C = 10
+     8 000009 29 0040    		STB X'40'		# STORE B IN MEMORY ADDRESS X'40'
+     9 00000C 10 1000    		JMP LOOP
+    10                   #
+    11                   # BIG STORAGE GAP
+    12                   #
+    13 00000F            GAP		EQU
+    14                   #
+    15                   #
+    16                   #
+    17 001000    1000    LOOP	BASE X'1000		# START THIS AT ADDRESS X1000
+    18                   #		ADI D'01'		# A = A + 1
+    19 001000 E8 0040    		ADM X'40'		# A = A + VALUEFROMMEMADRES(X'40')
+    20 001003 30         		OPA				# OUTPUT A
+    21 001004 E2 0003    		CPI B'11'		# COMPARE A WITH 3
+    22 001007 14 1000    		JL	LOOP		# JUMP TO 'LOOP' WHEN A < 3
+    23 00100A 10 101C    		JMP	SKIP
+    24                   #
+    25                   # TESTING THE DC DIRECTIVE
+    26                   #
+    27 00100D    12233   		DC	X'12233445566778899AABBCCDDEEFFF'
+    28                   #
+    29                   # OK, JUST GOOFING AROUND IN THIS LAST PART
+    30                   #
+    31 00101C            SKIP	EQU
+    32 00101C 20 0003    		LIA B'11		# A = 3
+    33 00101F 21 0002    		LIB D'2			# B = 2
+    34 001022 22 0001    		LIC X'1			# C = 1
+    35 001025 FF         ENDING	HLT				# STOP
+    36                   #
+    37 001026            		DS  CL64
+    38                   #
+    39 001066    41424   		DC	C'ABC'
+    40 001069    2AAA    		DC	B'10101010101010'
+    41 00106B    0FFF    		DC	D'4095'
+    42                   #
+ 
+Phase 1 parsing ended successfully
+ 
+Phase 2 parsing ended successfully
+ 
+Phase 3 parsing ended successfully
+ 
+--------------------------------------------------------------------------------
+End of assembly for file dir/dir.sasm 
+--------------------------------------------------------------------------------

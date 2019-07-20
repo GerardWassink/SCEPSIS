@@ -1,28 +1,32 @@
 --------------------------------------------------------------------------------
-Assembly listing for file ./myfirst.sasm
+Assembly listing for file ./myfirst/myfirst.sasm
 --------------------------------------------------------------------------------
  
 SrcLin -Addr- Op Oprnd   --- Source line ---
      1                   #
      2                   # EXAMPLE SCEPSIS PROGRAM
      3                   #
-     4 000000 20 00      MAIN	LDA B'0			# A = 0
-     5 000002 21 01      		LDB D'1			# B = 1
-     6 000004 22 02      		LDC X'2			# C = 3
-     7 000006 29 40      		STB X'40'		# STORE B IN MEMORY ADDRESS X'40'
-     8                   #LOOP	ADI D'01'		# A = A + 1
-     9 000008 E8 40      LOOP	ADM X'40'		# A = A + VALUEFROMMEMADRES(X'40')
-    10 00000A 30         		OPA				# OUTPUT A
-    11 00000B E2 03      		CPI B'11'		# COMPARE A WITH 3
-    12 00000D 14 08      		JL	LOOP		# JUMP TO 'LOOP' WHEN A < 3
-    13                   #
-    14                   # OK, JUST GOOFING AROUND IN THIS LAST PART
+     4 000000            MAIN	EQU
+     5 000000 20 0000    		LIA B'0			# A = 0
+     6 000003 21 0001    		LIB D'1			# B = 1
+     7 000006 22 0002    		LIC X'2			# C = 3
+     8 000009 29 0040    		STB X'40'		# STORE B IN MEMORY ADDRESS X'40'
+     9                   #
+    10 00000C            LOOP	EQU
+    11 00000C E0 0001    		ADI D'01'		# A = A + 1
+    12 00000F 30         		OPA				# OUTPUT A
+    13 000010 E2 0003    		CPI B'11'		# COMPARE A WITH 3
+    14 000013 14 000C    		JL	LOOP		# JUMP TO 'LOOP' WHEN A < 3
     15                   #
-    16 00000F 20 03      		LDA B'11		# A = 3
-    17 000011 21 02      		LDB D'2			# B = 2
-    18 000013 22 01      		LDC X'1			# C = 1
-    19 000015 FF         ENDING	HLT				# STOP
-    20                   #
+    16                   # OK, JUST GOOFING AROUND IN THIS LAST PART
+    17                   #
+    18 000016 20 0003    		LIA B'11		# A = 3
+    19 000019 21 0002    		LIB D'2			# B = 2
+    20 00001C 22 0001    		LIC X'1			# C = 1
+    21                   #
+    22 00001F            ENDING	EQU
+    23 00001F FF         		HLT				# STOP
+    24                   #
  
 Phase 1 parsing ended successfully
  
@@ -31,5 +35,5 @@ Phase 2 parsing ended successfully
 Phase 3 parsing ended successfully
  
 --------------------------------------------------------------------------------
-End of assembly for file ./myfirst.sasm
+End of assembly for file ./myfirst/myfirst.sasm
 --------------------------------------------------------------------------------

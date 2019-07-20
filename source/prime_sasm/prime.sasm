@@ -7,12 +7,14 @@
 #
 # ###########################################################################
 #
-Start		LIA		X'01				# Load 1
+Start		EQU
+			LIA		X'01				# Load 1
 			STA		NUMBER				#   Into NUMBER
 #
 #										# Loop NUMBER = 1 to 4095
 #
-Nloop		LIA		X'01				# Assume this one 
+Nloop		EQU
+			LIA		X'01				# Assume this one 
 			STA		PRIME				#   is a prime
 #
 			LMB		NUMBER				# Track NUMBER in B register
@@ -22,7 +24,8 @@ Nloop		LIA		X'01				# Assume this one
 #						
 #										# Loop COUNT = 2 to NUMBER
 #
-Cloop		LMC		COUNT				# Track COUNT in C register
+Cloop		EQU
+			LMC		COUNT				# Track COUNT in C register
 #
 			LMA		NUMBER				# CALC = 
 			SBM		COUNT				#   NUMBER -
@@ -31,7 +34,8 @@ Cloop		LMC		COUNT				# Track COUNT in C register
 			JC		AtEnd				# CALC < 0 ? : AtEnd
 			JZ		AtEnd				# CALC = 0 ? : AtEnd
 #
-Subtr		LMA		CALC				# CALC = 
+Subtr		EQU
+			LMA		CALC				# CALC = 
 			SBM		COUNT				#   CALC - 
 			STA		CALC				#     COUNT
 #
@@ -39,12 +43,14 @@ Subtr		LMA		CALC				# CALC =
 			JZ		AtEnd				# CALC = 0 ? : AtEnd
 			JMP		Subtr               #   Else keep Subtracting
 #
-AtEnd		LMA		CALC				# CALC 
+AtEnd		EQU
+			LMA		CALC				# CALC 
 			CPI		X'00				#   Equal Zero?
 			JE		SKIP				#      Go SKIP
 			JMP		NEXTC				#      Else NEXTC
 #
-SKIP		LMA		NUMBER				# NUMBER
+SKIP		EQU
+			LMA		NUMBER				# NUMBER
 			CPM		COUNT				#   Equal COUNT?
 			JE		NEXTC				#     Go NEXTC
 #
@@ -52,7 +58,8 @@ SKIP		LMA		NUMBER				# NUMBER
 			STA		PRIME				#   To false
 			JMP		SKIP1				#     Leave COUNT loop
 #	
-NEXTC		LMA 	COUNT				# COUNT =
+NEXTC		EQU
+			LMA 	COUNT				# COUNT =
 			ADI		X'01				#   COUNT + 
 			STA		COUNT				#     1
 #
@@ -60,30 +67,32 @@ NEXTC		LMA 	COUNT				# COUNT =
 			JG		SKIP1				#   Go SKIP1
 			JMP		Cloop				#   Else Go Cloop
 #
-SKIP1		LMA		PRIME				# Prime indicator
+SKIP1		EQU
+			LMA		PRIME				# Prime indicator
 			CPI		X'00				#   false ?
 			JE		NEXTN				#     Go NEXTN
 #
-FoundPR		LMA		NUMBER				# Found Prime
+FoundPR		EQU
+			LMA		NUMBER				# Found Prime
 			OPA							#   Put on Output
 #
-NEXTN		LMA		NUMBER				# Increment
+NEXTN		EQU
+			LMA		NUMBER				# Increment
 			ADI		X'01				#   NUMBER
 			STA		NUMBER				#     by 1
 			CPI		X'0FFF				# Less than 4095 ?
 			JL		NLOOP				#   Go next number
 #	
-FINISH		HLT							# Halt program
+FINISH		EQU
+			HLT							# Halt program
 #
 # ###########################################################################
 # ### Storage area (reserve two bytes per number)
 # ###########################################################################
-NUMBER		NOP
-			NOP
-COUNT		NOP
-			NOP
-CALC		NOP
-			NOP
-PRIME		NOP
-			NOP
+NUMBER		DS  CL2
+COUNT		DS  CL2
+CALC		DS  CL2
+PRIME		DS  CL2
+#
+			DC	X'FFFFFFFF
 #

@@ -40,16 +40,16 @@
 #
 # ### LI[A|B|C] {value} - Load Immediate value XX into REG[A|B|C]
 #
-20 LIA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO RGAI		# Load immediate A
-21 LIB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO RGBI		# Load immediate B
-22 LIC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO RGCI		# Load immediate C
+20 LIA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGAI CE2		# Load immediate A
+21 LIB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGBI CE2		# Load immediate B
+22 LIC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGCI CE2		# Load immediate C
 
 #
 # ### STA|B|C] {value} - Store value from REG[A|B|C] into memory address XX
 #
-28 STA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO MARI - RGAO MEMI	# Store A
-29 STB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO MARI - RGBO MEMI	# Store B
-2A STC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO MARI - RGCO MEMI	# Store C
+28 STA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGAO MEMI	# Store A
+29 STB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGBO MEMI	# Store B
+2A STC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGCO MEMI	# Store C
 
 #
 # ### OPA|B|C] - ouput the value from REG[A|B|C] to the output register
@@ -69,8 +69,8 @@
 # ### I2M {address} - read a value from the input register to a location in memory
 # ### M2O {address} - put a value from memory into the ouput register
 #
-70 I2M  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE2	# Input into memory
-71 M2O  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - OUTI MEMO CE2	# Output from memory
+70 I2M  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - INPO MEMI	# Input into memory
+71 M2O  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - OUTI MEMO	# Output from memory
 
 #
 # ### PSH[A|B|C] - put the content of register [A|B|C] on the stack
@@ -88,22 +88,22 @@
 #
 #                               ### IMMEDIATE ALU instructions ###
 #
-E0 ADI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI - EXC - CE2	# Add Immediate
-E1 SBI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI - EXC - CE2	# Subtract Immediate
-E2 CPI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI - EXC - CE2	# Compare Immediate
-E3 ANI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI - EXC - CE2	# AND Immediate
-E4 ORI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI - EXC - CE2	# OR Immediate
-E5 XRI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI - EXC - CE2	# XOR Immediate
+E0 ADI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI CE2 - EXC	# Add Immediate
+E1 SBI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI CE2 - EXC	# Subtract Immediate
+E2 CPI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI CE2 - EXC	# Compare Immediate
+E3 ANI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI CE2 - EXC	# AND Immediate
+E4 ORI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI CE2 - EXC	# OR Immediate
+E5 XRI XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO ALUI CE2 - EXC	# XOR Immediate
 
 #
 #                                  ### MEMORY ALU instructions ###
 #
-E8 ADM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE2	# Add from memory
-E9 SBM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE2	# Subtract memory
-EA CPM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE2	# Compare with mamory
-EB ANM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE2	# AND memory
-EC ORM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE2	# OR memory
-ED XRM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI - EXC - CE2	# XOR memory
+E8 ADM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI CE2 - EXC	# Add from memory
+E9 SBM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI CE2 - EXC	# Subtract memory
+EA CPM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI CE2 - EXC	# Compare with mamory
+EB ANM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI CE2 - EXC	# AND memory
+EC ORM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI CE2 - EXC	# OR memory
+ED XRM XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO ALUI CE2 - EXC	# XOR memory
 
 #
 #                                    ### REGB ALU instructions ###
