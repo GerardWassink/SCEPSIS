@@ -15,11 +15,16 @@ All lines that are empty or start with a hash sign ('#') are considered to be co
 
 ### Definition lines
 
-All other lines are treated as language definition lines. Every definition line consists of three parts, seperated by spaces:
+All other lines are treated as language definition lines. Every definition line consists of three or four parts:
 
 - OpCode
 - Mnemonic
 - Microcode steps
+- comment
+
+#### Syntax of the line
+
+OpCode Mnemonic [operand] | microcodestep - microcodestep [...] [# comment]
 
 #### OpCode
 The opcode is a hexadecimal number from x00 to xFF, uniquely identifying the instruction when it is encountered in memory. This is the value you will have to enter into memory when programming SCEPSIS.
@@ -27,8 +32,11 @@ The opcode is a hexadecimal number from x00 to xFF, uniquely identifying the ins
 #### Mnemonic
 A more or less recognisable acronim for your instruction, for example I2M, which we saw as an example, meaning '*Input To Memory*'.
 
-#### Microcode steps
-Microcode steps are two or more combinations of control signals. Microcode steps may contain a number of control signals. Each microcode step is seperated from the next one by a dash or minus sign. As you can see in the example below (that [we used earlier](./Example.md)) We see:
+#### Operand
+Operand is a placeholder for documentary purposes, just an indication that there must be an operand when coding this instruction.
+
+#### Microcode step
+Microcodestep is a combination of two or more control signals. Each microcode step is seperated from the next one by a dash (minus sign). As you can see in the example below (that [we used earlier](./Example.md)) We see:
 
 - OpCode is 30 (hexadecimal)
 - Mnemonic is 'I2M'

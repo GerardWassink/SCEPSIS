@@ -10,7 +10,8 @@ For example, the A register can be instructed to put it's value onto the databus
 
 ### List of control signals in SCEPSIS
 
-- **CE** - Counter Enable, the program counter advances to the next instruction
+- **CE** - Counter Enable, the program counter advances one position
+- **CE2** - Counter Enable, the program counter advances two positions
 - **HLT** - stop (or HALT) the processor
 - **INPO** - Set the input register to output, put its on the DAB
 - **INRI** - Set the instruction register to input, to take a value from the DAB
@@ -20,8 +21,10 @@ For example, the A register can be instructed to put it's value onto the databus
 - **OUTI** - Set the output register to input, getting a value from the DAB
 - **PCTI** - Set the Program Counter to input, getting a value from the DAB
 - **PCTO** - Set the Program Counter to output, put it's value to the DAB
-- **MEMI** - Set memory, pointed to by MAR to input, getting the value from the DAB
-- **MEMO** - Set memory, pointed to by MAR to output, put value on the DAB
+- **MEMI** - Set memory, pointed to by MAR to input, getting a full word from the DAB
+- **MEMO** - Set memory, pointed to by MAR to output, put a fullword value on the DAB
+- **FTCH** - Set memory, pointed to by MAR to output, put a one byte value on the DAB
+- **PTCH** - Set memory, pointed to by MAR to input, get a one byte value from the DAB
 - **RGAI** - Set RGA to input, accept a value from the DAB
 - **RGAO** - Set RGA to output, put its value out to the DAB
 - **RGBI** - Set RGA to input, accept a value from the DAB

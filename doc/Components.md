@@ -25,9 +25,11 @@ Further down, **inside** the CPU we have components as well:
 - **INP** - INPut Register
 - **OUT** - OUTput Register
 - **ALU** - Arithmetic Logical Unit
+- **AOPR** - ALU second operand
 - **MAR** - Memory Address Register
-- **RGA** - ReGister A
-- **RGB** - ReGister B
+- **REGA** - ReGister A
+- **REGB** - ReGister B
+- **REGC** - ReGister C
 
 Furthermore, we need something to let the CPU 'tick' (a clock pulse) and something to decode our instructions (usually called the 'Control Unit'.
 

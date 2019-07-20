@@ -20,7 +20,7 @@ The fetch phase is exactly the same for every instruction. This is the combinati
 ##### microcode for the fetch phase
 
 - Clock Cycle 1 - PCTO + MARI - *put the value of the PCT in the MAR*
-- Clock Cycle 2 - RAMO + INRI + CE - *put the value out of memory into the INR and bump the PCT up by 1*
+- Clock Cycle 2 - FTCH + INRI + CE - *put the value out of memory into the INR and bump the PCT up by 1*
 
 Now, after two clock ticks, we have read the value out of memory (pointed to by the Program Counter), that is the value of the next instruction, into the Instruction Register from where it can be decoded; lastly, we had the PCT point to the next instruction.
 
@@ -37,7 +37,7 @@ In this case it will get the address from memory, it is stored right after the i
 ##### microcode for the get data phase
 
 - Clock Cycle 3 - PCTO + MARI - *put value from the PCT on the DAB and read the value into the MAR*
-- Clock Cycle 4 - MEMO + MARI + CE - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT again*
+- Clock Cycle 4 - MEMO + MARI + CE2 - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT by 2 positions*
 
 The MAR, which is now pointing to location 42, is used in step 4 to retrieve the address where INP has to be stored.
 
@@ -47,7 +47,7 @@ In this case, the ***execute*** phase will get the data from the input register,
 
 ##### microcode for the execute phase
 
-- Clock Cycle 5 - INPO + MEMI + CE - *put value from the input register on the DAB and have MEM read it in into the proper location; then bump the PCT again*
+- Clock Cycle 5 - INPO + MEMI - *put value from the input register on the DAB and have MEM read it in into the proper location*
 
 ### langdef file
 
@@ -56,7 +56,7 @@ We would code this I2M instruction in the scepsis.langdef file as follows:
 <pre>
  #
  # I2M {address} - put the value from the INP register into memory location {address]
- xx I2M PCTO MARI - MEMO INRI CE - PCTO MARI - MEMO MARI - INPO MEMI CE
+ xx I2M PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - INPO MEMI
 </pre>
 
 
