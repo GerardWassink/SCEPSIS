@@ -2,7 +2,44 @@
 
 ## To Do
 
+### TODO - 1.3.7 - Improve performance
+Issue #33
+
+### TODO - 1.3.6 - Improve the 'Animate' function
+Issue #32 
+
 ## History
+
+### DONE - 1.3.5 - Assembler directives built in
+Issue #28 completed:
+
+sasmDirectives = "BASE DC DS EQU"
+- BASE {address} # What follows starts at this address in memory
+- DC {data} # See below for definitions
+- DS {stor_def} # see below
+- lbl EQU # the label, 'lbl', gets the current address value
+
+{address}
+- 16 bit address (can be specified as seen below)
+
+{data} can be
+- c'character data[']
+- b'binary data[']
+- d'decimal data[']
+- x'hexadecimal data[']
+
+{stor_def}
+- CLnn # character for a length of nn
+
+
+### DONE - 1.3.4 - SCEPSASM now executable as commandline program
+SCEPSASM can now be executed as command line tool like:
+
+	SCEPSASM sourcefile [-o objectfile] [-l listfile]
+
+
+### DONE - 1.3.3 - SCEPSIS and SCEPSASM now work with 16 bits
+We now have 64K (65536 bytes) to work with. Enlarged the stack from 16 to 256 bytes
 
 ### DONE - 1.3.2 - Solved several issues
 Issues 22, 23, 24 and 25.
