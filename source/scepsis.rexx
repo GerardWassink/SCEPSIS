@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            July 2019                                                 */
-/* Version:         1.3.3                                                     */
+	versionString = "1.3.6"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -33,6 +33,7 @@
 /*            #23 - LC output                                                 */
 /*            #24 - LS command check                                          */
 /*   v1.3.3   make memory 64K (65536 bytes)                                   */
+/*   v1.3.6   improve the animate function                                    */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -41,8 +42,6 @@
 /* ----- Initialize screen control and color Control values ----------------- */
 /* -------------------------------------------------------------------------- */
 Globals:
-	versionString = "1.3.3"
-	
 	color.black = 30; color.red     = 31; color.green = 32; color.yellow = 33
 	color.blue  = 34; color.magenta = 35; color.cyan  = 36; color.white  = 37
 	color.brightblack  = 90; color.brightred    = 91; color.brightgreen   = 92
@@ -327,10 +326,10 @@ Return
 emulateRun:
 	Do Until (cs_HLT == 1)
 		Call emulateInstruction
-											/*   Display control panel ------ */
-		If Animate == "I" Then Call controlPanelDisplay(errorMsg)
-
 	End
+											/*   Display control panel ------ */
+	If (Animate) == "R" Then Call controlPanelDisplay("Step")
+	
 Return
 
 
@@ -380,7 +379,9 @@ emulateInstruction:
 			If (comp_STC > instr.OpcodePtr.3.0) Then comp_STC = 1
 		End
 	End
-
+											/*   Display control panel ------ */
+	If (Animate) == "I" Then Call controlPanelDisplay(errorMsg)
+	
 Return
 
 
@@ -419,6 +420,9 @@ emulateStep:
 											/* reset step counter ----------- */
 		If (comp_STC > instr.OpcodePtr.3.0) Then comp_STC = 1
 	End
+											/*   Display control panel ------ */
+	If (Animate) == "S" Then Call controlPanelDisplay("Step")
+	
 Return
 
 
@@ -446,7 +450,11 @@ ProcessCtlSignals:
 	End
 
 											/* input from DAB processed 2nd   */
-	If (cs_OUTI == 1)	Then comp_OUT     = DAB
+	If (cs_OUTI == 1)	Then Do
+		comp_OUT     = DAB
+											/*   Display control panel ------ */
+		If (Animate == 'R') Then Call controlPanelDisplay("output:")
+	End
 	If (cs_INRI == 1)	Then comp_INR     = DAB
 	If (cs_MARI == 1)	Then comp_MAR     = DAB
 	If (cs_PCTI == 1)	Then comp_PCT     = DAB
@@ -500,8 +508,8 @@ ProcessCtlSignals:
 			When OpALUopr == 0 Then Do								/* ADD -- */
 				comp_REGA = comp_REGA + comp_AOPR
 				C_flag = 0; Z_flag = 0						/* reset flags -- */
-				If comp_REGA > 255 Then Do
-					comp_REGA = comp_REGA - 255
+				If comp_REGA > (memsize - 1) Then Do
+					comp_REGA = comp_REGA - (memsize - 1)
 					C_flag = 1					/* set Carry flag when needed */
 				End
 				If comp_REGA == 0 Then Z_flag = 1			/* set Zero flag  */
@@ -511,7 +519,7 @@ ProcessCtlSignals:
 				comp_REGA = comp_REGA - comp_AOPR
 				C_flag = 0; Z_flag = 0; EQ_flag = 0			/* reset flags -- */
 				If comp_REGA < 0 Then Do
-					comp_REGA = comp_REGA + 255
+					comp_REGA = comp_REGA + (memsize - 1)
 					C_flag = 1					/* set Carry flag when needed */
 				End
 				If comp_REGA == 0 Then Do
