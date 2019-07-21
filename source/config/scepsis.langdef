@@ -26,64 +26,76 @@
 #
 # ### JMP - JuMP to location
 #
-10 JMP  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO PCTI		# unconditional Jump
+10 JMP  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO PCTI
 
 #
 # ### Conditional jumps - goto location depending on flags
 #
-11 JC   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCC		# Jump on Carry set
-12 JZ   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCZ		# Jump when Zero
-13 JE   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCE		# Jump when Equal
-14 JL   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCL		# Jump when Less
-15 JG   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCG		# Jump when Greater
+11 JC   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCC	# Carry set
+12 JZ   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCZ	# Zero
+13 JE   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCE	# Equal
+14 JL   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCL	# Less
+15 JG   XX | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - MEMO SPCG	# Greater
+
+#
+# ### CALL {address} - Call a routine at address
+#
+18 CALL xx | PCTO MARI - FTCH INRI CE - PCTO MARI CE2 - SPD - PCTO STKI - MEMO PCTI	
+
+#
+# ### RET - Return from a CALL to a routine
+#
+1C RET     | PCTO MARI - FTCH INRI CE - STKO PCTI SPI
+
 
 #
 # ### LI[A|B|C] {value} - Load Immediate value XX into REG[A|B|C]
 #
-20 LIA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGAI CE2		# Load immediate A
-21 LIB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGBI CE2		# Load immediate B
-22 LIC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGCI CE2		# Load immediate C
+20 LIA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGAI CE2
+21 LIB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGBI CE2
+22 LIC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGCI CE2
 
 #
 # ### STA|B|C] {value} - Store value from REG[A|B|C] into memory address XX
 #
-28 STA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGAO MEMI	# Store A
-29 STB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGBO MEMI	# Store B
-2A STC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGCO MEMI	# Store C
+28 STA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGAO MEMI
+29 STB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGBO MEMI
+2A STC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGCO MEMI
 
 #
 # ### OPA|B|C] - ouput the value from REG[A|B|C] to the output register
 #
-30 OPA     | PCTO MARI - FTCH INRI CE - RGAO OUTI						# Output A
-31 OPB     | PCTO MARI - FTCH INRI CE - RGBO OUTI						# Output B
-32 OPC     | PCTO MARI - FTCH INRI CE - RGCO OUTI						# Output C
+30 OPA     | PCTO MARI - FTCH INRI CE - RGAO OUTI
+31 OPB     | PCTO MARI - FTCH INRI CE - RGBO OUTI
+32 OPC     | PCTO MARI - FTCH INRI CE - RGCO OUTI
 
 #
 # ### RD[A|B|C] {address} - Load Memory value into REG[A|B|C]
 #
-50 LMA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE2	# Read A from memory
-51 LMB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE2	# Read B from memory
-52 LMC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE2	# Read C from memory
+50 LMA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO RGAI CE2
+51 LMB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO RGBI CE2
+52 LMC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI - MEMO RGCI CE2
 
 #
-# ### I2M {address} - read a value from the input register to a location in memory
+# ### I2M {address} - store value from input register to a location in memory
 # ### M2O {address} - put a value from memory into the ouput register
 #
-70 I2M  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - INPO MEMI	# Input into memory
-71 M2O  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - OUTI MEMO	# Output from memory
+70 I2M  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - INPO MEMI
+71 M2O  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - OUTI MEMO
 
 #
 # ### PSH[A|B|C] - put the content of register [A|B|C] on the stack
 #
-80 PSHA    | PCTO MARI - FTCH INRI CE - SPD - RGAO STKI				# Push register A
-81 PSHB    | PCTO MARI - FTCH INRI CE - SPD - RGBO STKI				# Push register B
-82 PSHC    | PCTO MARI - FTCH INRI CE - SPD - RGCO STKI				# Push register C
+80 PSHA    | PCTO MARI - FTCH INRI CE - SPD - RGAO STKI
+81 PSHB    | PCTO MARI - FTCH INRI CE - SPD - RGBO STKI
+82 PSHC    | PCTO MARI - FTCH INRI CE - SPD - RGCO STKI
 
 #
 # ### POP[A|B|C] - pull the content of register [A|B|C] from the stack
-84 POPA    | PCTO MARI - FTCH INRI CE - STKO RGAI - SPI				# Pop register A
-85 POPB    | PCTO MARI - FTCH INRI CE - STKO RGBI - SPI				# Pop register B
-86 POPC    | PCTO MARI - FTCH INRI CE - STKO RGCI - SPI				# Pop register C
+#
+84 POPA    | PCTO MARI - FTCH INRI CE - STKO RGAI - SPI
+85 POPB    | PCTO MARI - FTCH INRI CE - STKO RGBI - SPI
+86 POPC    | PCTO MARI - FTCH INRI CE - STKO RGCI - SPI
 
 #
 #                               ### IMMEDIATE ALU instructions ###
