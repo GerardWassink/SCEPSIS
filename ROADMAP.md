@@ -5,10 +5,10 @@
 ### TODO - 1.3.7 - Improve performance
 Issue #33
 
-### TODO - 1.3.6 - Improve the 'Animate' function
-Issue #32 
-
 ## History
+
+### DONE - 1.3.6 - Improve the 'Animate' function
+Issue #32 
 
 ### DONE - 1.3.5 - Assembler directives built in
 Issue #28 completed:
