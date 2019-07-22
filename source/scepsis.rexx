@@ -5,7 +5,7 @@
 /* Program name:    scepsis.rexx                                              */
 /* Author:          Gerard Wassink                                            */
 /* Date:            July 2019                                                 */
-	versionString = "1.3.6"
+	versionString = "1.3.6a"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -34,6 +34,7 @@
 /*            #24 - LS command check                                          */
 /*   v1.3.3   make memory 64K (65536 bytes)                                   */
 /*   v1.3.6   improve the animate function                                    */
+/*   v1.3.6a  fixed Issue #35, restored compatibility with oorexx             */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -778,7 +779,7 @@ isBin:
 	Parse Arg possibleBin
 	rval = 1
 	Do h = 1 to Length(possibleBin)
-		If Index("01", Substr(possibleBin,h,1)) == 0 Then Do
+		If Pos(Substr(possibleBin,h,1), "01") == 0 Then Do
 			rval = 0
 			Leave
 		End
@@ -793,7 +794,7 @@ isHex:
 	Parse Arg possibleHex
 	rval = 1
 	Do h = 1 to Length(possibleHex)
-		If Index("0123456789ABCDEF", Substr(possibleHex,h,1)) == 0 Then Do
+		If Pos(Substr(possibleHex,h,1), "0123456789ABCDEF") == 0 Then Do
 			rval = 0
 			Leave
 		End

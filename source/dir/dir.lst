@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
-Assembly listing for file dir/dir.sasm 
+Assembly listing for file ./dir/dir.sasm
 --------------------------------------------------------------------------------
  
 SrcLin -Addr- Op Oprnd   --- Source line ---
@@ -53,5 +53,5 @@ Phase 2 parsing ended successfully
 Phase 3 parsing ended successfully
  
 --------------------------------------------------------------------------------
-End of assembly for file dir/dir.sasm 
+End of assembly for file ./dir/dir.sasm
 --------------------------------------------------------------------------------
