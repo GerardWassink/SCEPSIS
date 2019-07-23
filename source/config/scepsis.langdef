@@ -56,7 +56,7 @@
 22 LIC  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO RGCI CE2
 
 #
-# ### STA|B|C] {value} - Store value from REG[A|B|C] into memory address XX
+# ### STA|B|C] {address} - Store value from REG[A|B|C] into memory address XX
 #
 28 STA  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGAO MEMI
 29 STB  XX | PCTO MARI - FTCH INRI CE - PCTO MARI - MEMO MARI CE2 - RGBO MEMI

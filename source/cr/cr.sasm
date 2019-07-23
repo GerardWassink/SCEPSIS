@@ -4,21 +4,39 @@
 #
 Main	EQU
 #
-		CALL	Subr1		# address to call
-		HLT
+		LIA		d'1000		# First values
+		PSHA				#  on stack
+		LIA		d'42		#   Second values
+		PSHA				#    also on stack
 #
+		CALL	ADDTWO		# address to call to add two values
 #
+		POPA				# On return
+		OPA					#  show result
 #
-Ending	EQU
+		HLT					# And stop demo
+#
+EndProg	EQU
 		HLT				# STOP
 #
 # ---------------------------------------------------------------------------- #
-# Test subroutine
+# Test subroutine; add two values
 # ---------------------------------------------------------------------------- #
 #
-Subr1	BASE X'100
+ADDTWO	BASE X'100
 #
-# Do some stuff
+		POPA				# First save
+		STA		RETADR		#  return address
 #
-		RET
+		POPA				# now get first
+		POPB				#  and second value
+		ADB					# Add them
+		PSHA				#  and push them back on the stack
+#
+		LMA		RETADR		# Restore
+		PSHA				#  return address
+#
+		RET					# And return to it
+#
+RETADR	DS		CL2
 #
