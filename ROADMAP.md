@@ -2,9 +2,6 @@
 
 ## To Do
 
-### TODO - 1.3.7 - Improve performance
-Issue #33
-
 ## History
 
 ### DONE - 1.3.6 - Improve the 'Animate' function
