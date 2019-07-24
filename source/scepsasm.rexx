@@ -5,7 +5,7 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-	versionString = "1.3.5"
+	versionString = "1.3.6b"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -15,6 +15,7 @@
 /*   v1.3.3   Altered to accomodate larger memory                             */
 /*   v1.3.4   Make SCEPSASM a commandline tool, strip the GUI bloat           */
 /*   v1.3.5   Implement assembler directives (Issue #28)                      */
+/*   v1.3.6b  Correct bug Issue #36                                           */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
