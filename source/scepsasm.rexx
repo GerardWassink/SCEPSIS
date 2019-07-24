@@ -283,7 +283,7 @@ parseSourcePhase1:
 	lnum = 0
 	parsePhase1 = 1
 
-	c = Stream(SRCfile, 'C', 'POSITION =')
+	c = Stream(SRCfile, 'C', 'SEEK =')
 	c = Stream(SRCfile, 'C', 'OPEN READ')
 	
 	phase1.  = ""						/* Initialize phase1 output --------- */
