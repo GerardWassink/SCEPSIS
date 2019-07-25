@@ -5,7 +5,7 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-	versionString = "1.3.6d"
+	versionString = "1.3.6e"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -18,7 +18,7 @@
 /*   v1.3.6b  Correct bug Issue #36                                           */
 /*   v1.3.6c  Correct bug Issue #38                                           */
 /*   v1.3.6d  Further attempt to correct bug Issue 36                         */
-/*   v1.3.6e  Correct bug Issue 36                         */
+/*   v1.3.6e  Correct bug Issue 36                                            */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
