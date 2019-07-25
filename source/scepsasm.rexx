@@ -18,6 +18,7 @@
 /*   v1.3.6b  Correct bug Issue #36                                           */
 /*   v1.3.6c  Correct bug Issue #38                                           */
 /*   v1.3.6d  Further attempt to correct bug Issue 36                         */
+/*   v1.3.6e  Correct bug Issue 36                         */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -903,7 +904,7 @@ isBin:
 	Parse Arg possibleBin
 	rval = 1
 	Do h = 1 to Length(possibleBin)
-		If Index("01", Substr(possibleBin,h,1)) == 0 Then Do
+		If Pos(Substr(possibleBin,h,1), "01") == 0 Then Do
 			rval = 0
 			Leave
 		End
@@ -918,7 +919,7 @@ isHex:
 	Parse Arg possibleHex
 	rval = 1
 	Do h = 1 to Length(possibleHex)
-		If Index("0123456789ABCDEF", Substr(possibleHex,h,1)) == 0 Then Do
+		If Pos(Substr(possibleHex,h,1), "0123456789ABCDEF") == 0 Then Do
 			rval = 0
 			Leave
 		End
@@ -933,7 +934,7 @@ isDec:
 	Parse Arg possibleDec
 	rval = 1
 	Do h = 1 to Length(possibleDec)
-		If Index("0123456789", Substr(possibleDec,h,1)) == 0 Then Do
+		If Pos(Substr(possibleDec,h,1), "0123456789") == 0 Then Do
 			rval = 0
 			Leave
 		End
@@ -949,7 +950,7 @@ isWhiteSpace:
 	rval = 1
 	isTab = D2C(9)
 	Do h = 1 to Length(possibleWhiteSpace)
-		If Index(" "||isTab, Substr(possibleWhiteSpace,h,1)) == 0 Then Do
+		If Pos(Substr(possibleWhiteSpace,h,1), " "||isTab) == 0 Then Do
 			rval = 0
 			Leave
 		End
