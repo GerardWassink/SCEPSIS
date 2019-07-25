@@ -5,7 +5,7 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-	versionString = "1.3.6c"
+	versionString = "1.3.6d"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -17,6 +17,7 @@
 /*   v1.3.5   Implement assembler directives (Issue #28)                      */
 /*   v1.3.6b  Correct bug Issue #36                                           */
 /*   v1.3.6c  Correct bug Issue #38                                           */
+/*   v1.3.6d  Further attempt to correct bug Issue 36                         */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -303,8 +304,8 @@ parseSourcePhase1:
 	lnum = 0
 	parsePhase1 = 1
 
-	c = Stream(SRCfile, 'C', 'SEEK =')
 	c = Stream(SRCfile, 'C', 'OPEN READ')
+	c = Stream(SRCfile, 'C', 'SEEK =1 READ LINE')
 	
 	phase1.  = ""						/* Initialize phase1 output --------- */
 	phase1.0 = 0
