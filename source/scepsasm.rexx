@@ -5,7 +5,7 @@
 /* Program name:    scepsasm.rexx                                             */
 /* Author:          Gerard Wassink                                            */
 /* Date:            June 2019                                                 */
-	versionString = "1.3.6b"
+	versionString = "1.3.6c"
 /* Purpose:         Teach peeople about simple CPU's and microcode            */
 /*                                                                            */
 /* History:                                                                   */
@@ -16,6 +16,7 @@
 /*   v1.3.4   Make SCEPSASM a commandline tool, strip the GUI bloat           */
 /*   v1.3.5   Implement assembler directives (Issue #28)                      */
 /*   v1.3.6b  Correct bug Issue #36                                           */
+/*   v1.3.6c  Correct bug Issue #38                                           */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -165,9 +166,27 @@ handleDisplay:
 			/* ---------------------------------------------------------- */
 			/* ----- File commands -------------------------------------- */
 			/* ---------------------------------------------------------- */
-			When command == "SRC" Then	SRCfile = CheckInputFileName(value)
-			When command == "OBJ" Then	OBJfile = CheckOutputFileName(value)
-			When command == "LST" Then	LSTfile = CheckOutputFileName(value)
+			When command == "SRC" Then Do
+				If (value <> "") Then Do
+					SRCfile = CheckInputFileName(value)
+				End; Else Do
+					errorMsg = "no filename specified with SRC command"
+				End
+			End
+			When command == "OBJ" Then Do
+				If (value <> "") Then Do
+					OBJfile = CheckOutputFileName(value)
+				End; Else Do
+					errorMsg = "no filename specified with OBJ command"
+				End
+			End
+			When command == "LST" Then Do
+				If (value <> "") Then Do
+					LSTfile = CheckOutputFileName(value)
+				End; Else Do
+					errorMsg = "no filename specified with LST command"
+				End
+			End
 
 			/* ---------------------------------------------------------- */
 			/* ----- Assembler commands --------------------------------- */

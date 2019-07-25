@@ -9,46 +9,42 @@ SrcLin -Addr- Op Oprnd   --- Source line ---
      4                   #
      5 000000            MAIN	EQU
      6                   #
-     7 000000 20 03E8    		LIA		D'1000
-     8 000003 80         		PSHA
-     9 000004 20 002A    		LIA		D'42
-    10 000007 80         		PSHA
+     7 000000 20 03E8    		LIA		D'1000		# FIRST VALUES
+     8 000003 80         		PSHA				#  ON STACK
+     9 000004 20 002A    		LIA		D'42		#   SECOND VALUES
+    10 000007 80         		PSHA				#    ALSO ON STACK
     11                   #
-    12 000008 18 0100    		CALL	SUBR1		# ADDRESS TO CALL
+    12 000008 18 0100    		CALL	ADDTWO		# ADDRESS TO CALL TO ADD TWO VALUES
     13                   #
-    14 00000B 84         		POPA
-    15 00000C 30         		OPA
+    14 00000B 84         		POPA				# ON RETURN
+    15 00000C 30         		OPA					#  SHOW RESULT
     16                   #
-    17 00000D FF         		HLT
+    17 00000D FF         		HLT					# AND STOP DEMO
     18                   #
-    19                   #
-    20                   #
-    21 00000E            ENDING	EQU
-    22 00000E FF         		HLT				# STOP
-    23                   #
+    19 00000E            ENDPROG	EQU
+    20 00000E FF         		HLT				# STOP
+    21                   #
+    22                   # ---------------------------------------------------------------------------- #
+    23                   # TEST SUBROUTINE; ADD TWO VALUES
     24                   # ---------------------------------------------------------------------------- #
-    25                   # TEST SUBROUTINE; ADD TWO VALUES
-    26                   # ---------------------------------------------------------------------------- #
+    25                   #
+    26 000100    0100    ADDTWO	BASE X'100
     27                   #
-    28 000100    0100    SUBR1	BASE X'100
-    29                   #
-    30                   # DO SOME STUFF
-    31                   #
-    32 000100 84         		POPA
-    33 000101 28 010D    		STA		RETADR
-    34                   #
-    35 000104 84         		POPA
-    36 000105 85         		POPB
-    37 000106 F0         		ADB
-    38 000107 80         		PSHA
-    39                   #
-    40 000108 50 010D    		LMA		RETADR
-    41 00010B 80         		PSHA
+    28 000100 84         		POPA				# FIRST SAVE
+    29 000101 28 010D    		STA		RETADR		#  RETURN ADDRESS
+    30                   #
+    31 000104 84         		POPA				# NOW GET FIRST
+    32 000105 85         		POPB				#  AND SECOND VALUE
+    33 000106 F0         		ADB					# ADD THEM
+    34 000107 80         		PSHA				#  AND PUSH THEM BACK ON THE STACK
+    35                   #
+    36 000108 50 010D    		LMA		RETADR		# RESTORE
+    37 00010B 80         		PSHA				#  RETURN ADDRESS
+    38                   #
+    39 00010C 1C         		RET					# AND RETURN TO IT
+    40                   #
+    41 00010D            RETADR	DS		CL2
     42                   #
-    43 00010C 1C         		RET
-    44                   #
-    45 00010D            RETADR	DS		CL2
-    46                   #
  
 Phase 1 parsing ended successfully
  
