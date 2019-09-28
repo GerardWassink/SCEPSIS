@@ -18,7 +18,7 @@ The purpose of this project is to educate people in the concepts of low-level co
 ![SCEPSASM main screen](https://github.com/GerardWassink/SCEPSIS/blob/master/gfx/scepsasm_main.JPG "SCEPSASM main screen")
 
 ### Purpose
-SCEPSASM is an assembler that will - based on a language definition (langdef) file - parse a source file and convert it into an object memory file that can be executed with the SCEPSIS emulator. Have a look at this [example of a prime number program](https://github.com/GerardWassink/SCEPSIS/blob/master/source/prime.lst_zebra.pdf)
+SCEPSASM is an assembler that will - based on a language definition (langdef) file - parse a source file and convert it into an object memory file that can be executed with the SCEPSIS emulator. Have a look at this [example of a prime number program](https://github.com/GerardWassink/SCEPSIS/blob/master/source/prime_sasm/prime.lst_zebra.pdf)
 
 ## General information
 
