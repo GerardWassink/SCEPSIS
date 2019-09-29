@@ -25,6 +25,9 @@ SCEPSASM is an assembler that will - based on a language definition (langdef) fi
 ### Background
 For a bit more background read this [page about the "von Neumann machine"](https://geronimo370.nl/computers/theory/the-von-neumann-machine/). It describes the famous '**fetch - decode - get data - execute**' cycle
 
+### Youtube playlist about SCEPSIS / SCEPSASM
+I made a [playlist on Youtube](https://www.youtube.com/watch?v=q5pfnKwQb6o&list=PLx41o7gi9GHe09jdD8NNgJXPlj32ixg5u) to guide you into the principles behind the program.
+
 ### Dependencies
 A dependency is the use of ANSI escape codes, especially on Windows systems where it was only implemented recently (in Windows 10 Version 1511). More [info about ANSI codes](https://en.wikipedia.org/wiki/ANSI_escape_code). This dependency has been solved for older Windows versions as described in [Issue 2](https://github.com/GerardWassink/SCEPSIS/issues/3).
 
