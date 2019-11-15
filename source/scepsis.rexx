@@ -6,7 +6,7 @@
 /* Author:          Gerard Wassink                                            */
 /* Date:            July 2019                                                 */
 	versionString = "1.3.6a"
-/* Purpose:         Teach peeople about simple CPU's and microcode            */
+/* Purpose:         Teach people about simple CPU's and microcode             */
 /*                                                                            */
 /* History:                                                                   */
 /*   v1.0     First release                                                   */
