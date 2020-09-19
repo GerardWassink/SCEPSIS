@@ -31,6 +31,9 @@ I made a [playlist on Youtube](https://www.youtube.com/watch?v=q5pfnKwQb6o&list=
 ### Dependencies
 A dependency is the use of ANSI escape codes, especially on Windows systems where it was only implemented recently (in Windows 10 Version 1511). More [info about ANSI codes](https://en.wikipedia.org/wiki/ANSI_escape_code). This dependency has been solved for older Windows versions as described in [Issue 2](https://github.com/GerardWassink/SCEPSIS/issues/3).
 
+### Prerequisites
+To be able to use these programs one has to install Regina Rexx or ooRexx. These are the two Rexx versions the programs have been tested with.
+
 ### Further reading
 - [Components of the SCEPSIS CPU](./doc/Components.md)
 - [Diagram of SCEPSIS components](./gfx/SCEPSIS_Components.JPG)
