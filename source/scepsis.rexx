@@ -913,7 +913,7 @@ CPhelpInfo:
 	Call Display  3  3 color.brightwhite  "Help info for SCEPSIS" versionString
 	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
 	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
-	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
+	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 0000 to FFFF"
 	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
 	Call Display  9  3 color.cyan  "Commands do not have parameters here"
 	
