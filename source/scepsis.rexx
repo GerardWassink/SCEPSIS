@@ -35,6 +35,7 @@
 /*   v1.3.3   make memory 64K (65536 bytes)                                   */
 /*   v1.3.6   improve the animate function                                    */
 /*   v1.3.6a  fixed Issue #35, restored compatibility with oorexx             */
+/*            corrected helptext                                              */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
@@ -113,7 +114,7 @@ Main:
 			/* -------------------------------------------------------------- */
 			/* ----- Memory commands ---------------------------------------- */
 			/* -------------------------------------------------------------- */
-			When choice == "MEM" Then Do
+			When choice == "MEM"   Then Do
 				Call handleMemory
 			End
 			When choice == "INIT"  Then	Do
@@ -371,9 +372,15 @@ emulateInstruction:
 				ctrlSignal = instr.OpcodePtr.3.mcsCtr.csCtr
 				Interpret "cs_"||ctrlSignal "=" 1
 			End
+			
+			
+											/* ============================== */
 											/* The heart of the machine ----- */
-											/*   process the ctrl signals --- */
-			Call processCtlSignals
+			Call processCtlSignals			/*   process the ctrl signals --- */
+			                                /*   ---------------------------- */
+											/* ============================== */
+			
+			
 											/*   Display control panel ------ */
 			If Animate == "S" Then Call controlPanelDisplay(errorMsg)
 											/* reset step counter ----------- */
@@ -445,12 +452,13 @@ ProcessCtlSignals:
 		temp_MAR = comp_MAR + 1
 		DAB = (256 * MEM.comp_MAR) + (MEM.temp_MAR)
 	End
+											/* process two bytes from stack   */
 	If (cs_STKO == 1)	Then Do
 		temp_SP = comp_SP + 1
 		DAB = (256 * MEM.comp_SP) + (MEM.temp_SP)
 	End
 
-											/* input from DAB processed 2nd   */
+											/* next, process input from DAB   */
 	If (cs_OUTI == 1)	Then Do
 		comp_OUT     = DAB
 											/*   Display control panel ------ */
@@ -469,13 +477,14 @@ ProcessCtlSignals:
 		MEM.comp_MAR = Trunc(DAB/256)
 		MEM.temp_MAR = DAB - (256 * (MEM.comp_MAR))
 	End
+											/* process two bytes for stack    */
 	If (cs_STKI == 1)	Then Do
 		temp_SP = comp_SP + 1
 		MEM.comp_SP = Trunc(DAB / 256)
 		MEM.temp_SP = DAB - (256 * (MEM.comp_SP))
 	End
 
-													/* Conditional Jumps ---- */
+											/* Process Conditional Jumps ---- */
 	If (cs_SPCC == 1) & (C_flag == 1) Then comp_PCT = DAB 		/* On Carry - */
 	If (cs_SPCZ == 1) & (Z_flag == 1) Then comp_PCT = DAB 		/* On Zero -- */
 	If (cs_SPCE == 1) & (EQ_flag == 1) Then comp_PCT = DAB 		/* On Equal - */
@@ -487,7 +496,7 @@ ProcessCtlSignals:
 		If (comp_SP < (memSize - 2)) Then Do
 			comp_SP      = comp_SP + 2
 		End; Else Do
-			errorMsg = "S0C4 - SP increment invalid"
+			errorMsg = "S0C4 - SP increment invalid"	/* wink to 370 arch   */
 		End
 	End
 											/* Stack pointer decrement ------ */
@@ -495,10 +504,10 @@ ProcessCtlSignals:
 		If (comp_SP > (memSize - 256)) Then Do
 			comp_SP      = comp_SP - 2
 		End; Else Do
-			errorMsg = "S0C4 - SP decrement invalid"
+			errorMsg = "S0C4 - SP decrement invalid"	/* wink to 370 arch   */
 		End
 	End
-											/* Execute ALU operation -------- */
+											/* Execute ALU operations ------- */
 	If (cs_EXC   == 1)	Then Do	
 		/* ------------------------------------------------------------------ */
 		/* Premise at this time is that in previous microcode steps the ----- */
@@ -913,7 +922,7 @@ CPhelpInfo:
 	Call Display  3  3 color.brightwhite  "Help info for SCEPSIS" versionString
 	Call Display  5  3 color.cyan  "Every highlighted word can be used as a command."
 	Call Display  6  3 color.cyan  "Where appropriate you can add values:"
-	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 00 to FF"
+	Call Display  7  3 color.cyan  "- for 'components' it's a hexadecimal value from 0000 to FFFF"
 	Call Display  8  3 color.cyan  "- for 'control signals' it's a binary bit value (0 or 1)"
 	Call Display  9  3 color.cyan  "Commands do not have parameters here"
 	
@@ -1197,7 +1206,7 @@ Return
 
 
 /* -------------------------------------------------------------------------- */
-/* ----- Find opcode in the instruction tabel ------------------ findOpcd --- */
+/* ----- Find opcode in the instruction table ------------------ findOpcd --- */
 /* -------------------------------------------------------------------------- */
 findOpcd:
 	Procedure Expose instr.
