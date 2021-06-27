@@ -5,9 +5,9 @@
 ## History
 
 ### DONE - 1.3.6 - Improve the 'Animate' function
-Issue #32 
+Issue #32
 
-### DONE - 1.3.5 - Assembler directives built in
+### DONE - 1.3.5 - Assembler directives built in 
 Issue #28 completed:
 
 sasmDirectives = "BASE DC DS EQU"
@@ -54,7 +54,7 @@ Coded a SCEPSASM program to generate prime numbers as an example.
 Coded the assembler in three phases, and coded a proper assembly listing.
 
 ### DONE - 1.2.1 - Prep SCEPSIS for ASM
-Change the .langdef file format to include arguments for the upcoming assembler syntax checking; 
+Change the .langdef file format to include arguments for the upcoming assembler syntax checking;
 change SCEPSIS code to read and process it
 
 ### DONE - 1.2 - Conditional jumps
@@ -79,4 +79,3 @@ Depending on the outcome of ALU operations, set flags.
 
 #### DONE - 1.1.2 - Arithmetic
 Add code to decode ALU instructions and control it's operations.
-
